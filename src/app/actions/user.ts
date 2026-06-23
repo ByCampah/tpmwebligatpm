@@ -52,3 +52,45 @@ export async function updateUserRole(formData: FormData) {
     return { success: false, error: "Error interno al actualizar rol." };
   }
 }
+
+export async function linkUserToPlayerAndTeam(formData: FormData) {
+  const session = await auth();
+  
+  if (session?.user?.role !== "ADMIN") {
+    return { success: false, error: "No tienes permisos de Administrador." };
+  }
+
+  const userId = formData.get("userId") as string;
+  const playerId = formData.get("playerId") as string;
+  const teamId = formData.get("teamId") as string;
+
+  try {
+    // 1. Link Player
+    // The foreign key is `playerId` on the `User` model
+    if (playerId) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { playerId }
+      });
+    } else {
+      // Si mandan vacio, desvinculamos el jugador actual de este usuario
+      await prisma.user.update({
+        where: { id: userId },
+        data: { playerId: null }
+      });
+    }
+
+    // 2. Link Team
+    if (teamId) {
+      await prisma.team.update({
+        where: { id: teamId },
+        data: { captainId: userId }
+      });
+    }
+
+    revalidatePath("/admin/usuarios");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

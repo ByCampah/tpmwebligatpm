@@ -14,7 +14,17 @@ export default async function AdminUsuariosPage() {
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
-    include: { player: true } // to see which player is linked
+    include: { player: true, captainOfTeams: true } 
+  });
+
+  const players = await prisma.player.findMany({
+    orderBy: { nick: "asc" },
+    select: { id: true, nick: true, user: true }
+  });
+
+  const teams = await prisma.team.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, captainId: true }
   });
 
   return (
@@ -26,7 +36,7 @@ export default async function AdminUsuariosPage() {
         </p>
       </div>
 
-      <UsersClient users={users} />
+      <UsersClient users={users} players={players} teams={teams} />
     </div>
   );
 }
