@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTournamentStyles, getTrophyCategory } from "@/lib/colors";
 import { cookies } from "next/headers";
 import { getDictionary } from "@/i18n/getDictionary";
+import PlayerMetricsClient from "./PlayerMetricsClient";
 
 export const dynamicParams = false;
 
@@ -247,54 +248,32 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
         {/* ESTADISTICAS AVANZADAS */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2 border-b border-border pb-2">
-            <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
-            {t.playerDetail.metrics}
-          </h2>
-          <div className="bg-card border border-border rounded-xl p-6 shadow-md flex flex-col gap-6">
-            
-            <div>
-              <div className="flex justify-between text-sm font-bold mb-1">
-                <span className="text-muted-foreground">{t.playerDetail.metricsPasses}</span>
-                <span>{paseExito}% ({totalStats.pasesM}/{totalStats.pasesT})</span>
-              </div>
-              <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: `${paseExito}%` }}></div>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-sm font-bold mb-1">
-                <span className="text-muted-foreground">{t.playerDetail.metricsShots}</span>
-                <span>{tiroExito}% ({totalStats.tirosM}/{totalStats.tirosT})</span>
-              </div>
-              <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                <div className="h-full bg-[#ef4444]" style={{ width: `${tiroExito}%` }}></div>
-              </div>
-            </div>
-
-            {totalStats.atajadasT > 0 && (
-              <div>
-                <div className="flex justify-between text-sm font-bold mb-1">
-                  <span className="text-muted-foreground">{t.playerDetail.metricsSaves}</span>
-                  <span>{atajadaExito}% ({totalStats.atajadasM}/{totalStats.atajadasT})</span>
-                </div>
-                <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                  <div className="h-full bg-[#3b82f6]" style={{ width: `${atajadaExito}%` }}></div>
-                </div>
-              </div>
-            )}
-
-            <div className="pt-4 border-t border-border mt-2">
-              <div className="flex justify-between items-center py-2">
-                <span className="text-sm font-bold text-muted-foreground">{t.playerDetail.metricsMinutes}</span>
-                <span className="font-mono">{totalStats.minutos}</span>
-              </div>
-            </div>
-            
-          </div>
+          <PlayerMetricsClient matchStats={jugador.matchStats.map(s => ({
+            goals: s.goals,
+            assists: s.assists,
+            teamPoints: s.teamPoints,
+            matchTime: s.matchTime,
+            passesMade: s.passesMade,
+            passesTotal: s.passesTotal,
+            slidingMade: s.slidingMade,
+            slidingTotal: s.slidingTotal,
+            fouls: s.fouls,
+            ballLosses: s.ballLosses,
+            gkTime: s.gkTime,
+            shotsMade: s.shotsMade,
+            shotsTotal: s.shotsTotal,
+            headersMade: s.headersMade,
+            headersTotal: s.headersTotal,
+            tacklesWon: s.tacklesWon,
+            fouled: s.fouled,
+            offsides: s.offsides,
+            savesMade: s.savesMade,
+            savesTotal: s.savesTotal,
+            categoryName: s.match?.tournament?.category?.name || "Sin Categoría"
+          }))} />
 
           <h2 className="text-2xl font-bold flex items-center gap-2 border-b border-border pb-2 mt-4">
+
             <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
             {t.playerDetail.trajectory}
           </h2>
