@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 
-export async function toggleFreeAgent(isFreeAgent: boolean) {
+export async function toggleFreeAgent(isFreeAgent: boolean, description?: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "No autenticado" };
 
@@ -20,7 +20,10 @@ export async function toggleFreeAgent(isFreeAgent: boolean) {
 
     await prisma.player.update({
       where: { id: user.playerId },
-      data: { isFreeAgent }
+      data: { 
+        isFreeAgent,
+        marketDescription: isFreeAgent ? description : null
+      }
     });
 
     revalidatePath("/perfil");
@@ -31,7 +34,7 @@ export async function toggleFreeAgent(isFreeAgent: boolean) {
   }
 }
 
-export async function toggleTeamLookingForPlayers(teamId: string, isLookingForPlayers: boolean) {
+export async function toggleTeamLookingForPlayers(teamId: string, isLookingForPlayers: boolean, description?: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "No autenticado" };
 
@@ -45,7 +48,10 @@ export async function toggleTeamLookingForPlayers(teamId: string, isLookingForPl
 
     await prisma.team.update({
       where: { id: teamId },
-      data: { isLookingForPlayers }
+      data: { 
+        isLookingForPlayers,
+        marketDescription: isLookingForPlayers ? description : null
+      }
     });
 
     revalidatePath("/perfil");

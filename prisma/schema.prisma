@@ -99,6 +99,7 @@ model Player {
   
   // Transfer Market
   isFreeAgent     Boolean            @default(false)
+  marketDescription String?
   
   createdAt       DateTime           @default(now())
 }
@@ -124,6 +125,7 @@ model Team {
   
   // Transfer Market
   isLookingForPlayers Boolean @default(false)
+  marketDescription   String?
   
   createdAt        DateTime @default(now())
 }

@@ -57,34 +57,41 @@ export default async function MercadoPage() {
                 const flag = natFlags[player.nationality] || "🏳️";
 
                 return (
-                  <div key={player.id} className="flex items-center justify-between p-4 bg-black border border-border rounded-xl hover:border-primary/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      {player.user?.customAvatarUrl || player.user?.image ? (
-                        <img src={player.user.customAvatarUrl || player.user.image || ""} alt={player.nick} className="w-10 h-10 rounded-full object-cover border border-border" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-bold text-muted-foreground border border-border">
-                          {player.nick.charAt(0).toUpperCase()}
+                  <div key={player.id} className="flex flex-col p-4 bg-black border border-border rounded-xl hover:border-primary/50 transition-colors gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {player.user?.customAvatarUrl || player.user?.image ? (
+                          <img src={player.user.customAvatarUrl || player.user.image || ""} alt={player.nick} className="w-10 h-10 rounded-full object-cover border border-border" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-bold text-muted-foreground border border-border">
+                            {player.nick.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <Link href={`/jugadores/${player.id}`} className="font-bold text-white hover:text-primary transition-colors text-lg">
+                            {player.nick}
+                          </Link>
+                          <div className="text-xs text-muted-foreground">{flag} {player.nationality}</div>
                         </div>
-                      )}
-                      <div>
-                        <Link href={`/jugadores/${player.id}`} className="font-bold text-white hover:text-primary transition-colors text-lg">
-                          {player.nick}
-                        </Link>
-                        <div className="text-xs text-muted-foreground">{flag} {player.nationality}</div>
                       </div>
+                      {player.user?.discordId ? (
+                        <a 
+                          href={`https://discordapp.com/users/${player.user.discordId}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="bg-[#5865F2]/20 text-[#5865F2] hover:bg-[#5865F2] hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                          title="Contactar por Discord"
+                        >
+                          Contactar
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">Sin Discord</span>
+                      )}
                     </div>
-                    {player.user?.discordId ? (
-                      <a 
-                        href={`https://discordapp.com/users/${player.user.discordId}`} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="bg-[#5865F2]/20 text-[#5865F2] hover:bg-[#5865F2] hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-                        title="Contactar por Discord"
-                      >
-                        Contactar
-                      </a>
-                    ) : (
-                      <span className="text-xs text-muted-foreground italic">Sin Discord</span>
+                    {player.marketDescription && (
+                      <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-sm text-gray-300 italic">
+                        "{player.marketDescription}"
+                      </div>
                     )}
                   </div>
                 );
@@ -106,36 +113,43 @@ export default async function MercadoPage() {
               </div>
             ) : (
               teamsLooking.map(team => (
-                <div key={team.id} className="flex items-center justify-between p-4 bg-black border border-border rounded-xl hover:border-secondary transition-colors">
-                  <div className="flex items-center gap-3">
-                    {team.logoUrl ? (
-                      <img src={team.logoUrl} alt={team.name} className="w-10 h-10 object-contain" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-bold text-muted-foreground border border-border">
-                        {team.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div>
-                      <Link href={`/equipos/${team.id}`} className="font-bold text-white hover:text-primary transition-colors text-lg">
-                        {team.name}
-                      </Link>
-                      <div className="text-xs text-muted-foreground">
-                        Capitán: {team.captain?.nickName || team.captain?.name || "Sin capitán"}
+                <div key={team.id} className="flex flex-col p-4 bg-black border border-border rounded-xl hover:border-secondary transition-colors gap-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {team.logoUrl ? (
+                        <img src={team.logoUrl} alt={team.name} className="w-10 h-10 object-contain" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-bold text-muted-foreground border border-border">
+                          {team.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <Link href={`/equipos/${team.id}`} className="font-bold text-white hover:text-primary transition-colors text-lg">
+                          {team.name}
+                        </Link>
+                        <div className="text-xs text-muted-foreground">
+                          Capitán: {team.captain?.nickName || team.captain?.name || "Sin capitán"}
+                        </div>
                       </div>
                     </div>
+                    {team.captain?.discordId ? (
+                      <a 
+                        href={`https://discordapp.com/users/${team.captain.discordId}`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="bg-[#5865F2]/20 text-[#5865F2] hover:bg-[#5865F2] hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                        title="Contactar al Capitán por Discord"
+                      >
+                        Contactar
+                      </a>
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">Sin Discord</span>
+                    )}
                   </div>
-                  {team.captain?.discordId ? (
-                    <a 
-                      href={`https://discordapp.com/users/${team.captain.discordId}`} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="bg-[#5865F2]/20 text-[#5865F2] hover:bg-[#5865F2] hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-                      title="Contactar al Capitán por Discord"
-                    >
-                      Contactar
-                    </a>
-                  ) : (
-                    <span className="text-xs text-muted-foreground italic">Sin Discord</span>
+                  {team.marketDescription && (
+                    <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-sm text-gray-300 italic">
+                      "{team.marketDescription}"
+                    </div>
                   )}
                 </div>
               ))

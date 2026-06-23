@@ -6,9 +6,20 @@ import { toggleFreeAgent, toggleTeamLookingForPlayers } from "@/app/actions/mark
 export default function ProfileMarketClient({ user }: { user: any }) {
   const [loading, setLoading] = useState(false);
 
+  const [freeAgentDesc, setFreeAgentDesc] = useState(user.player?.marketDescription || "");
+  const [teamDescs, setTeamDescs] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {};
+    if (user.captainOfTeams) {
+      user.captainOfTeams.forEach((t: any) => {
+        init[t.id] = t.marketDescription || "";
+      });
+    }
+    return init;
+  });
+
   const handleFreeAgentToggle = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
-    const res = await toggleFreeAgent(e.target.checked);
+    const res = await toggleFreeAgent(e.target.checked, freeAgentDesc);
     if (!res.success) {
       alert(res.error);
       e.target.checked = !e.target.checked; // Revert visually
@@ -16,13 +27,29 @@ export default function ProfileMarketClient({ user }: { user: any }) {
     setLoading(false);
   };
 
+  const handleSaveFreeAgentDesc = async (isChecked: boolean) => {
+    setLoading(true);
+    const res = await toggleFreeAgent(isChecked, freeAgentDesc);
+    if (!res.success) alert(res.error);
+    else alert("Mensaje guardado correctamente.");
+    setLoading(false);
+  };
+
   const handleTeamToggle = async (teamId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
-    const res = await toggleTeamLookingForPlayers(teamId, e.target.checked);
+    const res = await toggleTeamLookingForPlayers(teamId, e.target.checked, teamDescs[teamId]);
     if (!res.success) {
       alert(res.error);
       e.target.checked = !e.target.checked; // Revert visually
     }
+    setLoading(false);
+  };
+
+  const handleSaveTeamDesc = async (teamId: string, isChecked: boolean) => {
+    setLoading(true);
+    const res = await toggleTeamLookingForPlayers(teamId, isChecked, teamDescs[teamId]);
+    if (!res.success) alert(res.error);
+    else alert("Mensaje guardado correctamente.");
     setLoading(false);
   };
 
@@ -40,24 +67,44 @@ export default function ProfileMarketClient({ user }: { user: any }) {
         </h3>
         
         {user.player ? (
-          <label className="flex items-start gap-3 cursor-pointer group">
-            <div className="relative flex items-start mt-1">
-              <input 
-                type="checkbox" 
-                defaultChecked={user.player.isFreeAgent}
-                onChange={handleFreeAgentToggle}
-                disabled={loading}
-                className="peer sr-only"
-              />
-              <div className="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-            </div>
-            <div>
-              <div className="font-bold text-white group-hover:text-primary transition-colors">Soy Agente Libre</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Al activar esto, aparecerás en el Mercado de Pases indicando que estás buscando equipo.
+          <div className="flex flex-col gap-3">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative flex items-start mt-1">
+                <input 
+                  id="freeAgentCheck"
+                  type="checkbox" 
+                  defaultChecked={user.player.isFreeAgent}
+                  onChange={handleFreeAgentToggle}
+                  disabled={loading}
+                  className="peer sr-only"
+                />
+                <div className="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
               </div>
+              <div>
+                <div className="font-bold text-white group-hover:text-primary transition-colors">Soy Agente Libre</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Al activar esto, aparecerás en el Mercado de Pases indicando que estás buscando equipo.
+                </div>
+              </div>
+            </label>
+            
+            <div className="pl-13 mt-2">
+              <textarea 
+                placeholder="Ej: Juego de delantero, mis horarios son y quiero un equipo chill..."
+                className="w-full bg-black/50 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-primary focus:outline-none resize-none h-20 mb-2"
+                value={freeAgentDesc}
+                onChange={e => setFreeAgentDesc(e.target.value)}
+                disabled={loading}
+              />
+              <button 
+                onClick={() => handleSaveFreeAgentDesc((document.getElementById('freeAgentCheck') as HTMLInputElement)?.checked || false)}
+                disabled={loading}
+                className="bg-primary/20 text-primary hover:bg-primary hover:text-white transition-colors px-3 py-1.5 rounded font-bold text-xs"
+              >
+                Guardar Mensaje
+              </button>
             </div>
-          </label>
+          </div>
         ) : (
           <div className="text-sm text-yellow-500/80 bg-yellow-500/10 p-3 rounded border border-yellow-500/20">
             No podés ofrecerte como Agente Libre porque no tenés un jugador vinculado a tu cuenta. Contactá a la administración.
@@ -74,31 +121,51 @@ export default function ProfileMarketClient({ user }: { user: any }) {
           
           <div className="space-y-4">
             {user.captainOfTeams.map((team: any) => (
-              <label key={team.id} className="flex items-start gap-3 cursor-pointer group">
-                <div className="relative flex items-start mt-1">
-                  <input 
-                    type="checkbox" 
-                    defaultChecked={team.isLookingForPlayers}
-                    onChange={(e) => handleTeamToggle(team.id, e)}
+              <div key={team.id} className="flex flex-col gap-3">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative flex items-start mt-1">
+                    <input 
+                      id={`teamCheck-${team.id}`}
+                      type="checkbox" 
+                      defaultChecked={team.isLookingForPlayers}
+                      onChange={(e) => handleTeamToggle(team.id, e)}
+                      disabled={loading}
+                      className="peer sr-only"
+                    />
+                    <div className="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                  </div>
+                  <div>
+                    <div className="font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
+                      {team.logoUrl ? (
+                        <img src={team.logoUrl} alt={team.name} className="w-5 h-5 object-contain" />
+                      ) : (
+                        <span className="w-5 h-5 bg-secondary rounded flex items-center justify-center text-[10px]">{team.name.charAt(0)}</span>
+                      )}
+                      {team.name} busca jugadores
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      El equipo aparecerá en la sección derecha del mercado buscando incorporaciones.
+                    </div>
+                  </div>
+                </label>
+
+                <div className="pl-13 mt-2">
+                  <textarea 
+                    placeholder="Ej: Estamos buscando un arquero mas que nada, mandar msj al priv..."
+                    className="w-full bg-black/50 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-primary focus:outline-none resize-none h-20 mb-2"
+                    value={teamDescs[team.id]}
+                    onChange={e => setTeamDescs(prev => ({...prev, [team.id]: e.target.value}))}
                     disabled={loading}
-                    className="peer sr-only"
                   />
-                  <div className="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                  <button 
+                    onClick={() => handleSaveTeamDesc(team.id, (document.getElementById(`teamCheck-${team.id}`) as HTMLInputElement)?.checked || false)}
+                    disabled={loading}
+                    className="bg-primary/20 text-primary hover:bg-primary hover:text-white transition-colors px-3 py-1.5 rounded font-bold text-xs"
+                  >
+                    Guardar Mensaje
+                  </button>
                 </div>
-                <div>
-                  <div className="font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
-                    {team.logoUrl ? (
-                      <img src={team.logoUrl} alt={team.name} className="w-5 h-5 object-contain" />
-                    ) : (
-                      <span className="w-5 h-5 bg-secondary rounded flex items-center justify-center text-[10px]">{team.name.charAt(0)}</span>
-                    )}
-                    {team.name} busca jugadores
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    El equipo aparecerá en la sección derecha del mercado buscando incorporaciones.
-                  </div>
-                </div>
-              </label>
+              </div>
             ))}
           </div>
         </div>

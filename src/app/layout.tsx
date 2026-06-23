@@ -62,9 +62,9 @@ export default async function RootLayout({
                     className="relative text-sm xl:text-base font-semibold text-muted-foreground hover:text-primary transition-colors py-2 group flex flex-col items-center"
                   >
                     <span>{link.name}</span>
-                    {link.badge && (
+                    {(link as any).badge && (
                       <span className="text-[10px] text-primary/80 uppercase font-black tracking-widest leading-none mt-0.5">
-                        {link.badge}
+                        {(link as any).badge}
                       </span>
                     )}
                     <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300 ease-out shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
