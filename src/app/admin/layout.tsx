@@ -1,6 +1,28 @@
 import Link from "next/link";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+
+  // Protect all /admin routes
+  if (!session || !session.user) {
+    redirect("/");
+  }
+
+  // Allow only ADMIN or MODERATOR
+  if (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR") {
+    return (
+      <div className="max-w-4xl mx-auto mt-20 p-8 bg-destructive/10 border border-destructive/20 rounded-xl text-center">
+        <h1 className="text-2xl font-black text-destructive mb-4">ACCESO DENEGADO</h1>
+        <p className="text-muted-foreground mb-6">No tienes permisos de Administrador ni Moderador para ver esta sección.</p>
+        <Link href="/" className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors">
+          Volver al Inicio
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
       {/* Sidebar Admin */}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import { auth, signIn, signOut } from "@/auth";
 import { Home, Newspaper, Trophy, History, Shield, Medal, Users, UserSquare, Store, LogIn } from "lucide-react";
 
 const geistSans = Geist({
@@ -36,6 +37,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="es">
       <body
@@ -71,14 +74,40 @@ export default async function RootLayout({
             </div>
             
             <div className="flex items-center gap-4 ml-auto">
-              <div className="hidden lg:flex flex-col items-center cursor-pointer group">
-                <span className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors">
-                  Login
-                </span>
-                <span className="text-[10px] text-primary/80 uppercase font-black tracking-widest leading-none mt-0.5">
-                  Próximamente
-                </span>
-              </div>
+              {session?.user ? (
+                <div className="flex items-center gap-4">
+                  <div className="hidden lg:flex flex-col items-end">
+                    <span className="text-sm font-bold text-white">{session.user.nickName || session.user.name}</span>
+                    <span className="text-xs text-tpm-primary font-medium">{session.user.role}</span>
+                  </div>
+                  <Link href="/perfil" className="w-10 h-10 rounded-full border-2 border-tpm-primary overflow-hidden hover:scale-105 transition-transform">
+                    <img src={session.user.customAvatarUrl || session.user.image || ""} alt="Avatar" className="w-full h-full object-cover" />
+                  </Link>
+                  {(session.user.role === "ADMIN" || session.user.role === "MODERATOR") && (
+                    <Link href="/admin" className="text-sm font-bold text-gray-400 hover:text-white transition-colors bg-gray-800 px-3 py-1.5 rounded-lg hidden sm:block">
+                      Panel
+                    </Link>
+                  )}
+                  <form action={async () => {
+                    "use server"
+                    await signOut({ redirectTo: "/" })
+                  }}>
+                    <button type="submit" className="text-sm font-bold text-red-400 hover:text-red-300 transition-colors">
+                      Salir
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <form action={async () => {
+                  "use server"
+                  await signIn("discord", { redirectTo: "/" })
+                }}>
+                  <button type="submit" className="flex items-center gap-2 bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    <span className="w-4 h-4 bg-white/20 rounded-full flex items-center justify-center text-[10px]">D</span>
+                    Iniciar Sesión
+                  </button>
+                </form>
+              )}
             </div>
 
           </div>
