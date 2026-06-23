@@ -19,25 +19,52 @@ type PlayerWithTrophies = {
 };
 
 export default function TrofeosJugadoresView({ players, dictionary }: { players: PlayerWithTrophies[], dictionary: any }) {
-  const [activeTab, setActiveTab] = useState<"primera" | "segunda" | "x8">("primera");
+  // Extract categories dynamically
+  const categoryNamesSet = new Set<string>();
+  players.forEach(player => {
+    player.trophies.forEach(t => {
+      const catName = t.tournament?.category?.name;
+      if (catName) {
+        categoryNamesSet.add(catName);
+      } else {
+        // Fallback for older data without category: parse from tournament name
+        if ((t.tournament?.name || "").includes("Primera")) categoryNamesSet.add("Primera División");
+        else if ((t.tournament?.name || "").includes("Segunda")) categoryNamesSet.add("Segunda División");
+        else if ((t.tournament?.name || "").includes("x8")) categoryNamesSet.add("Liga 1 x8");
+        else categoryNamesSet.add("General");
+      }
+    });
+  });
+  const categories = Array.from(categoryNamesSet).sort((a, b) => {
+    // Custom sort: Primera first, then Segunda, etc.
+    if (a.includes("Primera") && !b.includes("Primera")) return -1;
+    if (!a.includes("Primera") && b.includes("Primera")) return 1;
+    if (a.includes("Segunda") && !b.includes("Segunda")) return -1;
+    if (!a.includes("Segunda") && b.includes("Segunda")) return 1;
+    return a.localeCompare(b);
+  });
 
-  // Function to filter trophies for a specific category
-  const getRelevantTrophies = (trophies: TrophyRecord[], categoryFilter: (t: TrophyRecord) => boolean) => {
-    return trophies.filter(t => categoryFilter(t));
-  };
+  const defaultTab = categories.includes("Primera División") ? "Primera División" : categories[0] || "General";
+  const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
-  const primeraFilter = (t: TrophyRecord) => {
-    const isX8 = t.name.includes("x8") || (t.tournament?.name || "").includes("x8");
-    const isSegunda = t.name.includes("Segunda") || (t.tournament?.category?.name || "").includes("Segunda");
-    return !isX8 && !isSegunda;
+  const getRelevantTrophies = (trophies: TrophyRecord[], cat: string) => {
+    return trophies.filter(t => {
+      const tCat = t.tournament?.category?.name;
+      if (tCat) return tCat === cat;
+      
+      // Fallback logic for filtering
+      if (cat === "Primera División") return (t.tournament?.name || "").includes("Primera");
+      if (cat === "Segunda División") return (t.tournament?.name || "").includes("Segunda");
+      if (cat === "Liga 1 x8") return (t.tournament?.name || "").includes("x8");
+      if (cat === "General") return !(t.tournament?.name || "").includes("Primera") && !(t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("x8");
+      return false;
+    });
   };
-  const segundaFilter = (t: TrophyRecord) => t.name.includes("Segunda") || (t.tournament?.category?.name || "").includes("Segunda");
-  const x8Filter = (t: TrophyRecord) => t.name.includes("x8") || (t.tournament?.name || "").includes("x8");
 
   // Process data for the active tab
-  const getRankedPlayers = (filterFn: (t: TrophyRecord) => boolean) => {
+  const getRankedPlayers = () => {
     const ranked = players.map(player => {
-      const relevantTrophies = getRelevantTrophies(player.trophies, filterFn);
+      const relevantTrophies = getRelevantTrophies(player.trophies, activeTab);
       
       const teamTrophies = relevantTrophies.filter(t => !t.name.includes("Goleador") && !t.name.includes("Asistidor") && !t.name.includes("Mejor GK") && !t.name.includes("Valla Invicta"));
       const firsts = teamTrophies.filter(t => t.name === "Campeón");
@@ -70,10 +97,7 @@ export default function TrofeosJugadoresView({ players, dictionary }: { players:
     });
   };
 
-  const rankedPlayers = getRankedPlayers(
-    activeTab === "primera" ? primeraFilter : 
-    activeTab === "segunda" ? segundaFilter : x8Filter
-  );
+  const rankedPlayers = getRankedPlayers();
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-8 px-4">
@@ -87,24 +111,15 @@ export default function TrofeosJugadoresView({ players, dictionary }: { players:
       </div>
 
       <div className="flex flex-wrap gap-2 justify-center border-b border-border/50 pb-4">
-        <button
-          onClick={() => setActiveTab("primera")}
-          className={`px-6 py-2 rounded-full font-bold transition-all duration-300 ${activeTab === "primera" ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(16,185,129,0.5)]" : "bg-card text-muted-foreground hover:bg-white/5"}`}
-        >
-          Primera División
-        </button>
-        <button
-          onClick={() => setActiveTab("segunda")}
-          className={`px-6 py-2 rounded-full font-bold transition-all duration-300 ${activeTab === "segunda" ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(16,185,129,0.5)]" : "bg-card text-muted-foreground hover:bg-white/5"}`}
-        >
-          Segunda División
-        </button>
-        <button
-          onClick={() => setActiveTab("x8")}
-          className={`px-6 py-2 rounded-full font-bold transition-all duration-300 ${activeTab === "x8" ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(16,185,129,0.5)]" : "bg-card text-muted-foreground hover:bg-white/5"}`}
-        >
-          Liga 1 x8
-        </button>
+        {categories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setActiveTab(cat)}
+            className={`px-6 py-2 rounded-full font-bold transition-all duration-300 ${activeTab === cat ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(16,185,129,0.5)]" : "bg-card text-muted-foreground hover:bg-white/5"}`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
