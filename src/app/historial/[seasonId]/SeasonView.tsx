@@ -164,7 +164,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
           {match.awayTeam.name}
         </div>
       </div>
-      <Link href={`/liga/partido/${match.id}`} className="bg-primary/5 text-primary text-xs text-center py-2 font-bold hover:bg-primary hover:text-primary-foreground transition-colors border-t border-border/50">
+      <Link href={`/partidos/${match.id}`} className="bg-primary/5 text-primary text-xs text-center py-2 font-bold hover:bg-primary hover:text-primary-foreground transition-colors border-t border-border/50">
         {dictionary.viewDetails}
       </Link>
     </div>

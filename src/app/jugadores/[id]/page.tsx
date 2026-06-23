@@ -314,21 +314,8 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 <thead className="bg-secondary text-secondary-foreground border-b border-border">
                   <tr>
                     <th className="px-4 py-3 font-bold">Partido</th>
-                    <th className="px-4 py-3 font-bold text-center text-primary">Goals</th>
-                    <th className="px-4 py-3 font-bold text-center text-primary">Assists</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Team PTS</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Match Time</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Passes Realizados/Totales</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Sliding Realizados/Totales</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Fouls</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Ball losses</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">GK time</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Shoot accuracy Realizados/Totales</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Header Duels Realizados/Totales</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Tackles won</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Fouled</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Offside</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Saves Realizados/Totales</th>
+                    <th className="px-4 py-3 font-bold text-center text-primary">Goles</th>
+                    <th className="px-4 py-3 font-bold text-center text-primary">Asistencias</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -337,33 +324,22 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                     return (
                     <tr key={stat.id} className={`transition-colors ${isHistorico ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-white/5'}`}>
                       <td className="px-4 py-3">
-                        <div className="font-bold flex items-center gap-2">
-                           {isHistorico ? (
-                             <span className="text-primary font-black uppercase tracking-wider">📊 Resumen Estadístico</span>
-                           ) : (
-                             `${stat.match.homeTeam.name} vs ${stat.match.awayTeam.name}`
-                           )}
-                        </div>
-                        <div className="text-xs text-muted-foreground flex gap-2">
-                           <span>{stat.match.tournament.name}</span>
-                           {isHistorico && <span className="bg-primary/20 text-primary px-1 rounded">Carga Masiva</span>}
-                        </div>
+                        <Link href={isHistorico ? '#' : `/partidos/${stat.match.id}`} className="block">
+                          <div className={`font-bold flex items-center gap-2 ${!isHistorico ? 'hover:text-primary transition-colors' : ''}`}>
+                             {isHistorico ? (
+                               <span className="text-primary font-black uppercase tracking-wider">📊 Resumen Estadístico</span>
+                             ) : (
+                               `${stat.match.homeTeam.name} vs ${stat.match.awayTeam.name}`
+                             )}
+                          </div>
+                          <div className="text-xs text-muted-foreground flex gap-2 mt-1">
+                             <span>{stat.match.tournament.name}</span>
+                             {isHistorico && <span className="bg-primary/20 text-primary px-1 rounded">Carga Masiva</span>}
+                          </div>
+                        </Link>
                       </td>
                       <td className="px-4 py-3 text-center font-black text-lg">{stat.goals || 0}</td>
                       <td className="px-4 py-3 text-center font-black text-lg">{stat.assists || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.teamPoints || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.matchTime || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.passesMade || 0}/{stat.passesTotal || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.slidingMade || 0}/{stat.slidingTotal || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.fouls || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.ballLosses || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.gkTime || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.shotsMade || 0}/{stat.shotsTotal || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.headersMade || 0}/{stat.headersTotal || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.tacklesWon || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.fouled || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.offsides || 0}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.savesMade || 0}/{stat.savesTotal || 0}</td>
                     </tr>
                     );
                   })}
