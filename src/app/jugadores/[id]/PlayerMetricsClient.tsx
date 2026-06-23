@@ -51,6 +51,11 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
     headersMade: 0, headersTotal: 0, tacklesWon: 0, fouled: 0, offsides: 0, savesMade: 0, savesTotal: 0
   });
 
+  const formatStat = (made: number, total: number) => {
+    const percentage = total > 0 ? Math.round((made / total) * 100) : 0;
+    return `${made}/${total} ${percentage}%`;
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center border-b border-border pb-2">
@@ -92,11 +97,11 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Passes</span>
-            <span className="text-xl font-black">{totals.passesMade}/{totals.passesTotal}</span>
+            <span className="text-xl font-black">{formatStat(totals.passesMade, totals.passesTotal)}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Sliding</span>
-            <span className="text-xl font-black">{totals.slidingMade}/{totals.slidingTotal}</span>
+            <span className="text-xl font-black">{formatStat(totals.slidingMade, totals.slidingTotal)}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Fouls</span>
@@ -112,11 +117,11 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Shoot Acc</span>
-            <span className="text-xl font-black">{totals.shotsMade}/{totals.shotsTotal}</span>
+            <span className="text-xl font-black">{formatStat(totals.shotsMade, totals.shotsTotal)}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Header Duels</span>
-            <span className="text-xl font-black">{totals.headersMade}/{totals.headersTotal}</span>
+            <span className="text-xl font-black">{formatStat(totals.headersMade, totals.headersTotal)}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Tackles won</span>
@@ -132,7 +137,7 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Saves</span>
-            <span className="text-xl font-black">{totals.savesMade}/{totals.savesTotal}</span>
+            <span className="text-xl font-black">{formatStat(totals.savesMade, totals.savesTotal)}</span>
           </div>
         </div>
       </div>

@@ -86,6 +86,11 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
     saves: awayStats.reduce((acc, s) => acc + s.savesMade, 0),
   };
 
+  const formatStat = (made: number, total: number) => {
+    const percentage = total > 0 ? Math.round((made / total) * 100) : 0;
+    return `${made}/${total} ${percentage}%`;
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-8">
       <Link href="/historial" className="text-primary hover:underline font-bold self-start">
@@ -199,8 +204,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
           
           <div className="flex flex-col gap-4">
             {[
-              { label: 'Tiros (Al Arco / Total)', home: `${homeGeneral.shots} / ${homeGeneral.shotsTotal}`, away: `${awayGeneral.shots} / ${awayGeneral.shotsTotal}` },
-              { label: 'Pases (Completados / Total)', home: `${homeGeneral.passes} / ${homeGeneral.passesTotal}`, away: `${awayGeneral.passes} / ${awayGeneral.passesTotal}` },
+              { label: 'Tiros (Al Arco / Total)', home: formatStat(homeGeneral.shots, homeGeneral.shotsTotal), away: formatStat(awayGeneral.shots, awayGeneral.shotsTotal) },
+              { label: 'Pases (Completados / Total)', home: formatStat(homeGeneral.passes, homeGeneral.passesTotal), away: formatStat(awayGeneral.passes, awayGeneral.passesTotal) },
               { label: 'Quites Ganados', home: homeGeneral.tackles, away: awayGeneral.tackles },
               { label: 'Atajadas', home: homeGeneral.saves, away: awayGeneral.saves },
               { label: 'Faltas Cometidas', home: homeGeneral.fouls, away: awayGeneral.fouls },
@@ -248,8 +253,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       </td>
                       <td className="p-3 text-center font-black text-white">{stat.goals > 0 ? stat.goals : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
-                      <td className="p-3 text-center font-bold text-white/80">{stat.shotsMade}/{stat.shotsTotal}</td>
-                      <td className="p-3 text-center font-bold text-white/80">{stat.passesMade}/{stat.passesTotal}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.shotsMade, stat.shotsTotal)}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
                       <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
                     </tr>
@@ -291,8 +296,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       </td>
                       <td className="p-3 text-center font-black text-white">{stat.goals > 0 ? stat.goals : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
-                      <td className="p-3 text-center font-bold text-white/80">{stat.shotsMade}/{stat.shotsTotal}</td>
-                      <td className="p-3 text-center font-bold text-white/80">{stat.passesMade}/{stat.passesTotal}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.shotsMade, stat.shotsTotal)}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
                       <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
                     </tr>

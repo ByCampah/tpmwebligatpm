@@ -44,9 +44,9 @@ export default async function AdminLogsPage() {
                 </td>
                 <td className="p-4 font-bold flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary">
-                    {log.user.name.charAt(0)}
+                    {(log.user.name || "U").charAt(0)}
                   </div>
-                  {log.user.name} 
+                  {log.user.name || "Usuario"} 
                   {log.user.role === "MODERATOR" && <span className="text-xs bg-blue-500/20 text-blue-400 px-1 rounded ml-1">MOD</span>}
                 </td>
                 <td className="p-4 text-primary font-bold">

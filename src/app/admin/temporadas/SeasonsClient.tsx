@@ -112,6 +112,7 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
                     >
                       HACER ACTIVA
                     </button>
+                  )}
                   {userRole === "ADMIN" && (
                     <button 
                       onClick={async () => {
