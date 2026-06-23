@@ -22,14 +22,14 @@ export const metadata: Metadata = {
 
 const navLinks = [
   { name: 'Inicio', href: '/' },
-  { name: 'Noticias', href: '#', badge: 'Pronto' },
+  { name: 'Noticias', href: '/noticias' },
   { name: 'Liga Actual', href: '/liga' },
   { name: 'Historial', href: '/historial' },
   { name: 'Trofeos Equipos', href: '/trofeos' },
   { name: 'Trofeos Jugadores', href: '/trofeos-jugadores' },
   { name: 'Equipos', href: '/equipos' },
   { name: 'Jugadores', href: '/jugadores' },
-  { name: 'Mercado', href: '#', badge: 'Pronto' },
+  { name: 'Mercado', href: '/mercado' },
 ];
 
 export default async function RootLayout({
