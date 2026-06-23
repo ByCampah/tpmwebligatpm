@@ -1,0 +1,181 @@
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import { cookies } from "next/headers";
+
+export default async function Home() {
+  const activeSeason = await prisma.season.findFirst({
+    where: { isActive: true },
+    include: {
+      tournaments: {
+        include: {
+          matches: {
+            take: 5,
+            orderBy: { matchDate: "desc" },
+            include: { homeTeam: true, awayTeam: true }
+          }
+        }
+      }
+    }
+  });
+
+  const championsRaw = await prisma.trophy.groupBy({
+    by: ['teamId'],
+    where: { name: 'Campeón', type: 'TEAM', tournament: { name: 'Primera Division' } },
+    _count: { teamId: true },
+    orderBy: { _count: { teamId: 'desc' } }
+  });
+
+  const championTeams = await prisma.team.findMany({
+    where: { id: { in: championsRaw.map(c => c.teamId).filter(Boolean) as string[] } }
+  });
+
+  const championsList = championsRaw.map(c => {
+    const team = championTeams.find(t => t.id === c.teamId);
+    return {
+      team,
+      count: c._count.teamId
+    };
+  }).filter(c => c.team);
+
+  return (
+    <div className="flex flex-col gap-12 max-w-5xl mx-auto">
+      {/* Hero Section */}
+      <section className="text-center py-16 px-4 bg-card rounded-2xl border border-border shadow-lg relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"></div>
+        <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter neon-text">
+          Bienvenido a Liga TPM
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+          El mejor Football Manager Online. Gana torneos, ficha jugadores y lleva a tu equipo a la gloria.
+        </p>
+        <div className="flex justify-center gap-4">
+          <Link href="/liga" className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+            Ver Torneos Actuales
+          </Link>
+          <Link href="/equipos" className="px-6 py-3 bg-secondary text-secondary-foreground font-bold rounded-full hover:bg-secondary/80 transition-colors border border-border">
+            Ver Equipos
+          </Link>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="grid md:grid-cols-3 gap-8">
+        
+        {/* Left Col: News & Streams (Mock) */}
+        <div className="md:col-span-2 flex flex-col gap-8">
+          <section>
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
+              Noticias (Próximamente)
+            </h2>
+            <div className="bg-card border border-border rounded-xl p-6">
+              <span className="text-xs font-bold text-primary mb-2 block">FASE ALFA</span>
+              <h3 className="text-xl font-bold mb-2">¡Arranca la nueva plataforma!</h3>
+              <p className="text-muted-foreground">
+                Bienvenidos a la nueva página oficial de la Liga TPM Sudamerica. A partir de ahora todas las estadísticas quedarán registrados históricamente. Los datos de estas temporadas son dificiles de conseguir al 100% por eso se puso lo mas importante.
+              </p>
+            </div>
+          </section>
+
+          {/* Historical Champions */}
+          <section>
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
+              Máximos Campeones Históricos
+            </h2>
+            <div className="bg-card border border-border rounded-xl overflow-hidden p-2">
+              {(() => {
+                // Find all teams with "Campeón" trophy in Primera Division
+                // We'll list them or ideally fetch this inside the async component
+                return null;
+              })()}
+              <div className="flex flex-col">
+                {championsList.map((c, idx) => (
+                  <div key={c.team!.id} className="flex items-center justify-between p-4 border-b border-border last:border-0 hover:bg-white/5 transition-colors">
+                    <div className="flex items-center gap-3 w-1/2">
+                      <span className="font-black text-xl text-muted-foreground w-6">{idx + 1}</span>
+                      {c.team!.logoUrl ? (
+                        <img src={c.team!.logoUrl!} alt={c.team!.name} className="w-8 h-8 object-contain" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-secondary"></div>
+                      )}
+                      <span className="font-bold">{c.team!.name}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-end w-1/2 gap-2">
+                      <img src="/img/trofeos/LigaTPM.png" alt="Copa TPM" className="w-6 h-6 object-contain drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" title="Títulos de Primera División" />
+                      <span className="font-black text-xl text-primary bg-primary/10 px-3 py-1 rounded-md">{c.count}</span>
+                    </div>
+                  </div>
+                ))}
+                {championsList.length === 0 && (
+                  <div className="p-8 text-center text-muted-foreground">
+                    No hay campeones registrados
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Right Col: Active Season Info */}
+        <div className="flex flex-col gap-6">
+          <section className="bg-card border border-border rounded-xl p-6">
+            <h3 className="text-lg font-bold mb-4 uppercase tracking-wider text-muted-foreground">Temporada Actual</h3>
+            {activeSeason ? (
+              <>
+                <div className="text-3xl font-black mb-6 text-primary">{activeSeason.name}</div>
+                <div className="space-y-4">
+                  <h4 className="font-bold text-sm border-b border-border pb-2">Torneos en Juego:</h4>
+                  {activeSeason.tournaments.map(tData => (
+                    <div key={tData.id} className="flex items-center justify-between">
+                      <span className="text-sm">{tData.name}</span>
+                      <span className="text-xs bg-secondary px-2 py-1 rounded text-muted-foreground">{tData.format}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">No hay temporada activa</p>
+            )}
+          </section>
+
+          {/* Discord Links */}
+          <section className="bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-xl p-6 flex flex-col items-center text-center gap-4">
+            <div>
+              <h3 className="font-bold text-[#5865F2] mb-1 text-lg">Unite a Discord</h3>
+              <p className="text-sm text-muted-foreground">Participá con la comunidad</p>
+            </div>
+            
+            <a href="https://discord.gg/7WZVN8qTsA" target="_blank" rel="noreferrer" className="w-full py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md font-bold transition-colors">
+              TPM SUDAMERICA
+            </a>
+            <a href="https://discord.gg/mev9krPJ5n" target="_blank" rel="noreferrer" className="w-full py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md font-bold transition-colors">
+              Comunidad de Campah
+            </a>
+            <a href="https://discord.gg/KMAgjumg6P" target="_blank" rel="noreferrer" className="w-full py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md font-bold transition-colors">
+              Comunidad de Cerviyb
+            </a>
+          </section>
+
+          {/* Kick Links */}
+          <section className="bg-[#53FC18]/10 border border-[#53FC18]/20 rounded-xl p-6 flex flex-col items-center text-center gap-4">
+            <div>
+              <h3 className="font-bold text-[#53FC18] mb-1 text-lg">Seguinos en Kick</h3>
+              <p className="text-sm text-muted-foreground">Mirá los partidos en vivo</p>
+            </div>
+            
+            <div className="flex w-full gap-3">
+              <a href="https://kick.com/campah" target="_blank" rel="noreferrer" className="flex-1 py-2 bg-[#000000] border border-[#53FC18] hover:bg-[#53FC18] hover:text-black text-white rounded-md font-bold transition-colors">
+                Campah
+              </a>
+              <a href="https://kick.com/cerviyb" target="_blank" rel="noreferrer" className="flex-1 py-2 bg-[#000000] border border-[#53FC18] hover:bg-[#53FC18] hover:text-black text-white rounded-md font-bold transition-colors">
+                Cerviyb
+              </a>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}

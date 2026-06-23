@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String  @id @default(uuid())
+  username         String  @unique
+  passwordHash     String
+  discordUsername  String?
+  avatarUrl        String?
+  role             String  @default("USER") // USER, MODERATOR, ADMIN
+  
+  // Optional link to a physical Player profile
+  playerId         String? @unique
+  player           Player? @relation(fields: [playerId], references: [id])
+  
+  // Teams where this user is the captain/manager
+  captainOfTeams   Team[]  @relation("TeamCaptain")
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Player {
+  id              String             @id @default(uuid())
+  nick            String             @unique
+  nationality     String             @default("Desconocida")
+  
+  // Link to User account
+  user            User?
+  
+  // Roster history
+  tournamentTeams TournamentPlayer[]
+  
+  // Match stats history
+  matchStats      MatchStat[]
+  
+  // Trophies/Awards won
+  trophies        Trophy[]
+  
+  createdAt       DateTime           @default(now())
+}
+
+model Team {
+  id               String  @id @default(uuid())
+  name             String  @unique
+  logoUrl          String?
+  
+  // Team Captain / Manager
+  captainId        String?
+  captain          User?   @relation("TeamCaptain", fields: [captainId], references: [id])
+  
+  // Tournament participation
+  tournaments      TournamentTeam[]
+  
+  // Match history
+  homeMatches      Match[] @relation("HomeMatches")
+  awayMatches      Match[] @relation("AwayMatches")
+  
+  // Trophies/Awards won
+  trophies         Trophy[]
+  
+  createdAt        DateTime @default(now())
+}
+
+model Season {
+  id               String  @id @default(uuid())
+  name             String  @unique // e.g. "Temporada 1"
+  isActive         Boolean @default(false)
+  
+  tournaments      Tournament[]
+  
+  createdAt        DateTime @default(now())
+}
+
+model Tournament {
+  id               String  @id @default(uuid())
+  seasonId         String
+  season           Season  @relation(fields: [seasonId], references: [id])
+  name             String  // e.g. "Primera Division", "Copa TPM"
+  format           String  // "LEAGUE", "CUP", "PLAYOFF"
+  category         String  @default("General") // e.g. "Primera División", "Copa TPM"
+  
+  matches          Match[]
+  teams            TournamentTeam[]
+  trophies         Trophy[] // Trophies awarded in this tournament
+  
+  createdAt        DateTime @default(now())
+}
+
+model TournamentTeam {
+  id               String  @id @default(uuid())
+  tournamentId     String
+  tournament       Tournament @relation(fields: [tournamentId], references: [id])
+  
+  teamId           String
+  team             Team       @relation(fields: [teamId], references: [id])
+  
+  captainId        String?
+  players          TournamentPlayer[]
+  
+  // Manual override fields for historical standings without match data
+  manualPoints       Int?
+  manualGamesPlayed  Int?
+  manualWins         Int?
+  manualDraws        Int?
+  manualLosses       Int?
+  manualGoalsFor     Int?
+  manualGoalsAgainst Int?
+
+  @@unique([tournamentId, teamId])
+}
+
+model TournamentPlayer {
+  id                 String  @id @default(uuid())
+  tournamentTeamId   String
+  tournamentTeam     TournamentTeam @relation(fields: [tournamentTeamId], references: [id])
+  
+  playerId           String
+  player             Player         @relation(fields: [playerId], references: [id])
+  
+  @@unique([tournamentTeamId, playerId])
+}
+
+model Match {
+  id               String  @id @default(uuid())
+  tournamentId     String
+  tournament       Tournament @relation(fields: [tournamentId], references: [id])
+  
+  homeTeamId       String
+  homeTeam         Team       @relation("HomeMatches", fields: [homeTeamId], references: [id])
+  
+  awayTeamId       String
+  awayTeam         Team       @relation("AwayMatches", fields: [awayTeamId], references: [id])
+  
+  homeScore        Int?
+  awayScore        Int?
+  
+  matchDate        DateTime?
+  round            String? // e.g. "Fecha 1", "Semifinal"
+  status           String  @default("SCHEDULED") // SCHEDULED, PLAYED
+  
+  stats            MatchStat[]
+  
+  createdAt        DateTime @default(now())
+}
+
+model MatchStat {
+  id               String  @id @default(uuid())
+  matchId          String
+  match            Match   @relation(fields: [matchId], references: [id])
+  
+  playerId         String
+  player           Player  @relation(fields: [playerId], references: [id])
+  
+  matchTime        Int     @default(0)
+  goals            Int     @default(0)
+  assists          Int     @default(0)
+  fouls            Int     @default(0)
+  fouled           Int     @default(0)
+  offsides         Int     @default(0)
+  ballLosses       Int     @default(0)
+  tacklesWon       Int     @default(0)
+  
+  passesMade       Int     @default(0)
+  passesTotal      Int     @default(0)
+  slidingMade      Int     @default(0)
+  slidingTotal     Int     @default(0)
+  shotsMade        Int     @default(0)
+  shotsTotal       Int     @default(0)
+  headersMade      Int     @default(0)
+  headersTotal     Int     @default(0)
+  
+  gkTime           Int     @default(0)
+  savesMade        Int     @default(0)
+  savesTotal       Int     @default(0)
+  cleanSheet       Boolean @default(false)
+  
+  @@unique([matchId, playerId])
+}
+
+model Trophy {
+  id           String  @id @default(uuid())
+  name         String  // e.g. "Campeon", "Subcampeon", "Goleador", "Mejor Asistidor"
+  type         String  // "TEAM" or "PLAYER"
+  
+  tournamentId String?
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  
+  teamId       String?
+  team         Team?       @relation(fields: [teamId], references: [id])
+  
+  playerId     String?
+  player       Player?     @relation(fields: [playerId], references: [id])
+
+  createdAt    DateTime @default(now())
+}
