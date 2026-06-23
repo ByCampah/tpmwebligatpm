@@ -230,7 +230,9 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
                       {resultText}
                     </span>
                     <span className="text-xs text-muted-foreground w-8">{isHome ? '(L)' : '(V)'}</span>
-                    <span className="font-bold truncate max-w-[120px] sm:max-w-[200px]">vs {opponent.name}</span>
+                    <Link href={`/partidos/${match.id}`} className="font-bold truncate max-w-[120px] sm:max-w-[200px] hover:text-primary hover:underline transition-colors">
+                      vs {opponent.name}
+                    </Link>
                   </div>
                   
                   {match.status === 'PLAYED' ? (

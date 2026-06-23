@@ -61,6 +61,31 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
   const homeStats = match.stats.filter(s => getPlayerTeamId(s.playerId) === match.homeTeamId);
   const awayStats = match.stats.filter(s => getPlayerTeamId(s.playerId) === match.awayTeamId);
 
+  const events: any[] = match.events ? (typeof match.events === 'string' ? JSON.parse(match.events) : match.events) : [];
+  events.sort((a, b) => a.minute - b.minute);
+
+  const homeGeneral = {
+    shots: homeStats.reduce((acc, s) => acc + s.shotsMade, 0),
+    shotsTotal: homeStats.reduce((acc, s) => acc + s.shotsTotal, 0),
+    passes: homeStats.reduce((acc, s) => acc + s.passesMade, 0),
+    passesTotal: homeStats.reduce((acc, s) => acc + s.passesTotal, 0),
+    tackles: homeStats.reduce((acc, s) => acc + s.tacklesWon, 0),
+    fouls: homeStats.reduce((acc, s) => acc + s.fouls, 0),
+    offsides: homeStats.reduce((acc, s) => acc + s.offsides, 0),
+    saves: homeStats.reduce((acc, s) => acc + s.savesMade, 0),
+  };
+
+  const awayGeneral = {
+    shots: awayStats.reduce((acc, s) => acc + s.shotsMade, 0),
+    shotsTotal: awayStats.reduce((acc, s) => acc + s.shotsTotal, 0),
+    passes: awayStats.reduce((acc, s) => acc + s.passesMade, 0),
+    passesTotal: awayStats.reduce((acc, s) => acc + s.passesTotal, 0),
+    tackles: awayStats.reduce((acc, s) => acc + s.tacklesWon, 0),
+    fouls: awayStats.reduce((acc, s) => acc + s.fouls, 0),
+    offsides: awayStats.reduce((acc, s) => acc + s.offsides, 0),
+    saves: awayStats.reduce((acc, s) => acc + s.savesMade, 0),
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-8">
       <Link href="/historial" className="text-primary hover:underline font-bold self-start">
@@ -113,6 +138,49 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
         </div>
       </div>
 
+      {/* Match Events Timeline */}
+      {events.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-xl w-full max-w-2xl mx-auto flex flex-col gap-4">
+          <h3 className="text-xl font-black text-center text-primary border-b border-border/50 pb-2 mb-2">Eventos del Partido</h3>
+          <div className="flex flex-col gap-3">
+            {events.map((ev, i) => (
+              <div key={i} className="flex items-center gap-4 bg-black/40 p-3 rounded-lg border border-border/50 hover:border-primary/50 transition-colors">
+                <div className="font-black text-lg text-muted-foreground w-12 text-right">{ev.minute}'</div>
+                <div className="text-2xl">{ev.type === 'GOAL' ? '⚽' : '🟥'}</div>
+                <div className="flex flex-col flex-1">
+                  <span className="font-bold text-white">{ev.playerName}</span>
+                  {ev.assistName && <span className="text-xs font-bold text-muted-foreground">Asistencia: {ev.assistName}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* General Match Stats */}
+      {match.status === 'PLAYED' && (
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-xl w-full max-w-3xl mx-auto flex flex-col gap-6">
+          <h3 className="text-xl font-black text-center text-primary uppercase tracking-widest border-b border-border/50 pb-2">Estadísticas Generales</h3>
+          
+          <div className="flex flex-col gap-4">
+            {[
+              { label: 'Tiros (Al Arco / Total)', home: `${homeGeneral.shots} / ${homeGeneral.shotsTotal}`, away: `${awayGeneral.shots} / ${awayGeneral.shotsTotal}` },
+              { label: 'Pases (Completados / Total)', home: `${homeGeneral.passes} / ${homeGeneral.passesTotal}`, away: `${awayGeneral.passes} / ${awayGeneral.passesTotal}` },
+              { label: 'Quites Ganados', home: homeGeneral.tackles, away: awayGeneral.tackles },
+              { label: 'Atajadas', home: homeGeneral.saves, away: awayGeneral.saves },
+              { label: 'Faltas Cometidas', home: homeGeneral.fouls, away: awayGeneral.fouls },
+              { label: 'Fueras de Juego', home: homeGeneral.offsides, away: awayGeneral.offsides },
+            ].map((stat, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div className="font-black text-lg w-24 text-center">{stat.home}</div>
+                <div className="flex-1 text-center font-bold text-muted-foreground uppercase text-xs sm:text-sm">{stat.label}</div>
+                <div className="font-black text-lg w-24 text-center">{stat.away}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Stats Section */}
       {match.status === 'PLAYED' && match.stats.length > 0 && (
         <div className="grid md:grid-cols-2 gap-8">
@@ -129,7 +197,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                     <th className="p-3 font-bold">Jugador</th>
                     <th className="p-3 text-center font-bold" title="Goles">⚽</th>
                     <th className="p-3 text-center font-bold" title="Asistencias">👟</th>
-                    <th className="p-3 text-center font-bold" title="Puntos de Equipo">⭐</th>
+                    <th className="p-3 text-center font-bold" title="Tiros">Tiros</th>
+                    <th className="p-3 text-center font-bold" title="Pases">Pases</th>
+                    <th className="p-3 text-center font-bold" title="Quites">Quites</th>
+                    <th className="p-3 text-center font-bold" title="Valla Invicta">🛡️ VI</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
@@ -142,7 +213,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       </td>
                       <td className="p-3 text-center font-black text-white">{stat.goals > 0 ? stat.goals : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
-                      <td className="p-3 text-center font-bold text-primary">{stat.teamPoints > 0 ? stat.teamPoints : '-'}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.shotsMade}/{stat.shotsTotal}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.passesMade}/{stat.passesTotal}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
+                      <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
                     </tr>
                   ))}
                   {homeStats.length === 0 && (
@@ -166,7 +240,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                     <th className="p-3 font-bold">Jugador</th>
                     <th className="p-3 text-center font-bold" title="Goles">⚽</th>
                     <th className="p-3 text-center font-bold" title="Asistencias">👟</th>
-                    <th className="p-3 text-center font-bold" title="Puntos de Equipo">⭐</th>
+                    <th className="p-3 text-center font-bold" title="Tiros">Tiros</th>
+                    <th className="p-3 text-center font-bold" title="Pases">Pases</th>
+                    <th className="p-3 text-center font-bold" title="Quites">Quites</th>
+                    <th className="p-3 text-center font-bold" title="Valla Invicta">🛡️ VI</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
@@ -179,7 +256,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       </td>
                       <td className="p-3 text-center font-black text-white">{stat.goals > 0 ? stat.goals : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
-                      <td className="p-3 text-center font-bold text-primary">{stat.teamPoints > 0 ? stat.teamPoints : '-'}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.shotsMade}/{stat.shotsTotal}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.passesMade}/{stat.passesTotal}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
+                      <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
                     </tr>
                   ))}
                   {awayStats.length === 0 && (

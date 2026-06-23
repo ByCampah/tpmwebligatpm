@@ -214,6 +214,7 @@ model Match {
   matchDate        DateTime?
   round            String? // e.g. "Fecha 1", "Semifinal"
   status           String  @default("SCHEDULED") // SCHEDULED, PLAYED
+  events           Json?   @default("[]") // Lista de eventos: {type: GOAL|RED, minute: Int, playerId: String, assistId?: String}
   
   stats            MatchStat[]
   

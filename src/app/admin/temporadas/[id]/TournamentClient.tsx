@@ -17,6 +17,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
   const [editingRosterTeam, setEditingRosterTeam] = useState<any>(null);
   const [editingMatch, setEditingMatch] = useState<any>(null);
+  const [editingEvents, setEditingEvents] = useState<any[]>([]);
 
   const enrolledTeamIds = tournament.teams.map((t: any) => t.teamId);
   
@@ -397,7 +398,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     </div>
                     
                     <button 
-                      onClick={() => setEditingMatch(isEditing ? null : m)}
+                      onClick={() => {
+                        setEditingMatch(isEditing ? null : m);
+                        setEditingEvents(m.events ? (typeof m.events === 'string' ? JSON.parse(m.events) : m.events) : []);
+                      }}
                       className={`ml-4 text-sm font-black px-6 py-3 rounded transition-colors ${isEditing ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80' : 'bg-primary text-primary-foreground hover:bg-primary/80 shadow-[0_0_10px_rgba(var(--primary),0.2)]'}`}
                     >
                       {isEditing ? 'CERRAR PLANILLA' : (m.status === 'PLAYED' ? 'EDITAR RESULTADO' : 'CARGAR RESULTADO')}
@@ -419,6 +423,47 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                           <div className="flex flex-col items-center gap-2">
                             <span className="font-bold text-muted-foreground uppercase">{m.awayTeam.name}</span>
                             <input type="number" name="awayScore" required min="0" defaultValue={m.awayScore ?? ""} className="w-24 text-center text-5xl font-black bg-black border-2 border-border rounded-xl p-4 focus:border-primary focus:outline-none" placeholder="0" />
+                          </div>
+                        </div>
+
+                        {/* EVENTOS DEL PARTIDO */}
+                        <div className="bg-card p-6 rounded-2xl border border-border">
+                          <h4 className="font-black text-xl text-primary mb-4 border-b border-border pb-2">Eventos del Partido (Goles, Rojas, etc.)</h4>
+                          <input type="hidden" name="eventsJson" value={JSON.stringify(editingEvents)} />
+                          
+                          <div className="flex flex-col gap-4">
+                            {editingEvents.map((ev, idx) => (
+                              <div key={idx} className="flex items-center gap-4 bg-black/50 p-3 rounded border border-border">
+                                <span className="font-black text-lg w-16">{ev.minute}'</span>
+                                <span className="text-2xl">{ev.type === 'GOAL' ? '⚽' : '🟥'}</span>
+                                <span className="font-bold flex-1">{ev.playerName} {ev.assistName ? <span className="text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}</span>
+                                <button type="button" onClick={() => setEditingEvents(prev => prev.filter((_, i) => i !== idx))} className="text-destructive font-black hover:scale-110">×</button>
+                              </div>
+                            ))}
+                            {editingEvents.length === 0 && <p className="text-muted-foreground italic text-sm">No hay eventos registrados.</p>}
+                          </div>
+
+                          <div className="mt-4 flex flex-col md:flex-row gap-2 bg-secondary/20 p-4 rounded-lg border border-border">
+                            <select id={`type_${m.id}`} className="bg-black border border-border rounded p-2 focus:border-primary text-sm">
+                              <option value="GOAL">⚽ Gol</option>
+                              <option value="RED">🟥 Tarjeta Roja</option>
+                            </select>
+                            <input id={`min_${m.id}`} type="number" placeholder="Minuto" className="w-24 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
+                            <input id={`player_${m.id}`} type="text" placeholder="Jugador (Nick)" className="flex-1 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
+                            <input id={`assist_${m.id}`} type="text" placeholder="Asistencia (Opcional)" className="flex-1 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
+                            <button type="button" onClick={() => {
+                              const type = (document.getElementById(`type_${m.id}`) as HTMLSelectElement).value;
+                              const min = parseInt((document.getElementById(`min_${m.id}`) as HTMLInputElement).value);
+                              const player = (document.getElementById(`player_${m.id}`) as HTMLInputElement).value;
+                              const assist = (document.getElementById(`assist_${m.id}`) as HTMLInputElement).value;
+                              if(!min || !player) return alert("Minuto y Jugador son obligatorios");
+                              setEditingEvents([...editingEvents, { type, minute: min, playerName: player, assistName: assist || null }].sort((a,b) => a.minute - b.minute));
+                              (document.getElementById(`min_${m.id}`) as HTMLInputElement).value = '';
+                              (document.getElementById(`player_${m.id}`) as HTMLInputElement).value = '';
+                              (document.getElementById(`assist_${m.id}`) as HTMLInputElement).value = '';
+                            }} className="bg-secondary text-secondary-foreground font-bold px-4 rounded hover:bg-primary hover:text-primary-foreground transition-colors text-sm py-2">
+                              AÑADIR EVENTO
+                            </button>
                           </div>
                         </div>
 

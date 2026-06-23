@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createSeason, createTournament } from "@/app/actions";
+import { createSeason, createTournament, setActiveSeason } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
 export default function SeasonsClient({ seasons, categories }: { seasons: any[], categories: any[] }) {
@@ -96,7 +96,21 @@ export default function SeasonsClient({ seasons, categories }: { seasons: any[],
               <div className="flex justify-between items-center mb-3">
                 <h3 className="font-black text-xl flex items-center gap-2">
                   {season.name}
-                  {season.isActive && <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded">ACTIVA</span>}
+                  {season.isActive ? (
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded">ACTIVA</span>
+                  ) : (
+                    <button 
+                      onClick={async () => {
+                        setLoading(true);
+                        await setActiveSeason(season.id);
+                        setLoading(false);
+                      }}
+                      className="bg-secondary hover:bg-primary hover:text-black text-secondary-foreground text-xs px-3 py-1 rounded font-bold transition-colors"
+                      disabled={loading}
+                    >
+                      HACER ACTIVA
+                    </button>
+                  )}
                 </h3>
               </div>
               

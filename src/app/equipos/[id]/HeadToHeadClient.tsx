@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function HeadToHeadClient({ 
   currentTeamId, 
@@ -145,9 +146,9 @@ export default function HeadToHeadClient({
                         </span>
                         <div className="flex flex-col">
                            <span className="font-bold text-sm text-muted-foreground uppercase">{m.tournament?.name || 'Torneo'} - {m.round}</span>
-                           <span className="font-bold">
+                           <Link href={`/partidos/${m.id}`} className="font-bold hover:text-primary hover:underline transition-colors">
                              {isHome ? `${currentTeamName} (L) vs ${opponent.name} (V)` : `${opponent.name} (L) vs ${currentTeamName} (V)`}
-                           </span>
+                           </Link>
                         </div>
                      </div>
                      <div className="font-mono text-2xl font-black bg-black px-4 py-2 rounded-xl border border-border text-center min-w-[100px]">

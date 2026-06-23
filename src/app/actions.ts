@@ -4,7 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function submitMatchStats(formData: any) {
-  const { matchId, homeScore, awayScore, playerStats } = formData;
+  const { matchId, homeScore, awayScore, playerStats, eventsJson } = formData;
+
+  let events = [];
+  try {
+    if (eventsJson) events = JSON.parse(eventsJson);
+  } catch (e) {
+    console.error("Failed to parse events JSON", e);
+  }
 
   // 1. Update Match Score and Status
   await prisma.$transaction(async (tx) => {
@@ -14,6 +21,7 @@ export async function submitMatchStats(formData: any) {
         homeScore: parseInt(homeScore),
         awayScore: parseInt(awayScore),
         status: "PLAYED",
+        events: events,
         matchDate: new Date()
       }
     });
@@ -100,6 +108,28 @@ export async function submitTrophy(formData: any) {
   revalidatePath("/jugadores");
   revalidatePath("/equipos");
 
+  return { success: true };
+}
+
+// ==========================================
+// SEASON ACTIONS
+// ==========================================
+
+export async function setActiveSeason(seasonId: string) {
+  await prisma.$transaction(async (tx) => {
+    // Set all to false
+    await tx.season.updateMany({
+      data: { isActive: false }
+    });
+    // Set target to true
+    await tx.season.update({
+      where: { id: seasonId },
+      data: { isActive: true }
+    });
+  });
+
+  revalidatePath("/admin/temporadas");
+  revalidatePath("/liga");
   return { success: true };
 }
 
