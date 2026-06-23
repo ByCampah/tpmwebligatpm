@@ -103,7 +103,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
       matchId: editingMatch.id,
       homeScore,
       awayScore,
-      playerStats
+      playerStats,
+      eventsJson: JSON.stringify(editingEvents)
     });
 
     setLoading(false);
