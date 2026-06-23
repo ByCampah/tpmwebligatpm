@@ -100,7 +100,7 @@ export default function PlayersClient({ players, users }: { players: any[], user
               <label className="block text-sm font-bold text-muted-foreground mb-1">Vincular a Cuenta (Opcional)</label>
               <select name="userId" defaultValue={editMode?.user?.id || ""} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
                 <option value="">-- Sin cuenta vinculada --</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.username}</option>)}
+                {users.map(u => <option key={u.id} value={u.id}>{u.nickName || u.name}</option>)}
               </select>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function PlayersClient({ players, users }: { players: any[], user
                 <tr key={player.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-4 py-3 font-bold">{player.nick}</td>
                   <td className="px-4 py-3 text-muted-foreground">{flag} {player.nationality}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{player.user?.username || "Sin vincular"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{player.user?.nickName || player.user?.name || "Sin vincular"}</td>
                   <td className="px-4 py-3 text-right">
                     <button 
                       onClick={() => startEdit(player)}

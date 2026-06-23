@@ -10,7 +10,7 @@ export default async function AdminEquiposPage() {
   });
 
   const users = await prisma.user.findMany({
-    orderBy: { username: "asc" }
+    orderBy: { name: "asc" }
   });
 
   return (

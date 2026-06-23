@@ -81,7 +81,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
             <label className="block text-sm font-bold text-muted-foreground mb-1">Cuenta Capitán (Opcional)</label>
             <select name="captainId" defaultValue={editMode?.captainId || ""} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
               <option value="">-- Sin capitán asignado --</option>
-              {users.map(u => <option key={u.id} value={u.id}>{u.username}</option>)}
+              {users.map(u => <option key={u.id} value={u.id}>{u.nickName || u.name}</option>)}
             </select>
             <p className="text-xs text-muted-foreground mt-1">Asigna a un usuario registrado para que sea el manager del equipo.</p>
           </div>
@@ -125,7 +125,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
                     )}
                   </td>
                   <td className="px-4 py-3 font-bold">{team.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{team.captain?.username || "Sin asignar"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{team.captain?.nickName || team.captain?.name || "Sin asignar"}</td>
                   <td className="px-4 py-3 text-right">
                     <button 
                       onClick={() => startEdit(team)}
