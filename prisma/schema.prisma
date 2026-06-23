@@ -231,6 +231,7 @@ model MatchStat {
   matchTime        Int     @default(0)
   goals            Int     @default(0)
   assists          Int     @default(0)
+  teamPoints       Int     @default(0)
   fouls            Int     @default(0)
   fouled           Int     @default(0)
   offsides         Int     @default(0)

@@ -22,6 +22,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const jugador = await prisma.player.findUnique({
     where: { id: params.id },
     include: {
+      user: true,
       matchStats: {
         include: {
           match: { include: { homeTeam: true, awayTeam: true, tournament: { include: { season: true, category: true } } } }
@@ -133,13 +134,31 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
       {/* HEADER PERFIL */}
       <div className="relative bg-card border border-border rounded-2xl p-8 overflow-hidden shadow-lg flex flex-col md:flex-row items-center md:items-start gap-8">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
-        <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center border-4 border-card shadow-[0_0_20px_rgba(16,185,129,0.3)] z-10 text-6xl font-black text-primary uppercase">
-          {jugador.nick.slice(0, 2)}
+        <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center border-4 border-card shadow-[0_0_20px_rgba(16,185,129,0.3)] z-10 text-6xl font-black text-primary uppercase overflow-hidden">
+          {jugador.user?.customAvatarUrl || jugador.user?.image ? (
+            <img src={jugador.user.customAvatarUrl || jugador.user.image || ""} alt={jugador.nick} className="w-full h-full object-cover" />
+          ) : (
+            jugador.nick.slice(0, 2)
+          )}
         </div>
         <div className="flex flex-col items-center md:items-start justify-center h-full z-10 py-4 w-full">
-          <h1 className="text-4xl md:text-6xl font-black neon-text text-center md:text-left">
-            {jugador.nick}
-          </h1>
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <h1 className="text-4xl md:text-6xl font-black neon-text text-center md:text-left">
+              {jugador.nick}
+            </h1>
+            {jugador.user?.discordId && (
+              <a 
+                href={`https://discordapp.com/users/${jugador.user.discordId}`} 
+                target="_blank" 
+                rel="noreferrer"
+                className="bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/50 hover:bg-[#5865F2] hover:text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 mt-2 md:mt-0"
+                title="Contactar por Discord"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                Contactar en Discord
+              </a>
+            )}
+          </div>
           <div className="text-muted-foreground mt-2 font-mono flex items-center gap-2">
             <span>{t.playerDetail.title}</span>
             <span>•</span>
@@ -316,15 +335,25 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 <thead className="bg-secondary text-secondary-foreground border-b border-border">
                   <tr>
                     <th className="px-4 py-3 font-bold">Partido</th>
-                    <th className="px-4 py-3 font-bold text-center text-primary">G</th>
-                    <th className="px-4 py-3 font-bold text-center text-primary">A</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Pases</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Tiros</th>
-                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Min</th>
+                    <th className="px-4 py-3 font-bold text-center text-primary">Goals</th>
+                    <th className="px-4 py-3 font-bold text-center text-primary">Assists</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Team PTS</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Match Time</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Passes Realizados/Totales</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Sliding Realizados/Totales</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Fouls</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Ball losses</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">GK time</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Shoot accuracy Realizados/Totales</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Header Duels Realizados/Totales</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Tackles won</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Fouled</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Offside</th>
+                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">Saves Realizados/Totales</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {jugador.matchStats.map(stat => {
+                  {jugador.matchStats.map((stat: any) => {
                     const isHistorico = stat.match.round === "Estadísticas Históricas";
                     return (
                     <tr key={stat.id} className={`transition-colors ${isHistorico ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-white/5'}`}>
@@ -341,11 +370,21 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                            {isHistorico && <span className="bg-primary/20 text-primary px-1 rounded">Carga Masiva</span>}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-center font-black text-lg">{stat.goals > 0 ? stat.goals : '-'}</td>
-                      <td className="px-4 py-3 text-center font-black text-lg">{stat.assists > 0 ? stat.assists : '-'}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.passesMade}/{stat.passesTotal}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.shotsMade}/{stat.shotsTotal}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.matchTime}'</td>
+                      <td className="px-4 py-3 text-center font-black text-lg">{stat.goals || 0}</td>
+                      <td className="px-4 py-3 text-center font-black text-lg">{stat.assists || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.teamPoints || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.matchTime || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.passesMade || 0}/{stat.passesTotal || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.slidingMade || 0}/{stat.slidingTotal || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.fouls || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.ballLosses || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.gkTime || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.shotsMade || 0}/{stat.shotsTotal || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.headersMade || 0}/{stat.headersTotal || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.tacklesWon || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.fouled || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.offsides || 0}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{stat.savesMade || 0}/{stat.savesTotal || 0}</td>
                     </tr>
                     );
                   })}
