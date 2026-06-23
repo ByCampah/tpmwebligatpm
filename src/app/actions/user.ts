@@ -30,3 +30,25 @@ export async function updateUserProfile(formData: FormData) {
     return { error: "Ocurrió un error al actualizar el perfil" }
   }
 }
+
+export async function updateUserRole(formData: FormData) {
+  const session = await auth();
+  
+  if (session?.user?.role !== "ADMIN") {
+    return { success: false, error: "No tienes permisos de Administrador." };
+  }
+
+  const userId = formData.get("userId") as string;
+  const role = formData.get("role") as string;
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: role as "USER" | "MODERATOR" | "ADMIN" }
+    });
+    revalidatePath("/admin/usuarios");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Error interno al actualizar rol." };
+  }
+}

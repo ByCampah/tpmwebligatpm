@@ -25,7 +25,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
     include: {
       tournaments: {
         include: {
-          tournament: { include: { season: true } },
+          tournament: { include: { season: true, category: true } },
           players: { include: { player: true } }
         }
       },
@@ -170,7 +170,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
                 <h3 className="font-black text-xl text-primary border-b border-primary/20 pb-1">{season}</h3>
                 <div className="flex flex-col gap-4">
                   {tournamentsBySeason[season].map(participation => {
-                    const styles = getTournamentStyles(participation.tournament.name, participation.tournament.category);
+                    const styles = getTournamentStyles(participation.tournament.name, participation.tournament.category?.name || "General");
                     return (
                       <div key={participation.id} className={`bg-card border ${styles.borderClass} rounded-xl p-4 shadow-md`}>
                         <h4 className={`font-bold text-md mb-3 ${styles.textClass}`}>

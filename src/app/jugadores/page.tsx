@@ -13,7 +13,7 @@ export default async function JugadoresPage() {
         include: {
           match: {
             include: {
-              tournament: true
+              tournament: { include: { category: true } }
             }
           }
         }
@@ -47,7 +47,7 @@ export default async function JugadoresPage() {
       compStats["Global"].asistencias += stat.assists;
 
       // Extract base competition name from the database schema field directly!
-      const comp = stat.match.tournament.category || "General";
+      const comp = stat.match.tournament.category?.name || "General";
       
       if (!compStats[comp]) {
         compStats[comp] = { pj: 0, goles: 0, asistencias: 0 };

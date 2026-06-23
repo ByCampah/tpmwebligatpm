@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createSeason, createTournament } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
-export default function SeasonsClient({ seasons }: { seasons: any[] }) {
+export default function SeasonsClient({ seasons, categories }: { seasons: any[], categories: any[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -72,14 +72,11 @@ export default function SeasonsClient({ seasons }: { seasons: any[] }) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-muted-foreground mb-1">Categoría Histórica (Opcional)</label>
-              <input name="category" type="text" list="categories" className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Ej: Primera División, Copa TPM" defaultValue="General" />
-              <datalist id="categories">
-                <option value="Primera División" />
-                <option value="Segunda División" />
-                <option value="Copa TPM" />
-                <option value="Supercopa" />
-              </datalist>
+              <label className="block text-sm font-bold text-muted-foreground mb-1">Categoría Histórica</label>
+              <select name="categoryId" className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
+                <option value="">-- Sin Categoría (General) --</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
             </div>
 
             <button disabled={loading} type="submit" className="bg-primary text-primary-foreground font-black py-3 rounded-lg hover:bg-primary/90 transition-colors mt-2">

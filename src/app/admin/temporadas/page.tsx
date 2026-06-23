@@ -9,6 +9,10 @@ export default async function AdminTemporadasPage() {
     include: { tournaments: true }
   });
 
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" }
+  });
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -18,7 +22,7 @@ export default async function AdminTemporadasPage() {
         </p>
       </div>
 
-      <SeasonsClient seasons={seasons} />
+      <SeasonsClient seasons={seasons} categories={categories} />
     </div>
   );
 }

@@ -298,10 +298,10 @@ export async function createTournament(formData: FormData) {
   const seasonId = formData.get("seasonId") as string;
   const name = formData.get("name") as string;
   const format = formData.get("format") as string;
-  const category = formData.get("category") as string || "General";
+  const categoryId = formData.get("categoryId") as string;
 
   await prisma.tournament.create({
-    data: { seasonId, name, format, category }
+    data: { seasonId, name, format, categoryId: categoryId || null }
   });
 
   revalidatePath("/admin/temporadas");
@@ -312,11 +312,11 @@ export async function updateTournament(formData: FormData) {
   const tournamentId = formData.get("tournamentId") as string;
   const name = formData.get("name") as string;
   const format = formData.get("format") as string;
-  const category = formData.get("category") as string || "General";
+  const categoryId = formData.get("categoryId") as string;
 
   await prisma.tournament.update({
     where: { id: tournamentId },
-    data: { name, format, category }
+    data: { name, format, categoryId: categoryId || null }
   });
 
   revalidatePath("/admin/temporadas");

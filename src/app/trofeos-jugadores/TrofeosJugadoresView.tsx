@@ -8,7 +8,7 @@ type TrophyRecord = {
   name: string;
   tournament?: {
     name: string;
-    category: string;
+    category?: { name: string } | null;
   } | null;
 };
 
@@ -28,10 +28,10 @@ export default function TrofeosJugadoresView({ players, dictionary }: { players:
 
   const primeraFilter = (t: TrophyRecord) => {
     const isX8 = t.name.includes("x8") || (t.tournament?.name || "").includes("x8");
-    const isSegunda = t.name.includes("Segunda") || (t.tournament?.category || "").includes("Segunda");
+    const isSegunda = t.name.includes("Segunda") || (t.tournament?.category?.name || "").includes("Segunda");
     return !isX8 && !isSegunda;
   };
-  const segundaFilter = (t: TrophyRecord) => t.name.includes("Segunda") || (t.tournament?.category || "").includes("Segunda");
+  const segundaFilter = (t: TrophyRecord) => t.name.includes("Segunda") || (t.tournament?.category?.name || "").includes("Segunda");
   const x8Filter = (t: TrophyRecord) => t.name.includes("x8") || (t.tournament?.name || "").includes("x8");
 
   // Process data for the active tab

@@ -5,7 +5,7 @@ import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, ge
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function TournamentClient({ tournament, allTeams, allPlayers }: { tournament: any, allTeams: any[], allPlayers: any[] }) {
+export default function TournamentClient({ tournament, allTeams, allPlayers, categories }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -650,13 +650,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers }: {
                 <p className="text-xs text-muted-foreground mb-3">
                   Cambiar esto agrupará las estadísticas de este torneo junto a otros torneos que tengan la misma categoría en el Salón de la Fama.
                 </p>
-                <input name="category" type="text" list="categories" defaultValue={tournament.category || "General"} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" />
-                <datalist id="categories">
-                  <option value="Primera División" />
-                  <option value="Segunda División" />
-                  <option value="Copa TPM" />
-                  <option value="Supercopa" />
-                </datalist>
+                <select name="categoryId" defaultValue={tournament.categoryId || ""} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
+                  <option value="">-- Sin Categoría (General) --</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
               </div>
 
               <button disabled={loading} type="submit" className="bg-primary text-primary-foreground font-black py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(var(--primary),0.2)] mt-4">

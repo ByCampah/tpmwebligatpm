@@ -129,17 +129,25 @@ model Season {
   createdAt        DateTime @default(now())
 }
 
+model Category {
+  id        String       @id @default(uuid())
+  name      String       @unique
+  tournaments Tournament[]
+}
+
 model Tournament {
-  id               String  @id @default(uuid())
-  seasonId         String
-  season           Season  @relation(fields: [seasonId], references: [id])
-  name             String  // e.g. "Primera Division", "Copa TPM"
-  format           String  // "LEAGUE", "CUP", "PLAYOFF"
-  category         String  @default("General") // e.g. "Primera División", "Copa TPM"
+  id        String   @id @default(cuid())
+  name      String
+  format    String   @default("LEAGUE") // LEAGUE, CUP, PLAYOFF
+  seasonId  String
+  season    Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   
-  matches          Match[]
-  teams            TournamentTeam[]
-  trophies         Trophy[] // Trophies awarded in this tournament
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  matches    Match[]
+  teams      TournamentTeam[]
+  trophies   Trophy[] // Trophies awarded in this tournament
   
   createdAt        DateTime @default(now())
 }

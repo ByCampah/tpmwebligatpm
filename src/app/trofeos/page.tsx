@@ -14,7 +14,7 @@ export default async function TrofeosPage() {
           type: "TEAM"
         },
         include: {
-          tournament: true
+          tournament: { include: { category: true } }
         }
       }
     }

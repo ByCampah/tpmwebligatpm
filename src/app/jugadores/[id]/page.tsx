@@ -24,12 +24,12 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
     include: {
       matchStats: {
         include: {
-          match: { include: { homeTeam: true, awayTeam: true, tournament: { include: { season: true } } } }
+          match: { include: { homeTeam: true, awayTeam: true, tournament: { include: { season: true, category: true } } } }
         },
         orderBy: { match: { matchDate: "desc" } }
       },
       tournamentTeams: {
-        include: { tournamentTeam: { include: { team: true, tournament: { include: { season: true } } } } }
+        include: { tournamentTeam: { include: { team: true, tournament: { include: { season: true, category: true } } } } }
       },
       trophies: {
         include: { tournament: true, team: true },
@@ -285,7 +285,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 <h3 className="font-bold text-sm text-primary uppercase tracking-wider">{season}</h3>
                 <div className="flex flex-col gap-2 pl-2 border-l-2 border-primary/30">
                   {trajectoryBySeason[season].map(t => {
-                    const styles = getTournamentStyles(t.tournamentTeam.tournament.name, t.tournamentTeam.tournament.category);
+                    const styles = getTournamentStyles(t.tournamentTeam.tournament.name, t.tournamentTeam.tournament.category?.name || "General");
                     return (
                       <Link key={t.id} href={`/equipos/${t.tournamentTeam.team.id}`} className="bg-card border border-border p-2 rounded-lg hover:border-primary transition-colors flex flex-col gap-1">
                         <span className="font-bold text-white">{t.tournamentTeam.team.name}</span>

@@ -11,7 +11,7 @@ export default async function TrofeosJugadoresPage() {
     include: {
       trophies: {
         where: { type: "PLAYER" },
-        include: { tournament: true }
+        include: { tournament: { include: { category: true } } }
       },
       tournamentTeams: {
         include: {
@@ -21,7 +21,7 @@ export default async function TrofeosJugadoresPage() {
                 include: {
                   trophies: {
                     where: { type: "TEAM" },
-                    include: { tournament: true }
+                    include: { tournament: { include: { category: true } } }
                   }
                 }
               }

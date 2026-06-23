@@ -36,7 +36,11 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
     orderBy: { nick: "asc" }
   });
 
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" }
+  });
+
   return (
-    <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} />
+    <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} categories={categories} />
   );
 }
