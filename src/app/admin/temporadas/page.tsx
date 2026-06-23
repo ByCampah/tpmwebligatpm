@@ -1,9 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import SeasonsClient from "./SeasonsClient";
+import { auth } from "@/auth";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminTemporadasPage() {
+  const session = await auth();
+  const userRole = session?.user?.role || "USER";
+
   const seasons = await prisma.season.findMany({
     orderBy: { createdAt: "desc" },
     include: { tournaments: true }
@@ -22,7 +26,7 @@ export default async function AdminTemporadasPage() {
         </p>
       </div>
 
-      <SeasonsClient seasons={seasons} categories={categories} />
+      <SeasonsClient seasons={seasons} categories={categories} userRole={userRole} />
     </div>
   );
 }

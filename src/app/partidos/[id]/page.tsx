@@ -140,19 +140,54 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
 
       {/* Match Events Timeline */}
       {events.length > 0 && (
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-xl w-full max-w-2xl mx-auto flex flex-col gap-4">
-          <h3 className="text-xl font-black text-center text-primary border-b border-border/50 pb-2 mb-2">Eventos del Partido</h3>
-          <div className="flex flex-col gap-3">
-            {events.map((ev, i) => (
-              <div key={i} className="flex items-center gap-4 bg-black/40 p-3 rounded-lg border border-border/50 hover:border-primary/50 transition-colors">
-                <div className="font-black text-lg text-muted-foreground w-12 text-right">{ev.minute}'</div>
-                <div className="text-2xl">{ev.type === 'GOAL' ? '⚽' : '🟥'}</div>
-                <div className="flex flex-col flex-1">
-                  <span className="font-bold text-white">{ev.playerName}</span>
-                  {ev.assistName && <span className="text-xs font-bold text-muted-foreground">Asistencia: {ev.assistName}</span>}
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-xl w-full max-w-2xl mx-auto flex flex-col gap-6">
+          <h3 className="text-xl font-black text-center text-primary border-b border-border/50 pb-2">Línea de Tiempo</h3>
+          <div className="flex flex-col gap-4 relative">
+            {/* Center line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border/50 -translate-x-1/2"></div>
+            
+            {events.map((ev, i) => {
+              const isAway = ev.teamId === match.awayTeamId;
+              // If teamId is missing, default to Home or center it? Let's just use flex-start if home, flex-end if away.
+              
+              return (
+              <div key={i} className={`flex w-full ${isAway ? 'justify-end' : 'justify-start'} relative`}>
+                <div className={`w-1/2 flex ${isAway ? 'justify-start pl-6 md:pl-12' : 'justify-end pr-6 md:pr-12'}`}>
+                  
+                  {/* Event Bubble */}
+                  <div className={`flex items-center gap-3 bg-black/60 p-3 md:p-4 rounded-xl border ${isAway ? 'border-blue-500/30 flex-row-reverse text-right' : 'border-primary/30 text-left'} hover:border-primary/60 transition-colors shadow-lg relative min-w-[200px]`}>
+                    
+                    {/* Circle on the timeline */}
+                    <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-4 border-black bg-white z-10 ${isAway ? '-left-[calc(1.5rem+8px)] md:-left-[calc(3rem+8px)]' : '-right-[calc(1.5rem+8px)] md:-right-[calc(3rem+8px)]'}`}></div>
+                    
+                    <div className="font-black text-xl text-primary w-10 text-center">{ev.minute}'</div>
+                    <div className="text-3xl">{ev.type === 'GOAL' ? '⚽' : '🟥'}</div>
+                    <div className={`flex flex-col flex-1 ${isAway ? 'items-end' : 'items-start'}`}>
+                      {ev.playerId ? (
+                        <Link href={`/jugadores/${ev.playerId}`} className="font-black text-white hover:text-primary transition-colors hover:underline">
+                          {ev.playerName}
+                        </Link>
+                      ) : (
+                        <span className="font-black text-white">{ev.playerName}</span>
+                      )}
+                      
+                      {ev.assistName && (
+                        <div className="text-xs font-bold text-muted-foreground mt-1 flex gap-1">
+                          Asist: 
+                          {ev.assistId ? (
+                            <Link href={`/jugadores/${ev.assistId}`} className="hover:text-primary transition-colors hover:underline">
+                              {ev.assistName}
+                            </Link>
+                          ) : (
+                            <span>{ev.assistName}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
       )}

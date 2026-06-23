@@ -5,11 +5,11 @@ import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, ge
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function TournamentClient({ tournament, allTeams, allPlayers, categories }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[] }) {
+export default function TournamentClient({ tournament, allTeams, allPlayers, categories, userRole }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[], userRole: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS">("EQUIPOS");
+  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "AJUSTES">(userRole === "MODERATOR" ? "PARTIDOS" : "EQUIPOS");
   
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");
@@ -152,30 +152,28 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
       {/* TABS MENU */}
       <div className="flex flex-wrap border-b border-border mb-4">
-        <button 
-          onClick={() => setActiveTab("EQUIPOS")}
-          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "EQUIPOS" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
-        >
-          Equipos y Planteles ({enrolledTeamsData.length})
-        </button>
+        {userRole === "ADMIN" && (
+          <button 
+            onClick={() => setActiveTab("EQUIPOS")}
+            className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "EQUIPOS" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+          >
+            Equipos y Planteles ({enrolledTeamsData.length})
+          </button>
+        )}
         <button 
           onClick={() => setActiveTab("PARTIDOS")}
           className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "PARTIDOS" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
         >
           Partidos y Resultados ({tournament.matches.length})
         </button>
-        <button 
-          onClick={() => setActiveTab("PREMIOS")}
-          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "PREMIOS" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
-        >
-          Podio y Premios
-        </button>
-        <button 
-          onClick={() => setActiveTab("AJUSTES" as any)}
-          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "AJUSTES" as any ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
-        >
-          Ajustes
-        </button>
+        {userRole === "ADMIN" && (
+          <button 
+            onClick={() => setActiveTab("PREMIOS")}
+            className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "PREMIOS" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+          >
+            Podio y Premios
+          </button>
+        )}
       </div>
 
       {/* TAB CONTENT: EQUIPOS */}
@@ -300,31 +298,34 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
         <div className="flex flex-col gap-6 w-full">
           
           <div className="grid lg:grid-cols-2 gap-4">
-            <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4">
-              <h3 className="font-bold text-lg text-primary">Generación Automática Liga</h3>
-              <p className="text-sm text-muted-foreground">Crea todos los partidos "Todos contra Todos" al instante.</p>
-              <form action={async (formData) => {
-                if (confirm("¿Estás seguro de generar el fixture automático?")) {
-                  setLoading(true);
-                  setError("");
-                  formData.append("tournamentId", tournament.id);
-                  const res = await generateRoundRobin(formData);
-                  if (!res.success) setError(res.error || "Error");
-                  setLoading(false);
-                  router.refresh();
-                }
-              }} className="flex gap-4">
-                <select name="doubleRound" className="flex-1 bg-black border border-border text-sm p-3 rounded focus:border-primary">
-                  <option value="false">Solo Ida (Single Round Robin)</option>
-                  <option value="true">Ida y Vuelta (Double Round Robin)</option>
-                </select>
-                <button disabled={loading || enrolledTeamsData.length < 2} type="submit" className="bg-primary text-primary-foreground font-black px-6 rounded text-sm hover:bg-primary/90">
-                  AUTO-GENERAR
-                </button>
-              </form>
-            </div>
+            {userRole === "ADMIN" && (
+              <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4">
+                <h3 className="font-bold text-lg text-primary">Generación Automática Liga</h3>
+                <p className="text-sm text-muted-foreground">Crea todos los partidos "Todos contra Todos" al instante.</p>
+                <form action={async (formData) => {
+                  if (confirm("¿Estás seguro de generar el fixture automático?")) {
+                    setLoading(true);
+                    setError("");
+                    formData.append("tournamentId", tournament.id);
+                    const res = await generateRoundRobin(formData);
+                    if (!res.success) setError(res.error || "Error");
+                    setLoading(false);
+                    router.refresh();
+                  }
+                }} className="flex gap-4">
+                  <select name="doubleRound" className="flex-1 bg-black border border-border text-sm p-3 rounded focus:border-primary">
+                    <option value="false">Solo Ida (Single Round Robin)</option>
+                    <option value="true">Ida y Vuelta (Double Round Robin)</option>
+                  </select>
+                  <button disabled={loading || enrolledTeamsData.length < 2} type="submit" className="bg-primary text-primary-foreground font-black px-6 rounded text-sm hover:bg-primary/90">
+                    AUTO-GENERAR
+                  </button>
+                </form>
+              </div>
+            )}
 
-            <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4">
+            {userRole === "ADMIN" && (
+              <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4">
               <h3 className="font-bold text-lg text-secondary-foreground">Partido Manual (Copas/Playoffs)</h3>
               <p className="text-sm text-muted-foreground">Añade un partido extra al calendario.</p>
               <form action={async (formData) => {
@@ -352,7 +353,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   </button>
                 </div>
               </form>
-            </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-4 mt-4">
@@ -432,14 +434,17 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                           <input type="hidden" name="eventsJson" value={JSON.stringify(editingEvents)} />
                           
                           <div className="flex flex-col gap-4">
-                            {editingEvents.map((ev, idx) => (
-                              <div key={idx} className="flex items-center gap-4 bg-black/50 p-3 rounded border border-border">
-                                <span className="font-black text-lg w-16">{ev.minute}'</span>
+                            {editingEvents.map((ev, idx) => {
+                              const isHome = ev.teamId === m.homeTeamId;
+                              return (
+                              <div key={idx} className={`flex items-center gap-4 bg-black/50 p-3 rounded border ${isHome ? 'border-primary/50' : 'border-blue-500/50'}`}>
+                                <span className="font-black text-lg w-16 text-muted-foreground">{ev.minute}'</span>
                                 <span className="text-2xl">{ev.type === 'GOAL' ? '⚽' : '🟥'}</span>
                                 <span className="font-bold flex-1">{ev.playerName} {ev.assistName ? <span className="text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}</span>
+                                <span className="text-xs uppercase font-bold text-muted-foreground mr-4">{isHome ? m.homeTeam.name : m.awayTeam.name}</span>
                                 <button type="button" onClick={() => setEditingEvents(prev => prev.filter((_, i) => i !== idx))} className="text-destructive font-black hover:scale-110">×</button>
                               </div>
-                            ))}
+                            )})}
                             {editingEvents.length === 0 && <p className="text-muted-foreground italic text-sm">No hay eventos registrados.</p>}
                           </div>
 
@@ -449,18 +454,64 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                               <option value="RED">🟥 Tarjeta Roja</option>
                             </select>
                             <input id={`min_${m.id}`} type="number" placeholder="Minuto" className="w-24 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
-                            <input id={`player_${m.id}`} type="text" placeholder="Jugador (Nick)" className="flex-1 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
-                            <input id={`assist_${m.id}`} type="text" placeholder="Asistencia (Opcional)" className="flex-1 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
+                            
+                            <select id={`player_${m.id}`} className="flex-1 bg-black border border-border rounded p-2 focus:border-primary text-sm">
+                              <option value="">Seleccionar Jugador...</option>
+                              <optgroup label={m.homeTeam.name}>
+                                {enrolledTeamsData.find((t:any) => t.teamId === m.homeTeamId)?.players?.map((p:any) => (
+                                  <option key={`p_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                                ))}
+                              </optgroup>
+                              <optgroup label={m.awayTeam.name}>
+                                {enrolledTeamsData.find((t:any) => t.teamId === m.awayTeamId)?.players?.map((p:any) => (
+                                  <option key={`p_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                                ))}
+                              </optgroup>
+                            </select>
+
+                            <select id={`assist_${m.id}`} className="flex-1 bg-black border border-border rounded p-2 focus:border-primary text-sm">
+                              <option value="">Asistencia (Opcional)...</option>
+                              <optgroup label={m.homeTeam.name}>
+                                {enrolledTeamsData.find((t:any) => t.teamId === m.homeTeamId)?.players?.map((p:any) => (
+                                  <option key={`a_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                                ))}
+                              </optgroup>
+                              <optgroup label={m.awayTeam.name}>
+                                {enrolledTeamsData.find((t:any) => t.teamId === m.awayTeamId)?.players?.map((p:any) => (
+                                  <option key={`a_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                                ))}
+                              </optgroup>
+                            </select>
+
                             <button type="button" onClick={() => {
                               const type = (document.getElementById(`type_${m.id}`) as HTMLSelectElement).value;
                               const min = parseInt((document.getElementById(`min_${m.id}`) as HTMLInputElement).value);
-                              const player = (document.getElementById(`player_${m.id}`) as HTMLInputElement).value;
-                              const assist = (document.getElementById(`assist_${m.id}`) as HTMLInputElement).value;
-                              if(!min || !player) return alert("Minuto y Jugador son obligatorios");
-                              setEditingEvents([...editingEvents, { type, minute: min, playerName: player, assistName: assist || null }].sort((a,b) => a.minute - b.minute));
+                              
+                              const playerSelect = document.getElementById(`player_${m.id}`) as HTMLSelectElement;
+                              const assistSelect = document.getElementById(`assist_${m.id}`) as HTMLSelectElement;
+                              
+                              const playerId = playerSelect.value;
+                              const assistId = assistSelect.value || null;
+                              
+                              if(!min || !playerId) return alert("Minuto y Jugador son obligatorios");
+
+                              const playerName = playerSelect.options[playerSelect.selectedIndex].text;
+                              const assistName = assistId ? assistSelect.options[assistSelect.selectedIndex].text : null;
+                              
+                              // Determine teamId from the optgroup label
+                              const optgroupLabel = playerSelect.options[playerSelect.selectedIndex].parentElement?.getAttribute('label');
+                              const teamId = optgroupLabel === m.homeTeam.name ? m.homeTeamId : m.awayTeamId;
+
+                              setEditingEvents([...editingEvents, { 
+                                type, minute: min, 
+                                playerId, playerName, 
+                                assistId, assistName, 
+                                teamId 
+                              }].sort((a,b) => a.minute - b.minute));
+                              
                               (document.getElementById(`min_${m.id}`) as HTMLInputElement).value = '';
-                              (document.getElementById(`player_${m.id}`) as HTMLInputElement).value = '';
-                              (document.getElementById(`assist_${m.id}`) as HTMLInputElement).value = '';
+                              playerSelect.value = '';
+                              assistSelect.value = '';
                             }} className="bg-secondary text-secondary-foreground font-bold px-4 rounded hover:bg-primary hover:text-primary-foreground transition-colors text-sm py-2">
                               AÑADIR EVENTO
                             </button>

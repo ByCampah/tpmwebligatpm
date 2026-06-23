@@ -58,6 +58,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/admin/premios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
               Asignar Premios
             </Link>
+
+            {session.user.role === "ADMIN" && (
+              <>
+                <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Seguridad</div>
+                <Link href="/admin/logs" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Registro de Acciones (Logs)
+                </Link>
+              </>
+            )}
           </nav>
         </div>
         

@@ -34,6 +34,9 @@ model User {
   
   // Noticias creadas
   news            News[]
+
+  // Admin logs
+  adminLogs       AdminLog[]
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -166,7 +169,7 @@ model Tournament {
 model TournamentTeam {
   id               String  @id @default(uuid())
   tournamentId     String
-  tournament       Tournament @relation(fields: [tournamentId], references: [id])
+  tournament       Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   
   teamId           String
   team             Team       @relation(fields: [teamId], references: [id])
@@ -189,7 +192,7 @@ model TournamentTeam {
 model TournamentPlayer {
   id                 String  @id @default(uuid())
   tournamentTeamId   String
-  tournamentTeam     TournamentTeam @relation(fields: [tournamentTeamId], references: [id])
+  tournamentTeam     TournamentTeam @relation(fields: [tournamentTeamId], references: [id], onDelete: Cascade)
   
   playerId           String
   player             Player         @relation(fields: [playerId], references: [id])
@@ -200,7 +203,7 @@ model TournamentPlayer {
 model Match {
   id               String  @id @default(uuid())
   tournamentId     String
-  tournament       Tournament @relation(fields: [tournamentId], references: [id])
+  tournament       Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   
   homeTeamId       String
   homeTeam         Team       @relation("HomeMatches", fields: [homeTeamId], references: [id])
@@ -224,7 +227,7 @@ model Match {
 model MatchStat {
   id               String  @id @default(uuid())
   matchId          String
-  match            Match   @relation(fields: [matchId], references: [id])
+  match            Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
   
   playerId         String
   player           Player  @relation(fields: [playerId], references: [id])
@@ -262,7 +265,7 @@ model Trophy {
   type         String  // "TEAM" or "PLAYER"
   
   tournamentId String?
-  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   
   teamId       String?
   team         Team?       @relation(fields: [teamId], references: [id])
@@ -285,4 +288,13 @@ model News {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model AdminLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
 }

@@ -1,11 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import TournamentClient from "./TournamentClient";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminTournamentPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
+  const session = await auth();
+  const userRole = session?.user?.role || "USER";
   
   const tournament = await prisma.tournament.findUnique({
     where: { id: params.id },
@@ -41,6 +44,6 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
   });
 
   return (
-    <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} categories={categories} />
+    <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} categories={categories} userRole={userRole} />
   );
 }

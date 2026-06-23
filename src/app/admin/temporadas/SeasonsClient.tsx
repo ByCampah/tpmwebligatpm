@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { createSeason, createTournament, setActiveSeason } from "@/app/actions";
+import { createSeason, createTournament, setActiveSeason, deleteSeason, deleteTournament } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
-export default function SeasonsClient({ seasons, categories }: { seasons: any[], categories: any[] }) {
+export default function SeasonsClient({ seasons, categories, userRole }: { seasons: any[], categories: any[], userRole: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -12,8 +12,9 @@ export default function SeasonsClient({ seasons, categories }: { seasons: any[],
     <div className="flex flex-col gap-8">
       
       {/* SEASONS */}
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-secondary/30 p-6 rounded-xl border border-border">
+      {userRole === "ADMIN" && (
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="bg-secondary/30 p-6 rounded-xl border border-border">
           <h2 className="font-bold text-lg text-primary mb-4">Añadir Temporada</h2>
           <form action={async (formData) => {
             setLoading(true);
@@ -85,6 +86,7 @@ export default function SeasonsClient({ seasons, categories }: { seasons: any[],
           </form>
         </div>
       </div>
+      )}
 
       {/* SEASONS LIST */}
       <div>
@@ -110,6 +112,20 @@ export default function SeasonsClient({ seasons, categories }: { seasons: any[],
                     >
                       HACER ACTIVA
                     </button>
+                  {userRole === "ADMIN" && (
+                    <button 
+                      onClick={async () => {
+                        if (confirm("¿Estás seguro de eliminar esta temporada? SE BORRARÁN TODOS LOS TORNEOS, PARTIDOS Y ESTADÍSTICAS ASOCIADAS.")) {
+                          setLoading(true);
+                          await deleteSeason(season.id);
+                          setLoading(false);
+                        }
+                      }}
+                      className="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white text-xs px-3 py-1 rounded font-bold transition-colors ml-2"
+                      disabled={loading}
+                    >
+                      ELIMINAR
+                    </button>
                   )}
                 </h3>
               </div>
@@ -122,9 +138,26 @@ export default function SeasonsClient({ seasons, categories }: { seasons: any[],
                       <span className="font-bold block">{t.name}</span>
                       <span className="text-xs text-muted-foreground font-mono">{t.format}</span>
                     </div>
-                    <a href={`/admin/temporadas/${t.id}`} className="bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground text-xs font-bold px-4 py-2 rounded transition-colors">
-                      GESTIONAR TORNEO
-                    </a>
+                    <div className="flex gap-2">
+                      <a href={`/admin/temporadas/${t.id}`} className="bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground text-xs font-bold px-4 py-2 rounded transition-colors">
+                        GESTIONAR
+                      </a>
+                      {userRole === "ADMIN" && (
+                        <button 
+                          onClick={async () => {
+                            if (confirm("¿Estás seguro de eliminar este torneo? SE BORRARÁN TODOS LOS PARTIDOS Y EQUIPOS INSCRITOS.")) {
+                              setLoading(true);
+                              await deleteTournament(t.id);
+                              setLoading(false);
+                            }
+                          }}
+                          className="bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white text-xs font-bold px-4 py-2 rounded transition-colors"
+                          disabled={loading}
+                        >
+                          X
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

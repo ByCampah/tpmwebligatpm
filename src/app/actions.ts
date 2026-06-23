@@ -2,6 +2,24 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+
+export async function createAdminLog(action: string, details?: string) {
+  const session = await auth();
+  if (!session?.user) return;
+  
+  try {
+    await prisma.adminLog.create({
+      data: {
+        userId: session.user.id,
+        action,
+        details
+      }
+    });
+  } catch (e) {
+    console.error("Failed to create admin log", e);
+  }
+}
 
 export async function submitMatchStats(formData: any) {
   const { matchId, homeScore, awayScore, playerStats, eventsJson } = formData;
@@ -82,6 +100,8 @@ export async function submitMatchStats(formData: any) {
     }
   });
 
+  await createAdminLog("Edición de Partido", `Actualizó el resultado y estadísticas del partido ID: ${matchId}`);
+
   // 3. Revalidate cache
   revalidatePath("/liga");
   revalidatePath("/admin/partidos");
@@ -130,7 +150,29 @@ export async function setActiveSeason(seasonId: string) {
 
   revalidatePath("/admin/temporadas");
   revalidatePath("/liga");
+  
+  await createAdminLog("Temporada Activa", `Hizo activa la temporada ID: ${seasonId}`);
+  
   return { success: true };
+}
+
+export async function deleteSeason(seasonId: string) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+
+  try {
+    await prisma.season.delete({
+      where: { id: seasonId }
+    });
+    
+    await createAdminLog("Eliminar Temporada", `Eliminó la temporada ID: ${seasonId}`);
+    
+    revalidatePath("/admin/temporadas");
+    revalidatePath("/liga");
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: "Error interno al eliminar la temporada" };
+  }
 }
 
 // ==========================================
@@ -321,6 +363,7 @@ export async function createSeason(formData: FormData) {
 
   revalidatePath("/admin/temporadas");
   revalidatePath("/liga");
+  await createAdminLog("Crear Temporada", `Creó la temporada: ${name}`);
   return { success: true };
 }
 
@@ -335,6 +378,7 @@ export async function createTournament(formData: FormData) {
   });
 
   revalidatePath("/admin/temporadas");
+  await createAdminLog("Crear Torneo", `Creó el torneo: ${name} en Temporada ID: ${seasonId}`);
   return { success: true };
 }
 
@@ -352,7 +396,28 @@ export async function updateTournament(formData: FormData) {
   revalidatePath("/admin/temporadas");
   revalidatePath(`/admin/temporadas/${tournamentId}`);
   revalidatePath("/jugadores"); // Stats categories will change
+  
+  await createAdminLog("Actualizar Torneo", `Actualizó el torneo ID: ${tournamentId}`);
   return { success: true };
+}
+
+export async function deleteTournament(tournamentId: string) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+
+  try {
+    await prisma.tournament.delete({
+      where: { id: tournamentId }
+    });
+    
+    await createAdminLog("Eliminar Torneo", `Eliminó el torneo ID: ${tournamentId}`);
+    
+    revalidatePath("/admin/temporadas");
+    revalidatePath("/liga");
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: "Error interno al eliminar el torneo" };
+  }
 }
 
 // ==========================================
