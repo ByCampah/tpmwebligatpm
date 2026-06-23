@@ -139,7 +139,7 @@ export default async function RootLayout({
               <div className="w-16 h-16 mb-4">
                 <img src="/img/logos/LogoTPM.png" alt="Liga TPM" className="w-full h-full object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300" />
               </div>
-              <p>© {new Date().getFullYear()} Creado por TPM</p>
+              <p>© {new Date().getFullYear()} Creado por Campah</p>
               <p className="mt-1 text-xs opacity-70">Desarrollado para la comunidad</p>
             </div>
 
