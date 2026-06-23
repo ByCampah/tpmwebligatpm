@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createPlayer, deletePlayer, editPlayer } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 export default function PlayersClient({ players, users }: { players: any[], users: any[] }) {
   const router = useRouter();
@@ -98,10 +99,12 @@ export default function PlayersClient({ players, users }: { players: any[], user
             
             <div>
               <label className="block text-sm font-bold text-muted-foreground mb-1">Vincular a Cuenta (Opcional)</label>
-              <select name="userId" defaultValue={editMode?.user?.id || ""} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
-                <option value="">-- Sin cuenta vinculada --</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.nickName || u.name}</option>)}
-              </select>
+              <SearchableSelect
+                name="userId"
+                options={users.map(u => ({ value: u.id, label: u.nickName || u.name || "Usuario Desconocido" }))}
+                defaultValue={editMode?.user?.id || ""}
+                placeholder="-- Sin cuenta vinculada --"
+              />
             </div>
           </div>
 

@@ -32,6 +32,9 @@ model User {
   // Equipos donde es capitan/manager
   captainOfTeams  Team[]  @relation("TeamCaptain")
   
+  // Noticias creadas
+  news            News[]
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -94,6 +97,9 @@ model Player {
   // Trophies/Awards won
   trophies        Trophy[]
   
+  // Transfer Market
+  isFreeAgent     Boolean            @default(false)
+  
   createdAt       DateTime           @default(now())
 }
 
@@ -115,6 +121,9 @@ model Team {
   
   // Trophies/Awards won
   trophies         Trophy[]
+  
+  // Transfer Market
+  isLookingForPlayers Boolean @default(false)
   
   createdAt        DateTime @default(now())
 }
@@ -258,4 +267,18 @@ model Trophy {
   player       Player?     @relation(fields: [playerId], references: [id])
 
   createdAt    DateTime @default(now())
+}
+
+model News {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  imageUrl    String?
+  isFeatured  Boolean  @default(false)
+  
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

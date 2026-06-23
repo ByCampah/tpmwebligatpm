@@ -36,16 +36,16 @@ export default function ClientNavbar() {
 
   const t = dictionaries[locale] || dictionaries.es;
 
-  const links = [
+  const links: { name: string; href: string; comingSoon?: boolean }[] = [
     { name: t.nav.home, href: '/' },
-    { name: t.nav.news, href: '#', comingSoon: true },
+    { name: t.nav.news, href: '/noticias' },
     { name: t.nav.league, href: '/liga' },
     { name: t.nav.history, href: '/historial' },
     { name: t.nav.teamTrophies, href: '/trofeos' },
     { name: t.nav.playerTrophies, href: '/trofeos-jugadores' },
     { name: t.nav.teams, href: '/equipos' },
     { name: t.nav.players, href: '/jugadores' },
-    { name: t.nav.market, href: '#', comingSoon: true },
+    { name: t.nav.market, href: '/mercado' },
   ];
 
   return (

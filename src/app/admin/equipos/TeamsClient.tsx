@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createTeam, deleteTeam, editTeam } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 export default function TeamsClient({ teams, users }: { teams: any[], users: any[] }) {
   const router = useRouter();
@@ -79,10 +80,12 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
 
           <div>
             <label className="block text-sm font-bold text-muted-foreground mb-1">Cuenta Capitán (Opcional)</label>
-            <select name="captainId" defaultValue={editMode?.captainId || ""} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
-              <option value="">-- Sin capitán asignado --</option>
-              {users.map(u => <option key={u.id} value={u.id}>{u.nickName || u.name}</option>)}
-            </select>
+            <SearchableSelect
+              name="captainId"
+              options={users.map(u => ({ value: u.id, label: u.nickName || u.name || "Usuario Desconocido" }))}
+              defaultValue={editMode?.captainId || ""}
+              placeholder="-- Sin capitán asignado --"
+            />
             <p className="text-xs text-muted-foreground mt-1">Asigna a un usuario registrado para que sea el manager del equipo.</p>
           </div>
 

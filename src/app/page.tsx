@@ -37,6 +37,11 @@ export default async function Home() {
     };
   }).filter(c => c.team);
 
+  const featuredNews = await prisma.news.findFirst({
+    where: { isFeatured: true },
+    orderBy: { createdAt: "desc" }
+  });
+
   return (
     <div className="flex flex-col gap-12 max-w-5xl mx-auto">
       {/* Hero Section */}
@@ -64,17 +69,43 @@ export default async function Home() {
         {/* Left Col: News & Streams (Mock) */}
         <div className="md:col-span-2 flex flex-col gap-8">
           <section>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
-              Noticias (Próximamente)
-            </h2>
-            <div className="bg-card border border-border rounded-xl p-6">
-              <span className="text-xs font-bold text-primary mb-2 block">FASE ALFA</span>
-              <h3 className="text-xl font-bold mb-2">¡Arranca la nueva plataforma!</h3>
-              <p className="text-muted-foreground">
-                Bienvenidos a la nueva página oficial de la Liga TPM Sudamerica. A partir de ahora todas las estadísticas quedarán registrados históricamente. Los datos de estas temporadas son dificiles de conseguir al 100% por eso se puso lo mas importante.
-              </p>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
+                Noticias
+              </h2>
+              <Link href="/noticias" className="text-sm font-bold text-primary hover:underline">
+                Ver todas &rarr;
+              </Link>
             </div>
+            
+            {featuredNews ? (
+              <Link href={`/noticias/${featuredNews.id}`} className="group block">
+                <div className="bg-card border border-border rounded-xl overflow-hidden transition-all hover:border-primary/50 relative">
+                  {featuredNews.imageUrl && (
+                    <div className="w-full h-48 relative">
+                      <img src={featuredNews.imageUrl} alt={featuredNews.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                    </div>
+                  )}
+                  <div className={`p-6 ${featuredNews.imageUrl ? 'absolute bottom-0 left-0 w-full' : ''}`}>
+                    <span className="text-xs font-black text-primary mb-2 block drop-shadow-md">DESTACADA</span>
+                    <h3 className={`text-xl font-bold mb-2 group-hover:text-primary transition-colors ${featuredNews.imageUrl ? 'text-white drop-shadow-md' : ''}`}>
+                      {featuredNews.title}
+                    </h3>
+                    {!featuredNews.imageUrl && (
+                      <p className="text-muted-foreground line-clamp-3">
+                        {featuredNews.content}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <div className="bg-card border border-border rounded-xl p-6 text-center text-muted-foreground">
+                No hay noticias destacadas en este momento.
+              </div>
+            )}
           </section>
 
           {/* Historical Champions */}
