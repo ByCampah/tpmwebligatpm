@@ -2,28 +2,43 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
+import LogsFilterClient from "./LogsFilterClient";
+
 export const dynamic = 'force-dynamic';
 
-export default async function AdminLogsPage() {
+export default async function AdminLogsPage({ searchParams }: { searchParams: { user?: string } }) {
   const session = await auth();
   
   if (session?.user?.role !== "ADMIN") {
     redirect("/admin");
   }
 
+  const userIdFilter = searchParams.user;
+
   const logs = await prisma.adminLog.findMany({
+    where: userIdFilter ? { userId: userIdFilter } : {},
     orderBy: { createdAt: "desc" },
     include: { user: true },
     take: 100 // Get latest 100 logs
   });
 
+  const allUsersWithLogs = await prisma.user.findMany({
+    where: {
+      adminLogs: { some: {} }
+    },
+    select: { id: true, name: true }
+  });
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-black text-white">Registro de Acciones (Logs)</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Historial de los últimos 100 eventos importantes realizados por Administradores y Moderadores.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-white">Registro de Acciones (Logs)</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Historial de los últimos 100 eventos importantes realizados por Administradores y Moderadores.
+          </p>
+        </div>
+        <LogsFilterClient users={allUsersWithLogs} />
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">

@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { createAdminLog } from "@/app/actions"
 
 export async function createNews(formData: FormData) {
   const session = await auth()
@@ -41,6 +42,9 @@ export async function createNews(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/noticias");
     revalidatePath("/admin/noticias");
+
+    await createAdminLog("Crear Noticia", `Creó la noticia: ${title}`);
+
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -85,6 +89,9 @@ export async function editNews(formData: FormData) {
     revalidatePath("/noticias");
     revalidatePath(`/noticias/${id}`);
     revalidatePath("/admin/noticias");
+    
+    await createAdminLog("Editar Noticia", `Editó la noticia: ${title}`);
+    
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -98,9 +105,15 @@ export async function deleteNews(id: string) {
   }
 
   try {
+    const n = await prisma.news.findUnique({ where: { id } });
     await prisma.news.delete({
       where: { id }
     });
+
+    if (n) {
+      await createAdminLog("Eliminar Noticia", `Eliminó la noticia: ${n.title}`);
+    }
+
     revalidatePath("/");
     revalidatePath("/noticias");
     revalidatePath("/admin/noticias");

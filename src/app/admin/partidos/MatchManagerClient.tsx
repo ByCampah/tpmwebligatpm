@@ -140,8 +140,8 @@ export default function MatchManagerClient({ initialMatches }: { initialMatches:
               
               <div className="w-1/3 flex flex-col items-center justify-center gap-1">
                 {match.status === "PLAYED" ? (
-                  <div className="bg-black border border-primary/30 px-4 py-2 rounded-lg shadow-inner">
-                    <span className="text-2xl font-black">{match.homeScore} - {match.awayScore}</span>
+                  <div className="bg-black border border-primary/30 px-3 py-2 rounded-lg shadow-inner flex items-center justify-center whitespace-nowrap">
+                    <span className="text-xl md:text-2xl font-black tracking-widest">{match.homeScore} - {match.awayScore}</span>
                   </div>
                 ) : (
                   <span className="text-xl font-black text-muted-foreground">VS</span>

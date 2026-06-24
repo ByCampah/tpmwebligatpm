@@ -205,6 +205,8 @@ export async function createTeam(formData: FormData) {
       }
     });
 
+    await createAdminLog("Crear Equipo", `Creó el equipo: ${name}`);
+
     revalidatePath("/admin/equipos");
     revalidatePath("/equipos");
     return { success: true };
@@ -232,6 +234,8 @@ export async function editTeam(formData: FormData) {
         captainId: captainId || null
       }
     });
+
+    await createAdminLog("Editar Equipo", `Editó el equipo: ${name}`);
 
     revalidatePath("/admin/equipos");
     revalidatePath("/equipos");
@@ -264,6 +268,8 @@ export async function deleteTeam(teamId: string) {
   
   await prisma.team.delete({ where: { id: teamId } });
 
+  await createAdminLog("Eliminar Equipo", `Eliminó el equipo: ${team.name}`);
+
   revalidatePath("/admin/equipos");
   revalidatePath("/equipos");
   return { success: true };
@@ -295,6 +301,8 @@ export async function createPlayer(formData: FormData) {
         data: { playerId: player.id }
       });
     }
+    
+    await createAdminLog("Crear Jugador", `Creó el jugador: ${nick}`);
 
     revalidatePath("/admin/jugadores");
     revalidatePath("/jugadores");
@@ -334,6 +342,8 @@ export async function editPlayer(formData: FormData) {
       });
     }
 
+    await createAdminLog("Editar Jugador", `Editó el jugador: ${nick}`);
+
     revalidatePath("/admin/jugadores");
     revalidatePath("/jugadores");
     return { success: true };
@@ -366,6 +376,8 @@ export async function deletePlayer(playerId: string) {
   await prisma.tournamentPlayer.deleteMany({ where: { playerId } });
   await prisma.trophy.deleteMany({ where: { playerId } });
   await prisma.player.delete({ where: { id: playerId } });
+
+  await createAdminLog("Eliminar Jugador", `Eliminó el jugador: ${player.nick}`);
 
   revalidatePath("/admin/jugadores");
   revalidatePath("/jugadores");
@@ -742,6 +754,8 @@ export async function assignTournamentPodium(formData: FormData) {
     revalidatePath("/jugadores");
     revalidatePath("/equipos");
     
+    await createAdminLog("Asignar Podio", `Asignó el podio del torneo ID: ${tournamentId}`);
+
     return { success: true };
   } catch (error) {
     console.error(error);
