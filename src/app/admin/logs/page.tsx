@@ -53,7 +53,21 @@ export default async function AdminLogsPage() {
                   {log.action}
                 </td>
                 <td className="p-4 text-muted-foreground">
-                  {log.details || "-"}
+                  {(() => {
+                    if (!log.details) return "-";
+                    const match = log.details.match(/\[(.*?)\]\((.*?)\)(.*)/);
+                    if (match) {
+                      return (
+                        <>
+                          <a href={match[2]} target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">
+                            {match[1]}
+                          </a>
+                          {match[3]}
+                        </>
+                      );
+                    }
+                    return log.details;
+                  })()}
                 </td>
               </tr>
             ))}

@@ -118,7 +118,9 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
                       onClick={async () => {
                         if (confirm("¿Estás seguro de eliminar esta temporada? SE BORRARÁN TODOS LOS TORNEOS, PARTIDOS Y ESTADÍSTICAS ASOCIADAS.")) {
                           setLoading(true);
-                          await deleteSeason(season.id);
+                          const res = await deleteSeason(season.id);
+                          if (!res.success) alert(res.error || "Error al eliminar");
+                          else router.refresh();
                           setLoading(false);
                         }
                       }}
@@ -148,7 +150,9 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
                           onClick={async () => {
                             if (confirm("¿Estás seguro de eliminar este torneo? SE BORRARÁN TODOS LOS PARTIDOS Y EQUIPOS INSCRITOS.")) {
                               setLoading(true);
-                              await deleteTournament(t.id);
+                              const res = await deleteTournament(t.id);
+                              if (!res.success) alert(res.error || "Error al eliminar");
+                              else router.refresh();
                               setLoading(false);
                             }
                           }}

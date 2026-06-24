@@ -34,33 +34,39 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/admin" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
               Inicio Admin
             </Link>
-            <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Base de Datos</div>
-            <Link href="/admin/equipos" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Gestión de Equipos
-            </Link>
-            <Link href="/admin/jugadores" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Gestión de Jugadores
-            </Link>
-            <Link href="/admin/categorias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Gestión de Categorías
-            </Link>
-            <Link href="/admin/usuarios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Cuentas y Roles
-            </Link>
-            <Link href="/admin/temporadas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Temporadas y Torneos
-            </Link>
-            
+
             <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Operaciones</div>
+            <Link href="/admin/partidos" className="px-4 py-2 rounded-lg text-sm font-bold text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors">
+              Gestión de Partidos
+            </Link>
             <Link href="/admin/noticias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
               Publicar Noticias
-            </Link>
-            <Link href="/admin/premios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Asignar Premios
             </Link>
 
             {session.user.role === "ADMIN" && (
               <>
+                <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Base de Datos</div>
+                <Link href="/admin/equipos" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Gestión de Equipos
+                </Link>
+                <Link href="/admin/jugadores" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Gestión de Jugadores
+                </Link>
+                <Link href="/admin/categorias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Gestión de Categorías
+                </Link>
+                <Link href="/admin/usuarios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Cuentas y Roles
+                </Link>
+                <Link href="/admin/temporadas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Temporadas y Torneos
+                </Link>
+
+                <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Premios</div>
+                <Link href="/admin/premios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Asignar Premios
+                </Link>
+
                 <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Seguridad</div>
                 <Link href="/admin/logs" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
                   Registro de Acciones (Logs)
