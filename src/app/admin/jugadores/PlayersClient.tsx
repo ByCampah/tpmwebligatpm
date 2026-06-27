@@ -154,7 +154,7 @@ export default function PlayersClient({ players, users }: { players: any[], user
                   "Venezuela": "🇻🇪", "Paraguay": "🇵🇾", "Peru": "🇵🇪", "Ecuador": "🇪🇨", "Bolivia": "🇧🇴",
                   "Europa": "🇪🇺", "Norte/Centroamérica": "🌎", "Resto del Mundo": "🌍"
                 };
-                const flag = natFlags[player.nationality] || "🏳️";
+                const flag = natFlags[player.nationality] || "❓";
 
                 return (
                 <tr key={player.id} className="hover:bg-white/5 transition-colors">

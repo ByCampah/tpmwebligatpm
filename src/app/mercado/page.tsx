@@ -54,7 +54,7 @@ export default async function MercadoPage() {
                   "Venezuela": "🇻🇪", "Paraguay": "🇵🇾", "Peru": "🇵🇪", "Ecuador": "🇪🇨", "Bolivia": "🇧🇴",
                   "Europa": "🇪🇺", "Norte/Centroamérica": "🌎", "Resto del Mundo": "🌍"
                 };
-                const flag = natFlags[player.nationality] || "🏳️";
+                const flag = natFlags[player.nationality] || "❓";
 
                 return (
                   <div key={player.id} className="flex flex-col p-4 bg-black border border-border rounded-xl hover:border-primary/50 transition-colors gap-3">
