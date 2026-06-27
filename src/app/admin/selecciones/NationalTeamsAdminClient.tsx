@@ -4,12 +4,15 @@ import { useState } from "react";
 import { createTeam, deleteTeam, editTeam } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
+import ImageSelector from "@/components/ImageSelector";
 
 export default function NationalTeamsAdminClient({ teams, users }: { teams: any[], users: any[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState<any>(null);
+  const [showGallery, setShowGallery] = useState(false);
+  const [logoInput, setLogoInput] = useState("");
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`¿Estás seguro que deseas eliminar el equipo "${name}"? Esta acción no se puede deshacer.`)) {
@@ -27,11 +30,13 @@ export default function NationalTeamsAdminClient({ teams, users }: { teams: any[
 
   const startEdit = (team: any) => {
     setEditMode(team);
+    setLogoInput(team.logoUrl || "");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const cancelEdit = () => {
     setEditMode(null);
+    setLogoInput("");
     (document.getElementById('createTeamForm') as HTMLFormElement)?.reset();
   };
 
@@ -76,7 +81,23 @@ export default function NationalTeamsAdminClient({ teams, users }: { teams: any[
             </div>
             <div>
               <label className="block text-sm font-bold text-muted-foreground mb-1">URL del Logo (Opcional)</label>
-              <input name="logoUrl" type="text" defaultValue={editMode?.logoUrl || ""} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="/img/... o https://..." />
+              <div className="flex gap-2">
+                <input 
+                  name="logoUrl" 
+                  type="text" 
+                  value={logoInput}
+                  onChange={(e) => setLogoInput(e.target.value)}
+                  className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" 
+                  placeholder="/img/... o https://..." 
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowGallery(true)}
+                  className="bg-secondary text-secondary-foreground font-bold px-4 rounded hover:bg-secondary/80 transition-colors whitespace-nowrap"
+                >
+                  🖼️ Galería
+                </button>
+              </div>
             </div>
           </div>
 
@@ -103,6 +124,16 @@ export default function NationalTeamsAdminClient({ teams, users }: { teams: any[
           </div>
         </form>
       </div>
+
+      {showGallery && (
+        <ImageSelector 
+          onSelect={(url) => {
+            setLogoInput(url);
+            setShowGallery(false);
+          }}
+          onClose={() => setShowGallery(false)}
+        />
+      )}
 
       {/* TEAM LIST */}
       <div>
