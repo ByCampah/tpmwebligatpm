@@ -147,19 +147,23 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
                   <tr key={jugador.id} className="hover:bg-primary/5 transition-colors border-b border-border/50">
                     <td className="px-4 py-3 text-center text-muted-foreground font-mono">{index + 1}</td>
                     <td className="px-4 py-3 font-bold text-white flex items-center gap-2">
-                      <img 
-                        src={
-                          jugador.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
-                          jugador.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
-                          jugador.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
-                          jugador.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
-                          jugador.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
-                          `https://flagcdn.com/w320/${jugador.nationality.toLowerCase().substring(0, 2)}.png`
-                        } 
-                        alt={jugador.nationality} 
-                        title={jugador.nationality}
-                        className="w-5 h-auto rounded-sm"
-                      />
+                      {jugador.nationality === 'Desconocida' || jugador.nationality === 'Sin Nacionalidad' ? (
+                        <span className="w-5 text-center text-sm" title="Desconocida">❓</span>
+                      ) : (
+                        <img 
+                          src={
+                            jugador.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
+                            jugador.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
+                            jugador.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
+                            jugador.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
+                            jugador.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
+                            `https://flagcdn.com/w320/${jugador.nationality.toLowerCase().substring(0, 2)}.png`
+                          } 
+                          alt={jugador.nationality} 
+                          title={jugador.nationality}
+                          className="w-5 h-auto rounded-sm"
+                        />
+                      )}
                       <Link href={`/jugadores/${jugador.id}`} className="hover:text-primary transition-colors">
                         {jugador.nick}
                       </Link>

@@ -310,17 +310,23 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                         <div className="flex items-center gap-4">
                           <span className="font-black text-primary bg-primary/10 px-3 py-1 rounded min-w-[2.5rem] text-center">{p.goals}</span>
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={
-                                p.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
-                                p.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
-                                p.nationality === 'Cuba' ? 'https://flagcdn.com/w20/us.png' :
-                                '/img/banderas/brazil.svg'
-                              } 
-                              alt={p.nationality} 
-                              title={p.nationality}
-                              className="w-5 h-auto rounded-sm shadow-sm"
-                            />
+                            {p.nationality === 'Desconocida' || p.nationality === 'Sin Nacionalidad' ? (
+                              <span className="w-5 text-center text-sm" title="Desconocida">❓</span>
+                            ) : (
+                              <img 
+                                src={
+                                  p.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
+                                  p.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
+                                  p.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
+                                  p.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
+                                  p.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
+                                  `https://flagcdn.com/w320/${p.nationality.toLowerCase().substring(0, 2)}.png`
+                                } 
+                                alt={p.nationality} 
+                                title={p.nationality}
+                                className="w-5 h-auto rounded-sm shadow-sm"
+                              />
+                            )}
                             <Link href={`/jugadores/${p.id}`} className="font-bold text-sm sm:text-base hover:text-primary transition-colors">
                               {p.name}
                             </Link>
@@ -344,17 +350,23 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                         <div className="flex items-center gap-4">
                           <span className="font-black text-primary bg-primary/10 px-3 py-1 rounded min-w-[2.5rem] text-center">{p.assists}</span>
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={
-                                p.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
-                                p.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
-                                p.nationality === 'Cuba' ? 'https://flagcdn.com/w20/us.png' :
-                                '/img/banderas/brazil.svg'
-                              } 
-                              alt={p.nationality} 
-                              title={p.nationality}
-                              className="w-5 h-auto rounded-sm shadow-sm"
-                            />
+                            {p.nationality === 'Desconocida' || p.nationality === 'Sin Nacionalidad' ? (
+                              <span className="w-5 text-center text-sm" title="Desconocida">❓</span>
+                            ) : (
+                              <img 
+                                src={
+                                  p.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
+                                  p.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
+                                  p.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
+                                  p.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
+                                  p.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
+                                  `https://flagcdn.com/w320/${p.nationality.toLowerCase().substring(0, 2)}.png`
+                                } 
+                                alt={p.nationality} 
+                                title={p.nationality}
+                                className="w-5 h-auto rounded-sm shadow-sm"
+                              />
+                            )}
                             <Link href={`/jugadores/${p.id}`} className="font-bold text-sm sm:text-base hover:text-primary transition-colors">
                               {p.name}
                             </Link>
@@ -378,17 +390,23 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                         <div className="flex items-center gap-4">
                           <span className="font-black text-primary bg-primary/10 px-3 py-1 rounded min-w-[2.5rem] text-center">{p.cleanSheets}</span>
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={
-                                p.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
-                                p.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
-                                p.nationality === 'Cuba' ? 'https://flagcdn.com/w20/us.png' :
-                                '/img/banderas/brazil.svg'
-                              } 
-                              alt={p.nationality} 
-                              title={p.nationality}
-                              className="w-5 h-auto rounded-sm shadow-sm"
-                            />
+                            {p.nationality === 'Desconocida' || p.nationality === 'Sin Nacionalidad' ? (
+                              <span className="w-5 text-center text-sm" title="Desconocida">❓</span>
+                            ) : (
+                              <img 
+                                src={
+                                  p.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
+                                  p.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
+                                  p.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
+                                  p.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
+                                  p.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
+                                  `https://flagcdn.com/w320/${p.nationality.toLowerCase().substring(0, 2)}.png`
+                                } 
+                                alt={p.nationality} 
+                                title={p.nationality}
+                                className="w-5 h-auto rounded-sm shadow-sm"
+                              />
+                            )}
                             <Link href={`/jugadores/${p.id}`} className="font-bold text-sm sm:text-base hover:text-primary transition-colors">
                               {p.name}
                             </Link>

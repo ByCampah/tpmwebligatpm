@@ -188,17 +188,23 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
             <span>{t.playerDetail.title}</span>
             <span>•</span>
             <span className="flex items-center gap-2">
-              <img 
-                src={
-                  jugador.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
-                  jugador.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
-                  jugador.nationality === 'Cuba' ? 'https://flagcdn.com/w20/us.png' :
-                  '/img/banderas/brazil.svg'
-                } 
-                alt={jugador.nationality} 
-                title={jugador.nationality}
-                className="w-6 h-auto rounded-sm shadow-sm"
-              />
+              {jugador.nationality === 'Desconocida' || jugador.nationality === 'Sin Nacionalidad' ? (
+                <span className="w-6 text-center text-sm" title="Desconocida">❓</span>
+              ) : (
+                <img 
+                  src={
+                    jugador.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
+                    jugador.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
+                    jugador.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
+                    jugador.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
+                    jugador.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
+                    `https://flagcdn.com/w320/${jugador.nationality.toLowerCase().substring(0, 2)}.png`
+                  } 
+                  alt={jugador.nationality} 
+                  title={jugador.nationality}
+                  className="w-6 h-auto rounded-sm shadow-sm"
+                />
+              )}
               <span className="font-bold">{jugador.nationality}</span>
             </span>
             {jugador.primaryPosition && jugador.primaryPosition !== 'Ninguna' && (
