@@ -85,6 +85,8 @@ export default async function JugadoresPage() {
       id: p.id,
       nick: p.nick,
       nationality: p.nationality,
+      primaryPosition: p.primaryPosition,
+      secondaryPosition: p.secondaryPosition,
       stats: compStats,
       lastTeam,
       lastTeamLogo,

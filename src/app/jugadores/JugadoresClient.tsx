@@ -11,6 +11,8 @@ interface JugadoresClientProps {
     stats: Record<string, { pj: number; goles: number; asistencias: number }>;
     lastTeam: string;
     lastTeamLogo?: string | null;
+    primaryPosition?: string | null;
+    secondaryPosition?: string | null;
     isCalledUp: boolean;
   }[];
   dictionary: any;
@@ -122,6 +124,9 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
                 <th className="px-6 py-4 font-bold text-left text-muted-foreground">
                   Equipo
                 </th>
+                <th className="px-6 py-4 font-bold text-left text-muted-foreground">
+                  Posición
+                </th>
                 <th className="px-6 py-4 font-bold text-center text-muted-foreground cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('pj')}>
                   PJ <SortIcon column="pj" />
                 </th>
@@ -172,7 +177,20 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center font-mono">{stats.pj}</td>
+                    <td className="py-4 px-4">
+                      <div className="flex gap-1 text-xs">
+                        {jugador.primaryPosition && jugador.primaryPosition !== 'Ninguna' && (
+                          <span className="bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">{jugador.primaryPosition}</span>
+                        )}
+                        {jugador.secondaryPosition && jugador.secondaryPosition !== 'Ninguna' && (
+                          <span className="bg-secondary/50 text-secondary-foreground px-2 py-0.5 rounded">{jugador.secondaryPosition}</span>
+                        )}
+                        {(!jugador.primaryPosition || jugador.primaryPosition === 'Ninguna') && (!jugador.secondaryPosition || jugador.secondaryPosition === 'Ninguna') && (
+                          <span className="text-muted-foreground/50">-</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-center font-mono">{stats.pj}</td>
                     <td className="px-4 py-3 text-center text-primary font-mono">{stats.goles}</td>
                     <td className="px-4 py-3 text-center text-primary font-mono">{stats.asistencias}</td>
                   </tr>

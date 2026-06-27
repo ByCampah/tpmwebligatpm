@@ -199,8 +199,23 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 title={jugador.nationality}
                 className="w-6 h-auto rounded-sm shadow-sm"
               />
-              <span>{jugador.nationality}</span>
+              <span className="font-bold">{jugador.nationality}</span>
             </span>
+            {jugador.primaryPosition && jugador.primaryPosition !== 'Ninguna' && (
+              <>
+                <span>•</span>
+                <span className="bg-primary/20 text-primary px-2 py-0.5 rounded font-bold uppercase">{jugador.primaryPosition} Principal</span>
+              </>
+            )}
+            {jugador.secondaryPosition && jugador.secondaryPosition !== 'Ninguna' && (
+              <>
+                <span>•</span>
+                <span className="bg-secondary/50 text-secondary-foreground px-2 py-0.5 rounded uppercase">{jugador.secondaryPosition} Secundaria</span>
+              </>
+            )}
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-4 mt-6">
             <span>•</span>
             <span className="flex items-center gap-2">
               {currentTeam ? (

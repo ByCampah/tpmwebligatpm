@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toggleFreeAgent, toggleTeamLookingForPlayers } from "@/app/actions/market";
+import { updatePlayerProfile } from "@/app/actions/profile";
 
 export default function ProfileMarketClient({ user }: { user: any }) {
   const [loading, setLoading] = useState(false);
@@ -53,12 +54,97 @@ export default function ProfileMarketClient({ user }: { user: any }) {
     setLoading(false);
   };
 
+  const handleSaveProfile = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const res = await updatePlayerProfile(formData);
+    if (!res.success) alert(res.error);
+    else alert("Perfil actualizado correctamente.");
+    setLoading(false);
+  };
+
   return (
-    <div className="bg-gray-800/50 backdrop-blur border border-primary/30 p-6 rounded-2xl shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-      <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-        <span className="w-2 h-5 bg-primary rounded-full inline-block"></span>
-        Mercado de Pases
-      </h2>
+    <div className="flex flex-col gap-8">
+      {/* Player Profile Section */}
+      {user.player && (
+        <div className="bg-gray-800/50 backdrop-blur border border-primary/30 p-6 rounded-2xl shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <span className="w-2 h-5 bg-primary rounded-full inline-block"></span>
+            Ajustes del Jugador
+          </h2>
+          <form onSubmit={handleSaveProfile} className="flex flex-col gap-4 max-w-lg">
+            <div>
+              <label className="block text-sm font-bold text-muted-foreground mb-1">Nacionalidad Sugerida</label>
+              <select 
+                name="nationality" 
+                defaultValue={user.player.nationality || "Sin Nacionalidad"} 
+                className="w-full bg-black border border-border rounded p-3 text-white focus:border-primary focus:outline-none"
+              >
+                <option value="Sin Nacionalidad">Sin Nacionalidad</option>
+                <option value="Argentina">Argentina</option>
+                <option value="Brasil">Brasil</option>
+                <option value="Uruguay">Uruguay</option>
+                <option value="Chile">Chile</option>
+                <option value="Colombia">Colombia</option>
+                <option value="Ecuador">Ecuador</option>
+                <option value="Peru">Perú</option>
+                <option value="Venezuela">Venezuela</option>
+                <option value="Paraguay">Paraguay</option>
+                <option value="Bolivia">Bolivia</option>
+                <option value="Mexico">México</option>
+                <option value="USA">Estados Unidos</option>
+                <option value="Espana">España</option>
+                <option value="Otra">Otra</option>
+              </select>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Posición Principal</label>
+                <select 
+                  name="primaryPosition" 
+                  defaultValue={user.player.primaryPosition || "Ninguna"} 
+                  className="w-full bg-black border border-border rounded p-3 text-white focus:border-primary focus:outline-none"
+                >
+                  <option value="Ninguna">Ninguna</option>
+                  <option value="Todas">Todas</option>
+                  <option value="GK">GK (Portero)</option>
+                  <option value="ZAG">ZAG (Defensa)</option>
+                  <option value="ALA">ALA (Banda)</option>
+                  <option value="ATK">ATK (Delantero)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Posición Secundaria</label>
+                <select 
+                  name="secondaryPosition" 
+                  defaultValue={user.player.secondaryPosition || "Ninguna"} 
+                  className="w-full bg-black border border-border rounded p-3 text-white focus:border-primary focus:outline-none"
+                >
+                  <option value="Ninguna">Ninguna</option>
+                  <option value="Todas">Todas</option>
+                  <option value="GK">GK (Portero)</option>
+                  <option value="ZAG">ZAG (Defensa)</option>
+                  <option value="ALA">ALA (Banda)</option>
+                  <option value="ATK">ATK (Delantero)</option>
+                </select>
+              </div>
+            </div>
+            
+            <button disabled={loading} type="submit" className="bg-primary text-primary-foreground font-black py-2 rounded-lg hover:bg-primary/90 transition-colors mt-2">
+              GUARDAR PERFIL
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Market Section */}
+      <div className="bg-gray-800/50 backdrop-blur border border-primary/30 p-6 rounded-2xl shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <span className="w-2 h-5 bg-primary rounded-full inline-block"></span>
+          Mercado de Pases
+        </h2>
 
       {/* Free Agent Section */}
       <div className="mb-8">
@@ -170,7 +256,7 @@ export default function ProfileMarketClient({ user }: { user: any }) {
           </div>
         </div>
       )}
-
+      </div>
     </div>
   );
 }

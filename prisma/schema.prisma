@@ -86,7 +86,9 @@ model VerificationToken {
 model Player {
   id              String             @id @default(uuid())
   nick            String             @unique
-  nationality     String             @default("Desconocida")
+  nationality     String             @default("Sin Nacionalidad")
+  primaryPosition String?
+  secondaryPosition String?
   
   // Link to User account
   user            User?

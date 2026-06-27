@@ -17,9 +17,18 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers }: { nat
 
   // Check if they are currently called up in the active season
   // activeTeam.tournaments contains the active season's tournaments if any
-  const calledUpPlayerIds = new Set();
+  const calledUpPlayerIds = new Set<string>();
   activeTeam?.tournaments?.forEach((tt: any) => {
     tt.players?.forEach((p: any) => calledUpPlayerIds.add(p.playerId));
+  });
+
+  // Sort availablePlayers: Called Up first, then by name
+  availablePlayers.sort((a, b) => {
+    const aCalled = calledUpPlayerIds.has(a.id);
+    const bCalled = calledUpPlayerIds.has(b.id);
+    if (aCalled && !bCalled) return -1;
+    if (!aCalled && bCalled) return 1;
+    return a.nick.localeCompare(b.nick);
   });
 
   return (
