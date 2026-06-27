@@ -10,6 +10,7 @@ export default function PlayersClient({ players, users }: { players: any[], user
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState<any>(null);
+  const [filter, setFilter] = useState("");
 
   const handleDelete = async (id: string, nick: string) => {
     if (confirm(`¿Estás seguro que deseas eliminar al jugador "${nick}"?`)) {
@@ -123,7 +124,17 @@ export default function PlayersClient({ players, users }: { players: any[], user
 
       {/* PLAYER LIST */}
       <div>
-        <h2 className="font-bold text-lg text-white mb-4">Jugadores Registrados ({players.length})</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+          <h2 className="font-bold text-lg text-white">Jugadores Registrados ({players.length})</h2>
+          <input 
+            type="text" 
+            placeholder="🔍 Buscar jugador por nombre..." 
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-full sm:w-64 bg-black border border-border rounded p-2 focus:border-primary focus:outline-none text-sm"
+          />
+        </div>
+        
         {error && <div className="bg-destructive/20 text-destructive border border-destructive p-3 rounded mb-4 text-sm font-bold">{error}</div>}
         
         <div className="overflow-x-auto bg-card border border-border rounded-xl">
@@ -137,7 +148,7 @@ export default function PlayersClient({ players, users }: { players: any[], user
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {players.map(player => {
+              {players.filter(p => p.nick.toLowerCase().includes(filter.toLowerCase())).map(player => {
                 const natFlags: any = {
                   "Argentina": "🇦🇷", "Brasil": "🇧🇷", "Uruguay": "🇺🇾", "Chile": "🇨🇱", "Colombia": "🇨🇴",
                   "Venezuela": "🇻🇪", "Paraguay": "🇵🇾", "Peru": "🇵🇪", "Ecuador": "🇪🇨", "Bolivia": "🇧🇴",

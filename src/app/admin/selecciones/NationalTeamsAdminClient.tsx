@@ -13,9 +13,10 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState<any>(null);
   const [showGallery, setShowGallery] = useState(false);
-  const [logoInput, setLogoInput] = useState("");
   const [manageCallUps, setManageCallUps] = useState<any>(null);
   const [callUpFilter, setCallUpFilter] = useState("");
+  
+  const normalizeText = (str: string) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`¿Estás seguro que deseas eliminar el equipo "${name}"? Esta acción no se puede deshacer.`)) {
@@ -244,12 +245,12 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
               />
               
               <div className="flex flex-col gap-2">
-                {players.filter(p => p.nationality === manageCallUps.name && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).length === 0 ? (
+                {players.filter(p => normalizeText(p.nationality) === normalizeText(manageCallUps.name) && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).length === 0 ? (
                   <div className="text-center p-8 bg-secondary/20 rounded-lg text-muted-foreground italic">
                     No se encontraron jugadores que coincidan con la búsqueda.
                   </div>
                 ) : (
-                  players.filter(p => p.nationality === manageCallUps.name && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).map(player => (
+                  players.filter(p => normalizeText(p.nationality) === normalizeText(manageCallUps.name) && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).map(player => (
                     <div key={player.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${player.isNationalTeamCalledUp ? 'bg-primary/10 border-primary/30' : 'bg-secondary/30 border-border hover:bg-secondary/50'}`}>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-black/40 rounded flex items-center justify-center font-bold text-muted-foreground">

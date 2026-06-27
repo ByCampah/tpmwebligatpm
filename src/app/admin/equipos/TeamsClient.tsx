@@ -13,6 +13,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
   const [editMode, setEditMode] = useState<any>(null);
   const [showGallery, setShowGallery] = useState(false);
   const [logoInput, setLogoInput] = useState("");
+  const [filter, setFilter] = useState("");
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`¿Estás seguro que deseas eliminar el equipo "${name}"? Esta acción no se puede deshacer.`)) {
@@ -137,7 +138,16 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
 
       {/* TEAM LIST */}
       <div>
-        <h2 className="font-bold text-lg text-white mb-4">Equipos Registrados ({teams.length})</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+          <h2 className="font-bold text-lg text-white">Equipos Registrados ({teams.length})</h2>
+          <input 
+            type="text" 
+            placeholder="🔍 Buscar equipo por nombre..." 
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-full sm:w-64 bg-black border border-border rounded p-2 focus:border-primary focus:outline-none text-sm"
+          />
+        </div>
         {error && <div className="bg-destructive/20 text-destructive border border-destructive p-3 rounded mb-4 text-sm font-bold">{error}</div>}
         
         <div className="overflow-x-auto bg-card border border-border rounded-xl">
@@ -151,7 +161,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {teams.map(team => (
+              {teams.filter(t => t.name.toLowerCase().includes(filter.toLowerCase())).map(team => (
                 <tr key={team.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-4 py-3">
                     {team.logoUrl ? (

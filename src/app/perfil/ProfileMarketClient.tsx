@@ -75,11 +75,17 @@ export default function ProfileMarketClient({ user }: { user: any }) {
           </h2>
           <form onSubmit={handleSaveProfile} className="flex flex-col gap-4 max-w-lg">
             <div>
-              <label className="block text-sm font-bold text-muted-foreground mb-1">Nacionalidad Sugerida</label>
+              <label className="block text-sm font-bold text-muted-foreground mb-1">
+                Nacionalidad Sugerida
+                {user.player.nationality && user.player.nationality !== "Sin Nacionalidad" && user.player.nationality !== "Desconocida" && (
+                  <span className="text-[10px] text-primary ml-2 bg-primary/10 px-2 py-0.5 rounded border border-primary/20">CONFIRMADA</span>
+                )}
+              </label>
               <select 
                 name="nationality" 
                 defaultValue={user.player.nationality || "Sin Nacionalidad"} 
-                className="w-full bg-black border border-border rounded p-3 text-white focus:border-primary focus:outline-none"
+                disabled={user.player.nationality && user.player.nationality !== "Sin Nacionalidad" && user.player.nationality !== "Desconocida"}
+                className="w-full bg-black border border-border rounded p-3 text-white focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="Sin Nacionalidad">Sin Nacionalidad</option>
                 <option value="Argentina">Argentina</option>
@@ -97,6 +103,9 @@ export default function ProfileMarketClient({ user }: { user: any }) {
                 <option value="Espana">España</option>
                 <option value="Otra">Otra</option>
               </select>
+              {user.player.nationality && user.player.nationality !== "Sin Nacionalidad" && user.player.nationality !== "Desconocida" && (
+                <p className="text-xs text-muted-foreground mt-1">Tu nacionalidad ya fue registrada. Si necesitas cambiarla, comunícate con la moderación.</p>
+              )}
             </div>
             
             <div className="grid grid-cols-2 gap-4">

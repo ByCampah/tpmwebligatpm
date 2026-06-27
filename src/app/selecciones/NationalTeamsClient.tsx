@@ -13,7 +13,8 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers }: { nat
   const activeTeam = nationalTeams.find(t => t.id === activeTab);
   
   // Find players that match the active team's name as their nationality
-  const availablePlayers = allPlayers.filter(p => p.nationality === activeTeam?.name);
+  const normalizeText = (str: string) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  const availablePlayers = allPlayers.filter(p => normalizeText(p.nationality) === normalizeText(activeTeam?.name));
 
   // Check if they are currently called up via the isNationalTeamCalledUp boolean
   const calledUpPlayerIds = new Set<string>();

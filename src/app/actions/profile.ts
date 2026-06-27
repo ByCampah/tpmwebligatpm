@@ -24,13 +24,18 @@ export async function updatePlayerProfile(formData: FormData) {
     const primaryPosition = formData.get("primaryPosition") as string;
     const secondaryPosition = formData.get("secondaryPosition") as string;
 
+    const dataToUpdate: any = {
+      primaryPosition: primaryPosition === "Ninguna" ? null : primaryPosition,
+      secondaryPosition: secondaryPosition === "Ninguna" ? null : secondaryPosition
+    };
+
+    if (nationality) {
+      dataToUpdate.nationality = nationality;
+    }
+
     await prisma.player.update({
       where: { id: user.playerId },
-      data: {
-        nationality: nationality || "Sin Nacionalidad",
-        primaryPosition: primaryPosition === "Ninguna" ? null : primaryPosition,
-        secondaryPosition: secondaryPosition === "Ninguna" ? null : secondaryPosition
-      }
+      data: dataToUpdate
     });
 
     revalidatePath("/perfil");
