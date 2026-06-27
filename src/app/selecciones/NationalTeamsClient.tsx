@@ -78,7 +78,6 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers }: { nat
                 </Link>
               </div>
             </div>
-          </div>
 
           {/* CONVOCADOS PANEL */}
           {calledUpPlayers.length > 0 && (
