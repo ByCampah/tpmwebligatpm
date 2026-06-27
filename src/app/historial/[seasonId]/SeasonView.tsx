@@ -32,7 +32,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   }
 
   const selectedTournament = tournaments.find(t => t.id === selectedTournamentId);
-  const isCup = selectedTournament?.format === "KNOCKOUT" || selectedTournament?.format === "GROUP_KNOCKOUT";
+  const isCup = selectedTournament?.format === "CUP" || selectedTournament?.format === "PLAYOFF";
 
   const calculateStandings = (matches: any[], teams: any[]) => {
     const tableMap = new Map();
@@ -149,19 +149,19 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
       <div className="bg-secondary/50 px-3 py-1.5 text-xs text-center text-muted-foreground font-bold border-b border-border">
         {match.round}
       </div>
-      <div className="flex items-center justify-between p-3">
-        <div className="w-[40%] text-right font-bold text-sm truncate flex items-center justify-end gap-2">
-          {match.homeTeam.name}
-          {match.homeTeam.logoUrl && <img src={match.homeTeam.logoUrl} alt={match.homeTeam.name} className="w-5 h-5 object-contain" />}
+      <div className="flex items-center justify-between p-3 gap-2">
+        <div className="flex-1 text-right font-bold text-sm truncate flex items-center justify-end gap-2">
+          <span className="truncate">{match.homeTeam.name}</span>
+          {match.homeTeam.logoUrl && <img src={match.homeTeam.logoUrl} alt={match.homeTeam.name} className="w-5 h-5 object-contain shrink-0" />}
         </div>
-        <div className="flex-1 flex justify-center px-2">
+        <div className="shrink-0 flex justify-center">
           <span className="px-3 py-1 bg-black rounded border border-white/10 font-mono font-bold text-white shadow-inner whitespace-nowrap">
             {match.homeScore !== null ? `${match.homeScore} - ${match.awayScore}` : 'VS'}
           </span>
         </div>
-        <div className="w-[40%] text-left font-bold text-sm truncate flex items-center gap-2">
-          {match.awayTeam.logoUrl && <img src={match.awayTeam.logoUrl} alt={match.awayTeam.name} className="w-5 h-5 object-contain" />}
-          {match.awayTeam.name}
+        <div className="flex-1 text-left font-bold text-sm truncate flex items-center gap-2">
+          {match.awayTeam.logoUrl && <img src={match.awayTeam.logoUrl} alt={match.awayTeam.name} className="w-5 h-5 object-contain shrink-0" />}
+          <span className="truncate">{match.awayTeam.name}</span>
         </div>
       </div>
       <Link href={`/partidos/${match.id}`} className="bg-primary/5 text-primary text-xs text-center py-2 font-bold hover:bg-primary hover:text-primary-foreground transition-colors border-t border-border/50">

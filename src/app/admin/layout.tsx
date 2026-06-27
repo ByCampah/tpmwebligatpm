@@ -47,7 +47,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <>
                 <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Base de Datos</div>
                 <Link href="/admin/equipos" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Gestión de Equipos
+                  Gestión de Clubes
+                </Link>
+                <Link href="/admin/selecciones" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                  Gestión de Selecciones
                 </Link>
                 <Link href="/admin/jugadores" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
                   Gestión de Jugadores

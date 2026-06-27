@@ -67,8 +67,10 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
             <div>
               <label className="block text-sm font-bold text-muted-foreground mb-1">Formato</label>
               <select name="format" required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
-                <option value="LEAGUE">Liga (Tabla de Puntos)</option>
-                <option value="CUP">Copa (Llaves)</option>
+                <option value="LEAGUE">Liga (Todos contra Todos)</option>
+                <option value="CUP">Copa (Eliminatoria)</option>
+                <option value="PLAYOFF">Playoff</option>
+                <option value="CUSTOM">Personalizado (Suizo, Grupos, etc.)</option>
               </select>
             </div>
 

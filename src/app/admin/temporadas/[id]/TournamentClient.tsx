@@ -739,6 +739,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <option value="LEAGUE">Liga (Todos contra Todos)</option>
                   <option value="CUP">Copa (Eliminatoria)</option>
                   <option value="PLAYOFF">Playoff</option>
+                  <option value="CUSTOM">Personalizado (Suizo, Grupos, etc.)</option>
                 </select>
               </div>
 

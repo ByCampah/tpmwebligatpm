@@ -36,6 +36,16 @@ export default function EquiposClient({ equipos }: { equipos: any[] }) {
               <h2 className="text-xl font-bold group-hover:text-primary transition-colors text-center truncate w-full">
                 {equipo.name}
               </h2>
+              {equipo.captain ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2 border-t border-border/50 pt-2 w-full justify-center">
+                  <span className="text-primary font-bold">Capitán:</span>
+                  <span className="truncate">{equipo.captain.nickName || equipo.captain.name}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground/50 mt-2 border-t border-border/50 pt-2 w-full justify-center">
+                  <span className="italic">Sin capitán asignado</span>
+                </div>
+              )}
             </div>
           </Link>
         ))}

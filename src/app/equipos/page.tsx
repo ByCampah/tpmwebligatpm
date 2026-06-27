@@ -8,6 +8,7 @@ export default async function EquiposPage() {
   const locale = "es";
   const t = await getDictionary(locale);
   const equipos = await prisma.team.findMany({
+    include: { captain: true },
     orderBy: { name: "asc" }
   });
 

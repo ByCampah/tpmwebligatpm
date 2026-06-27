@@ -130,6 +130,9 @@ model Team {
   isLookingForPlayers Boolean @default(false)
   marketDescription   String?
   
+  // National Teams
+  isNationalTeam      Boolean @default(false)
+  
   createdAt        DateTime @default(now())
 }
 

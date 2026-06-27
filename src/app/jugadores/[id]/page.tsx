@@ -46,11 +46,11 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const activeSeason = await prisma.season.findFirst({ where: { isActive: true } });
   let currentTeam = null;
   if (activeSeason) {
-    const currentTournamentTeam = jugador.tournamentTeams.find(
-      (tt) => tt.tournamentTeam.tournament.seasonId === activeSeason.id
+    const currentClubTeam = jugador.tournamentTeams.find(
+      (tt) => tt.tournamentTeam.tournament.seasonId === activeSeason.id && !tt.tournamentTeam.team.isNationalTeam
     );
-    if (currentTournamentTeam) {
-      currentTeam = currentTournamentTeam.tournamentTeam.team;
+    if (currentClubTeam) {
+      currentTeam = currentClubTeam.tournamentTeam.team;
     }
   }
 
@@ -94,24 +94,36 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
     return numA - numB;
   });
 
-  // Aggregate stats
-  const totalStats = jugador.matchStats.reduce((acc, stat) => {
-    acc.pj += (stat.match.round === "Estadísticas Históricas" ? (stat.matchTime || 1) : 1);
-    acc.goles += stat.goals;
-    acc.asistencias += stat.assists;
-    acc.pasesM += stat.passesMade;
-    acc.pasesT += stat.passesTotal;
-    acc.tirosM += stat.shotsMade;
-    acc.tirosT += stat.shotsTotal;
-    acc.atajadasM += stat.savesMade;
-    acc.atajadasT += stat.savesTotal;
-    acc.minutos += stat.matchTime;
-    return acc;
-  }, { pj: 0, goles: 0, asistencias: 0, pasesM: 0, pasesT: 0, tirosM: 0, tirosT: 0, atajadasM: 0, atajadasT: 0, minutos: 0 });
+  const getIsNationalStat = (stat: any) => {
+    const tTeam = jugador.tournamentTeams.find(tt => tt.tournamentTeam.tournamentId === stat.match.tournamentId);
+    return tTeam?.tournamentTeam.team.isNationalTeam || false;
+  };
 
-  const paseExito = totalStats.pasesT > 0 ? Math.round((totalStats.pasesM / totalStats.pasesT) * 100) : 0;
-  const tiroExito = totalStats.tirosT > 0 ? Math.round((totalStats.tirosM / totalStats.tirosT) * 100) : 0;
-  const atajadaExito = totalStats.atajadasT > 0 ? Math.round((totalStats.atajadasM / totalStats.atajadasT) * 100) : 0;
+  const clubStatsObj = jugador.matchStats.filter(s => !getIsNationalStat(s));
+  const natStatsObj = jugador.matchStats.filter(s => getIsNationalStat(s));
+
+  const aggregateStats = (stats: any[]) => {
+    return stats.reduce((acc, stat) => {
+      acc.pj += (stat.match.round === "Estadísticas Históricas" ? (stat.matchTime || 1) : 1);
+      acc.goles += stat.goals;
+      acc.asistencias += stat.assists;
+      acc.pasesM += stat.passesMade;
+      acc.pasesT += stat.passesTotal;
+      acc.tirosM += stat.shotsMade;
+      acc.tirosT += stat.shotsTotal;
+      acc.atajadasM += stat.savesMade;
+      acc.atajadasT += stat.savesTotal;
+      acc.minutos += stat.matchTime;
+      return acc;
+    }, { pj: 0, goles: 0, asistencias: 0, pasesM: 0, pasesT: 0, tirosM: 0, tirosT: 0, atajadasM: 0, atajadasT: 0, minutos: 0 });
+  };
+
+  const totalClubStats = aggregateStats(clubStatsObj);
+  const totalNatStats = aggregateStats(natStatsObj);
+
+  const paseExito = totalClubStats.pasesT > 0 ? Math.round((totalClubStats.pasesM / totalClubStats.pasesT) * 100) : 0;
+  const tiroExito = totalClubStats.tirosT > 0 ? Math.round((totalClubStats.tirosM / totalClubStats.tirosT) * 100) : 0;
+  const atajadaExito = totalClubStats.atajadasT > 0 ? Math.round((totalClubStats.atajadasM / totalClubStats.atajadasT) * 100) : 0;
 
   const renderTrophyCard = (trofeo: any) => {
     const styles = getTournamentStyles(trofeo.name, trofeo.tournament?.name || "");
@@ -204,19 +216,44 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
             </span>
           </div>
           
-          <div className="mt-6 flex flex-wrap gap-4 w-full justify-center md:justify-start">
-            <div className="bg-secondary/50 px-6 py-3 rounded-xl border border-border text-center min-w-[100px]">
-              <span className="block text-3xl font-black text-primary">{totalStats.pj}</span>
-              <span className="text-xs text-muted-foreground uppercase tracking-widest font-bold">{t.playerDetail.stats.pj}</span>
+          <div className="mt-6 flex flex-col xl:flex-row gap-8 w-full justify-center md:justify-start">
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center md:text-left">Clubes</span>
+              <div className="flex flex-wrap gap-2">
+                <div className="bg-secondary/50 px-4 py-2 rounded-xl border border-border text-center min-w-[70px]">
+                  <span className="block text-2xl font-black text-primary">{totalClubStats.pj}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold">PJ</span>
+                </div>
+                <div className="bg-secondary/50 px-4 py-2 rounded-xl border border-border text-center min-w-[70px]">
+                  <span className="block text-2xl font-black text-white">{totalClubStats.goles}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold">G</span>
+                </div>
+                <div className="bg-secondary/50 px-4 py-2 rounded-xl border border-border text-center min-w-[70px]">
+                  <span className="block text-2xl font-black text-white">{totalClubStats.asistencias}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
+                </div>
+              </div>
             </div>
-            <div className="bg-secondary/50 px-6 py-3 rounded-xl border border-border text-center min-w-[100px]">
-              <span className="block text-3xl font-black text-white">{totalStats.goles}</span>
-              <span className="text-xs text-muted-foreground uppercase tracking-widest font-bold">{t.playerDetail.stats.goals}</span>
-            </div>
-            <div className="bg-secondary/50 px-6 py-3 rounded-xl border border-border text-center min-w-[100px]">
-              <span className="block text-3xl font-black text-white">{totalStats.asistencias}</span>
-              <span className="text-xs text-muted-foreground uppercase tracking-widest font-bold">{t.playerDetail.stats.assists}</span>
-            </div>
+
+            {totalNatStats.pj > 0 && (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center md:text-left">Selección</span>
+                <div className="flex flex-wrap gap-2">
+                  <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
+                    <span className="block text-2xl font-black text-primary">{totalNatStats.pj}</span>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold">PJ</span>
+                  </div>
+                  <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
+                    <span className="block text-2xl font-black text-white">{totalNatStats.goles}</span>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold">G</span>
+                  </div>
+                  <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
+                    <span className="block text-2xl font-black text-white">{totalNatStats.asistencias}</span>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -273,7 +310,8 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
         {/* ESTADISTICAS AVANZADAS */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <PlayerMetricsClient matchStats={jugador.matchStats.map(s => ({
+          <h2 className="text-lg font-bold text-muted-foreground uppercase tracking-wider border-b border-border pb-2">Rendimiento en Clubes</h2>
+          <PlayerMetricsClient matchStats={clubStatsObj.map(s => ({
             goals: s.goals,
             assists: s.assists,
             teamPoints: s.teamPoints,
@@ -296,6 +334,35 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
             savesTotal: s.savesTotal,
             categoryName: s.match?.tournament?.category?.name || "Sin Categoría"
           }))} />
+
+          {natStatsObj.length > 0 && (
+            <>
+              <h2 className="text-lg font-bold text-muted-foreground uppercase tracking-wider border-b border-border pb-2 mt-4">Rendimiento en Selección</h2>
+              <PlayerMetricsClient matchStats={natStatsObj.map(s => ({
+                goals: s.goals,
+                assists: s.assists,
+                teamPoints: s.teamPoints,
+                matchTime: s.matchTime,
+                passesMade: s.passesMade,
+                passesTotal: s.passesTotal,
+                slidingMade: s.slidingMade,
+                slidingTotal: s.slidingTotal,
+                fouls: s.fouls,
+                ballLosses: s.ballLosses,
+                gkTime: s.gkTime,
+                shotsMade: s.shotsMade,
+                shotsTotal: s.shotsTotal,
+                headersMade: s.headersMade,
+                headersTotal: s.headersTotal,
+                tacklesWon: s.tacklesWon,
+                fouled: s.fouled,
+                offsides: s.offsides,
+                savesMade: s.savesMade,
+                savesTotal: s.savesTotal,
+                categoryName: s.match?.tournament?.category?.name || "Sin Categoría"
+              }))} />
+            </>
+          )}
 
           <h2 className="text-2xl font-bold flex items-center gap-2 border-b border-border pb-2 mt-4">
 

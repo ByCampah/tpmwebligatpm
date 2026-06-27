@@ -10,6 +10,8 @@ interface JugadoresClientProps {
     nationality: string;
     stats: Record<string, { pj: number; goles: number; asistencias: number }>;
     lastTeam: string;
+    lastTeamLogo?: string | null;
+    isCalledUp: boolean;
   }[];
   dictionary: any;
 }
@@ -17,6 +19,7 @@ interface JugadoresClientProps {
 export default function JugadoresClient({ jugadores, dictionary }: JugadoresClientProps) {
   const [search, setSearch] = useState("");
   const [competition, setCompetition] = useState("Global");
+  const [nationalityFilter, setNationalityFilter] = useState("Todas");
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' }>({ key: "goles", direction: "desc" });
 
   // Extract all available competitions
@@ -29,9 +32,11 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
   // Sort and filter logic
   const filteredAndSorted = useMemo(() => {
     // 1. Filter
-    let result = jugadores.filter(jugador => 
-      jugador.nick.toLowerCase().includes(search.toLowerCase())
-    );
+    let result = jugadores.filter(jugador => {
+      const matchName = jugador.nick.toLowerCase().includes(search.toLowerCase());
+      const matchNat = nationalityFilter === "Todas" || jugador.nationality === nationalityFilter;
+      return matchName && matchNat;
+    });
 
     // 2. Sort
     result.sort((a, b) => {
@@ -51,7 +56,7 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
     });
 
     return result;
-  }, [jugadores, search, competition, sortConfig]);
+  }, [jugadores, search, competition, sortConfig, nationalityFilter]);
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
@@ -76,9 +81,28 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
           className="w-full sm:w-1/2 bg-secondary/50 border border-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
         />
         <select 
+          value={nationalityFilter} 
+          onChange={(e) => setNationalityFilter(e.target.value)}
+          className="w-full sm:w-1/3 bg-secondary/50 border border-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+        >
+          <option value="Todas">Todas las Nacionalidades</option>
+          <option value="Argentina">Argentina</option>
+          <option value="Brasil">Brasil</option>
+          <option value="Uruguay">Uruguay</option>
+          <option value="Colombia">Colombia</option>
+          <option value="Chile">Chile</option>
+          <option value="Perú">Perú</option>
+          <option value="Ecuador">Ecuador</option>
+          <option value="Paraguay">Paraguay</option>
+          <option value="Bolivia">Bolivia</option>
+          <option value="Venezuela">Venezuela</option>
+          <option value="Norte América">Norte América</option>
+          <option value="Europa">Europa</option>
+        </select>
+        <select 
           value={competition} 
           onChange={(e) => setCompetition(e.target.value)}
-          className="w-full sm:w-1/2 bg-secondary/50 border border-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+          className="w-full sm:w-1/3 bg-secondary/50 border border-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
         >
           {allComps.map(comp => (
             <option key={comp} value={comp}>{comp === "Global" ? dictionary.allCompetitions : comp}</option>
@@ -94,6 +118,9 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
                 <th className="px-6 py-4 font-bold w-12 text-center">#</th>
                 <th className="px-6 py-4 font-bold cursor-pointer hover:text-primary transition-colors" onClick={() => handleSort('nick')}>
                   Jugador <SortIcon column="nick" />
+                </th>
+                <th className="px-6 py-4 font-bold text-left text-muted-foreground">
+                  Equipo
                 </th>
                 <th className="px-6 py-4 font-bold text-center text-muted-foreground cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('pj')}>
                   PJ <SortIcon column="pj" />
@@ -119,8 +146,10 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
                         src={
                           jugador.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
                           jugador.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
-                          jugador.nationality === 'Cuba' ? 'https://flagcdn.com/w20/us.png' :
-                          '/img/banderas/brazil.svg'
+                          jugador.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
+                          jugador.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
+                          jugador.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
+                          `https://flagcdn.com/w320/${jugador.nationality.toLowerCase().substring(0, 2)}.png`
                         } 
                         alt={jugador.nationality} 
                         title={jugador.nationality}
@@ -129,6 +158,19 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
                       <Link href={`/jugadores/${jugador.id}`} className="hover:text-primary transition-colors">
                         {jugador.nick}
                       </Link>
+                      {jugador.isCalledUp && <span className="ml-2 text-[10px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded uppercase">Convocado</span>}
+                    </td>
+                    <td className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-2">
+                        {jugador.lastTeamLogo ? (
+                          <img src={jugador.lastTeamLogo} alt={jugador.lastTeam} className="w-5 h-5 object-contain" />
+                        ) : jugador.lastTeam !== 'Agente Libre' ? (
+                          <div className="w-5 h-5 bg-secondary rounded-full flex items-center justify-center text-[10px] font-bold">{jugador.lastTeam.charAt(0)}</div>
+                        ) : null}
+                        <span className={jugador.lastTeam === 'Agente Libre' ? 'text-muted-foreground italic text-xs' : 'font-bold text-xs'}>
+                          {jugador.lastTeam}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-center font-mono">{stats.pj}</td>
                     <td className="px-4 py-3 text-center text-primary font-mono">{stats.goles}</td>

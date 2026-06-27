@@ -21,7 +21,12 @@ export default async function JugadoresPage() {
       tournamentTeams: {
         include: {
           tournamentTeam: {
-            include: { team: true }
+            include: { 
+              team: true,
+              tournament: {
+                include: { season: true }
+              }
+            }
           }
         },
         orderBy: {
@@ -57,17 +62,33 @@ export default async function JugadoresPage() {
       compStats[comp].asistencias += stat.assists;
     });
     
-    // Get the current/last team
-    const lastTeam = p.tournamentTeams.length > 0 
-      ? p.tournamentTeams[0].tournamentTeam.team.name 
+    // Get the active season club
+    const activeSeasonTeam = p.tournamentTeams.find(tt => 
+      tt.tournamentTeam.tournament.season.isActive && !tt.tournamentTeam.team.isNationalTeam
+    );
+    
+    const lastTeam = activeSeasonTeam 
+      ? activeSeasonTeam.tournamentTeam.team.name 
       : "Agente Libre";
+      
+    const lastTeamLogo = activeSeasonTeam
+      ? activeSeasonTeam.tournamentTeam.team.logoUrl
+      : null;
+
+    // Check if called up in active season
+    const isCalledUp = p.tournamentTeams.some(tt => 
+      tt.tournamentTeam.team.isNationalTeam && 
+      tt.tournamentTeam.tournament.season.isActive
+    );
 
     return {
       id: p.id,
       nick: p.nick,
       nationality: p.nationality,
       stats: compStats,
-      lastTeam
+      lastTeam,
+      lastTeamLogo,
+      isCalledUp
     };
   });
 

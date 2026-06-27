@@ -5,7 +5,7 @@ import { createTeam, deleteTeam, editTeam } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
-export default function TeamsClient({ teams, users }: { teams: any[], users: any[] }) {
+export default function NationalTeamsAdminClient({ teams, users }: { teams: any[], users: any[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,13 +41,13 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
       {/* FORM TO CREATE/EDIT TEAM */}
       <div className="bg-secondary/30 p-6 rounded-xl border border-border">
         <h2 className="font-bold text-lg text-primary mb-4">
-          {editMode ? `Editar Equipo: ${editMode.name}` : 'Añadir Nuevo Equipo'}
+          {editMode ? `Editar Selección: ${editMode.name}` : 'Añadir Nueva Selección'}
         </h2>
         <form action={async (formData) => {
           setLoading(true);
           setError("");
           
-          formData.append("isNationalTeam", "false");
+          formData.append("isNationalTeam", "true");
 
           let res;
           if (editMode) {
@@ -93,7 +93,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
 
           <div className="flex gap-2 mt-2">
             <button disabled={loading} type="submit" className="flex-1 bg-primary text-primary-foreground font-black py-3 rounded-lg hover:bg-primary/90 transition-colors">
-              {editMode ? 'GUARDAR CAMBIOS' : 'CREAR EQUIPO'}
+              {editMode ? 'GUARDAR CAMBIOS' : 'CREAR SELECCIÓN'}
             </button>
             {editMode && (
               <button disabled={loading} type="button" onClick={cancelEdit} className="bg-secondary text-secondary-foreground font-black px-6 py-3 rounded-lg hover:bg-secondary/80 transition-colors">
@@ -106,7 +106,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
 
       {/* TEAM LIST */}
       <div>
-        <h2 className="font-bold text-lg text-white mb-4">Equipos Registrados ({teams.length})</h2>
+        <h2 className="font-bold text-lg text-white mb-4">Selecciones Registradas ({teams.length})</h2>
         {error && <div className="bg-destructive/20 text-destructive border border-destructive p-3 rounded mb-4 text-sm font-bold">{error}</div>}
         
         <div className="overflow-x-auto bg-card border border-border rounded-xl">
@@ -152,7 +152,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
               {teams.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                    Aún no hay equipos registrados.
+                    Aún no hay selecciones registradas.
                   </td>
                 </tr>
               )}

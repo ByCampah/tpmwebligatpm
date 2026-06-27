@@ -22,7 +22,20 @@ export async function createAdminLog(action: string, details?: string) {
 }
 
 export async function submitMatchStats(formData: any) {
+  const session = await auth();
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
+
   const { matchId, homeScore, awayScore, playerStats, eventsJson } = formData;
+
+  if (session.user.role === "MODERATOR") {
+    const matchData = await prisma.match.findUnique({
+      where: { id: matchId },
+      include: { tournament: { include: { season: true } } }
+    });
+    if (!matchData?.tournament.season.isActive) {
+      return { success: false, error: "Los moderadores solo pueden editar partidos de la temporada actual." };
+    }
+  }
 
   let events = [];
   try {
@@ -128,6 +141,11 @@ export async function submitTrophy(formData: any) {
     }
   });
 
+  const session = await auth();
+  if (session?.user) {
+    await createAdminLog("Crear Trofeo", `Asignó el trofeo ${name} ${type === 'TEAM' ? 'al equipo '+teamId : 'al jugador '+playerId}`);
+  }
+
   revalidatePath("/admin/premios");
   revalidatePath("/jugadores");
   revalidatePath("/equipos");
@@ -141,7 +159,7 @@ export async function submitTrophy(formData: any) {
 
 export async function setActiveSeason(seasonId: string) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   await prisma.$transaction(async (tx) => {
     // Set all to false
@@ -165,7 +183,7 @@ export async function setActiveSeason(seasonId: string) {
 
 export async function deleteSeason(seasonId: string) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
 
   try {
@@ -190,18 +208,20 @@ export async function deleteSeason(seasonId: string) {
 
 export async function createTeam(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   try {
     const name = formData.get("name") as string;
     const logoUrl = formData.get("logoUrl") as string;
     const captainId = formData.get("captainId") as string;
+    const isNationalTeam = formData.get("isNationalTeam") === "true";
 
     await prisma.team.create({
       data: {
         name,
         logoUrl: logoUrl || null,
-        captainId: captainId || null
+        captainId: captainId || null,
+        isNationalTeam
       }
     });
 
@@ -218,20 +238,22 @@ export async function createTeam(formData: FormData) {
 
 export async function editTeam(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   try {
     const id = formData.get("id") as string;
     const name = formData.get("name") as string;
     const logoUrl = formData.get("logoUrl") as string;
     const captainId = formData.get("captainId") as string;
+    const isNationalTeam = formData.get("isNationalTeam") === "true";
 
     await prisma.team.update({
       where: { id },
       data: {
         name,
         logoUrl: logoUrl || null,
-        captainId: captainId || null
+        captainId: captainId || null,
+        isNationalTeam
       }
     });
 
@@ -248,7 +270,7 @@ export async function editTeam(formData: FormData) {
 
 export async function deleteTeam(teamId: string) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   // Check if team has matches
   const team = await prisma.team.findUnique({
@@ -281,7 +303,7 @@ export async function deleteTeam(teamId: string) {
 
 export async function createPlayer(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   try {
     const nick = formData.get("nick") as string;
@@ -315,7 +337,7 @@ export async function createPlayer(formData: FormData) {
 
 export async function editPlayer(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   try {
     const id = formData.get("id") as string;
@@ -355,7 +377,7 @@ export async function editPlayer(formData: FormData) {
 
 export async function deletePlayer(playerId: string) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const player = await prisma.player.findUnique({
     where: { id: playerId },
@@ -390,7 +412,7 @@ export async function deletePlayer(playerId: string) {
 
 export async function createSeason(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const name = formData.get("name") as string;
   const isActive = formData.get("isActive") === "true";
@@ -411,7 +433,7 @@ export async function createSeason(formData: FormData) {
 
 export async function createTournament(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const seasonId = formData.get("seasonId") as string;
   const name = formData.get("name") as string;
@@ -429,7 +451,7 @@ export async function createTournament(formData: FormData) {
 
 export async function updateTournament(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const name = formData.get("name") as string;
@@ -451,7 +473,7 @@ export async function updateTournament(formData: FormData) {
 
 export async function deleteTournament(tournamentId: string) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
 
   try {
@@ -476,7 +498,7 @@ export async function deleteTournament(tournamentId: string) {
 
 export async function enrollTeamToTournament(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const teamId = formData.get("teamId") as string;
@@ -488,6 +510,7 @@ export async function enrollTeamToTournament(formData: FormData) {
         teamId
       }
     });
+    await createAdminLog("Inscribir Equipo", `Inscribió equipo ${teamId} en torneo ${tournamentId}`);
     revalidatePath(`/admin/temporadas/${tournamentId}`);
     return { success: true };
   } catch (e: any) {
@@ -498,7 +521,7 @@ export async function enrollTeamToTournament(formData: FormData) {
 
 export async function removeTeamFromTournament(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const teamId = formData.get("teamId") as string;
@@ -521,13 +544,14 @@ export async function removeTeamFromTournament(formData: FormData) {
     }
   });
 
+  await createAdminLog("Desinscribir Equipo", `Desinscribió equipo ${teamId} de torneo ${tournamentId}`);
   revalidatePath(`/admin/temporadas/${tournamentId}`);
   return { success: true };
 }
 
 export async function createManualMatch(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const homeTeamId = formData.get("homeTeamId") as string;
@@ -548,6 +572,7 @@ export async function createManualMatch(formData: FormData) {
     }
   });
 
+  await createAdminLog("Crear Partido Manual", `Partido ${homeTeamId} vs ${awayTeamId} en torneo ${tournamentId}`);
   revalidatePath(`/admin/temporadas/${tournamentId}`);
   revalidatePath("/liga");
   return { success: true };
@@ -555,7 +580,7 @@ export async function createManualMatch(formData: FormData) {
 
 export async function generateRoundRobin(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const doubleRound = formData.get("doubleRound") === "true";
@@ -626,6 +651,7 @@ export async function generateRoundRobin(formData: FormData) {
     data: matchesToCreate
   });
 
+  await createAdminLog("Generar Fixture", `Generó fixture para torneo ${tournamentId} (${doubleRound ? 'Ida y Vuelta' : 'Ida'})`);
   revalidatePath(`/admin/temporadas/${tournamentId}`);
   revalidatePath("/liga");
   return { success: true };
@@ -637,7 +663,7 @@ export async function generateRoundRobin(formData: FormData) {
 
 export async function addPlayerToRoster(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const teamId = formData.get("teamId") as string;
@@ -667,6 +693,7 @@ export async function addPlayerToRoster(formData: FormData) {
     await prisma.tournamentPlayer.create({
       data: { tournamentTeamId: tt.id, playerId }
     });
+    await createAdminLog("Fichar Jugador", `Fichó jugador ${playerId} en equipo ${teamId} para torneo ${tournamentId}`);
     revalidatePath(`/admin/temporadas/${tournamentId}`);
     return { success: true };
   } catch (e: any) {
@@ -676,7 +703,7 @@ export async function addPlayerToRoster(formData: FormData) {
 
 export async function removePlayerFromRoster(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const teamId = formData.get("teamId") as string;
@@ -692,6 +719,7 @@ export async function removePlayerFromRoster(formData: FormData) {
     });
   }
 
+  await createAdminLog("Despedir Jugador", `Despidió jugador ${playerId} del equipo ${teamId} en torneo ${tournamentId}`);
   revalidatePath(`/admin/temporadas/${tournamentId}`);
   return { success: true };
 }
@@ -702,7 +730,7 @@ export async function removePlayerFromRoster(formData: FormData) {
 
 export async function assignTournamentPodium(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") return { success: false, error: "No autorizado" };
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
   const firstId = formData.get("firstId") as string | null;

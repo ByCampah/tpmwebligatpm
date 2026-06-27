@@ -42,6 +42,7 @@ export default function ClientNavbar() {
     { name: t.nav.league, href: '/liga' },
     { name: t.nav.history, href: '/historial' },
     { name: "Trofeos", href: '/trofeos' },
+    { name: "Selecciones", href: '/selecciones' },
     { name: t.nav.teams, href: '/equipos' },
     { name: t.nav.players, href: '/jugadores' },
     { name: t.nav.market, href: '/mercado' },

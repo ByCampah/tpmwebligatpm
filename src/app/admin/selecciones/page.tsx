@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import TeamsClient from "./TeamsClient";
+import NationalTeamsAdminClient from "./NationalTeamsAdminClient";
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminEquiposPage() {
+export default async function AdminSeleccionesPage() {
   const teams = await prisma.team.findMany({
-    where: { isNationalTeam: false },
+    where: { isNationalTeam: true },
     orderBy: { name: "asc" },
     include: { captain: true }
   });
@@ -17,13 +17,13 @@ export default async function AdminEquiposPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-black text-white">Gestión de Clubes</h1>
+        <h1 className="text-3xl font-black text-white">Gestión de Selecciones</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Añade nuevos clubes a la base de datos o elimínalos si te equivocaste (y no tienen historial).
+          Añade o edita selecciones nacionales.
         </p>
       </div>
 
-      <TeamsClient teams={teams} users={users} />
+      <NationalTeamsAdminClient teams={teams} users={users} />
     </div>
   );
 }
