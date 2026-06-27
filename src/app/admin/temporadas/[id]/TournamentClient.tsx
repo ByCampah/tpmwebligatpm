@@ -300,9 +300,12 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
           
           <div className="grid lg:grid-cols-2 gap-4">
             {userRole === "ADMIN" && (
-              <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4">
-                <h3 className="font-bold text-lg text-primary">Generación Automática Liga</h3>
-                <p className="text-sm text-muted-foreground">Crea todos los partidos "Todos contra Todos" al instante.</p>
+              <div className="bg-primary/5 p-6 rounded-xl border border-primary/20 flex flex-col gap-4 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                <h3 className="font-bold text-lg text-primary flex items-center gap-2">
+                  <span className="bg-primary/20 p-1.5 rounded-md">⚡</span> Generación Automática
+                </h3>
+                <p className="text-sm text-muted-foreground">Crea todos los partidos "Todos contra Todos" al instante para las Ligas.</p>
                 <form action={async (formData) => {
                   if (confirm("¿Estás seguro de generar el fixture automático?")) {
                     setLoading(true);
@@ -313,47 +316,52 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     setLoading(false);
                     router.refresh();
                   }
-                }} className="flex gap-4">
-                  <select name="doubleRound" className="flex-1 bg-black border border-border text-sm p-3 rounded focus:border-primary">
-                    <option value="false">Solo Ida (Single Round Robin)</option>
+                }} className="flex flex-col gap-3 mt-auto">
+                  <select name="doubleRound" className="w-full bg-black/50 border border-border text-sm p-3 rounded-lg focus:border-primary outline-none transition-colors">
+                    <option value="false">Ida (Single Round Robin)</option>
                     <option value="true">Ida y Vuelta (Double Round Robin)</option>
                   </select>
-                  <button disabled={loading || enrolledTeamsData.length < 2} type="submit" className="bg-primary text-primary-foreground font-black px-6 rounded text-sm hover:bg-primary/90">
-                    AUTO-GENERAR
+                  <button disabled={loading || enrolledTeamsData.length < 2} type="submit" className="w-full bg-primary text-primary-foreground font-black px-6 py-3 rounded-lg text-sm hover:bg-primary/90 transition-transform active:scale-95 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                    GENERAR FIXTURE
                   </button>
                 </form>
               </div>
             )}
 
             {userRole === "ADMIN" && (
-              <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4">
-              <h3 className="font-bold text-lg text-secondary-foreground">Partido Manual (Copas/Playoffs)</h3>
-              <p className="text-sm text-muted-foreground">Añade un partido extra al calendario.</p>
-              <form action={async (formData) => {
-                setLoading(true);
-                setError("");
-                formData.append("tournamentId", tournament.id);
-                const res = await createManualMatch(formData);
-                if (!res.success) setError(res.error || "Error");
-                setLoading(false);
-                router.refresh();
-              }} className="flex flex-col gap-2">
-                <input type="text" name="round" placeholder="Etapa / Fecha (ej. Semifinal, Playoff)" required className="bg-black border border-border text-sm p-3 rounded focus:border-primary" />
-                <div className="flex gap-2">
-                  <select name="homeTeamId" required className="flex-1 bg-black border border-border text-sm p-3 rounded focus:border-primary">
-                    <option value="">Equipo Local...</option>
-                    {enrolledTeamsData.map((t: any) => <option key={t.team.id} value={t.team.id}>{t.team.name}</option>)}
-                  </select>
-                  <span className="flex items-center text-muted-foreground font-bold px-2">VS</span>
-                  <select name="awayTeamId" required className="flex-1 bg-black border border-border text-sm p-3 rounded focus:border-primary">
-                    <option value="">Equipo Visitante...</option>
-                    {enrolledTeamsData.map((t: any) => <option key={t.team.id} value={t.team.id}>{t.team.name}</option>)}
-                  </select>
-                  <button disabled={loading || enrolledTeamsData.length < 2} type="submit" className="bg-secondary text-secondary-foreground font-black px-6 rounded text-sm hover:bg-secondary/80">
-                    CREAR
+              <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4 relative overflow-hidden shadow-sm">
+                <div className="absolute top-0 left-0 w-1 h-full bg-secondary-foreground"></div>
+                <h3 className="font-bold text-lg text-secondary-foreground flex items-center gap-2">
+                  <span className="bg-secondary p-1.5 rounded-md">🛠️</span> Partido Manual
+                </h3>
+                <p className="text-sm text-muted-foreground">Añade un partido extra al calendario para Copas o Playoffs.</p>
+                <form action={async (formData) => {
+                  setLoading(true);
+                  setError("");
+                  formData.append("tournamentId", tournament.id);
+                  const res = await createManualMatch(formData);
+                  if (!res.success) setError(res.error || "Error");
+                  setLoading(false);
+                  router.refresh();
+                }} className="flex flex-col gap-3 mt-auto">
+                  <input type="text" name="round" placeholder="Etapa / Fecha (ej. Semifinal, Playoff)" required className="w-full bg-black/50 border border-border text-sm p-3 rounded-lg focus:border-primary outline-none transition-colors" />
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <select name="homeTeamId" required className="flex-1 bg-black/50 border border-border text-sm p-3 rounded-lg focus:border-primary outline-none transition-colors">
+                      <option value="">Equipo Local...</option>
+                      {enrolledTeamsData.map((t: any) => <option key={t.team.id} value={t.team.id}>{t.team.name}</option>)}
+                    </select>
+                    <div className="flex items-center justify-center py-1 sm:py-0">
+                      <span className="text-muted-foreground font-bold text-xs bg-black px-2 py-1 rounded">VS</span>
+                    </div>
+                    <select name="awayTeamId" required className="flex-1 bg-black/50 border border-border text-sm p-3 rounded-lg focus:border-primary outline-none transition-colors">
+                      <option value="">Equipo Visitante...</option>
+                      {enrolledTeamsData.map((t: any) => <option key={t.team.id} value={t.team.id}>{t.team.name}</option>)}
+                    </select>
+                  </div>
+                  <button disabled={loading} type="submit" className="w-full bg-secondary text-secondary-foreground hover:text-white font-bold px-6 py-3 rounded-lg text-sm hover:bg-border transition-colors">
+                    CREAR PARTIDO
                   </button>
-                </div>
-              </form>
+                </form>
               </div>
             )}
           </div>

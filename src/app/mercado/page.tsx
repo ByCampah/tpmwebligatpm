@@ -71,7 +71,14 @@ export default async function MercadoPage() {
                           <Link href={`/jugadores/${player.id}`} className="font-bold text-white hover:text-primary transition-colors text-lg">
                             {player.nick}
                           </Link>
-                          <div className="text-xs text-muted-foreground">{flag} {player.nationality}</div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-muted-foreground">{flag} {player.nationality}</span>
+                            {player.primaryPosition && player.primaryPosition !== 'Ninguna' && (
+                              <span className="text-[10px] bg-secondary/80 text-muted-foreground px-2 py-0.5 rounded font-bold uppercase">
+                                {player.primaryPosition}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       {player.user?.discordId ? (

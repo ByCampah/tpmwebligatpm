@@ -15,6 +15,7 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
   const [showGallery, setShowGallery] = useState(false);
   const [logoInput, setLogoInput] = useState("");
   const [manageCallUps, setManageCallUps] = useState<any>(null);
+  const [callUpFilter, setCallUpFilter] = useState("");
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`¿Estás seguro que deseas eliminar el equipo "${name}"? Esta acción no se puede deshacer.`)) {
@@ -176,13 +177,6 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
                   <td className="px-4 py-3 text-muted-foreground">{team.captain?.nickName || team.captain?.name || "Sin asignar"}</td>
                   <td className="px-4 py-3 text-right">
                     <button 
-                      onClick={() => startEdit(team)}
-                      disabled={loading}
-                      className="text-xs bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground px-3 py-1 rounded font-bold transition-colors mr-2"
-                    >
-                      EDITAR
-                    </button>
-                    <button 
                       onClick={() => setManageCallUps(team)}
                       disabled={loading}
                       className="text-xs bg-accent/20 text-accent hover:bg-accent hover:text-accent-foreground px-3 py-1 rounded font-bold transition-colors mr-2"
@@ -196,6 +190,7 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
                     >
                       EDITAR
                     </button>
+
                     <button 
                       onClick={() => handleDelete(team.id, team.name)}
                       disabled={loading}
@@ -236,17 +231,25 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
             </div>
             
             <div className="p-6 overflow-y-auto flex-1">
-              <p className="text-muted-foreground text-sm mb-6">
+              <p className="text-muted-foreground text-sm mb-4">
                 Selecciona a los jugadores que están convocados para esta selección. Los jugadores que actives aquí aparecerán primeros en la pestaña de Selecciones.
               </p>
+
+              <input 
+                type="text" 
+                placeholder="Filtrar por nombre..." 
+                value={callUpFilter}
+                onChange={(e) => setCallUpFilter(e.target.value)}
+                className="w-full bg-black/50 border border-border rounded p-3 text-white mb-6 focus:border-primary outline-none transition-colors"
+              />
               
               <div className="flex flex-col gap-2">
-                {players.filter(p => p.nationality === manageCallUps.name).length === 0 ? (
+                {players.filter(p => p.nationality === manageCallUps.name && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).length === 0 ? (
                   <div className="text-center p-8 bg-secondary/20 rounded-lg text-muted-foreground italic">
-                    No hay jugadores con la nacionalidad {manageCallUps.name} registrados en el sistema.
+                    No se encontraron jugadores que coincidan con la búsqueda.
                   </div>
                 ) : (
-                  players.filter(p => p.nationality === manageCallUps.name).map(player => (
+                  players.filter(p => p.nationality === manageCallUps.name && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).map(player => (
                     <div key={player.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${player.isNationalTeamCalledUp ? 'bg-primary/10 border-primary/30' : 'bg-secondary/30 border-border hover:bg-secondary/50'}`}>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-black/40 rounded flex items-center justify-center font-bold text-muted-foreground">

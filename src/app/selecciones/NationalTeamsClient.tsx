@@ -21,14 +21,8 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers }: { nat
     if (p.isNationalTeamCalledUp) calledUpPlayerIds.add(p.id);
   });
 
-  // Sort availablePlayers: Called Up first, then by name
-  availablePlayers.sort((a, b) => {
-    const aCalled = calledUpPlayerIds.has(a.id);
-    const bCalled = calledUpPlayerIds.has(b.id);
-    if (aCalled && !bCalled) return -1;
-    if (!aCalled && bCalled) return 1;
-    return a.nick.localeCompare(b.nick);
-  });
+  const calledUpPlayers = availablePlayers.filter(p => calledUpPlayerIds.has(p.id)).sort((a, b) => a.nick.localeCompare(b.nick));
+  const availableOnlyPlayers = availablePlayers.filter(p => !calledUpPlayerIds.has(p.id)).sort((a, b) => a.nick.localeCompare(b.nick));
 
   return (
     <div className="flex flex-col md:flex-row gap-8">
@@ -78,43 +72,83 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers }: { nat
                 )}
               </div>
             </div>
+              <div className="mt-4 flex gap-4 justify-center md:justify-start">
+                <Link href={`/equipos/${activeTeam.id}`} className="px-6 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/80 transition-colors shadow-md text-sm flex items-center gap-2">
+                  VER ESTADÍSTICAS
+                </Link>
+              </div>
+            </div>
           </div>
+
+          {/* CONVOCADOS PANEL */}
+          {calledUpPlayers.length > 0 && (
+            <div className="bg-primary/5 border border-primary/20 rounded-xl overflow-hidden shadow-lg shadow-primary/5">
+              <div className="bg-primary/10 p-4 border-b border-primary/20 flex justify-between items-center">
+                <h3 className="font-bold text-lg text-primary flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                  Convocados ({calledUpPlayers.length})
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                {calledUpPlayers.map(p => (
+                  <Link 
+                    href={`/jugadores/${p.id}`} 
+                    key={p.id}
+                    className="flex items-center gap-4 p-4 rounded-xl border border-primary/30 bg-primary/10 transition-all hover:scale-[1.02] hover:bg-primary/20 hover:border-primary/50"
+                  >
+                    <div className="w-12 h-12 bg-black/40 rounded flex justify-center items-center font-black text-xl text-primary shrink-0 overflow-hidden">
+                      {p.user?.image || p.user?.customAvatarUrl ? (
+                        <img src={p.user.image || p.user.customAvatarUrl!} alt={p.nick} className="w-full h-full object-cover" />
+                      ) : p.nick.charAt(0)}
+                    </div>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="font-bold text-white truncate">{p.nick}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-black text-primary bg-primary/20 px-2 py-0.5 rounded w-fit uppercase border border-primary/20">Convocado Activo</span>
+                        {p.primaryPosition && p.primaryPosition !== "Ninguna" && (
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase">{p.primaryPosition}</span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
             <div className="bg-secondary p-4 border-b border-border flex justify-between items-center">
-              <h3 className="font-bold text-lg">Jugadores Disponibles ({availablePlayers.length})</h3>
+              <h3 className="font-bold text-lg">Jugadores Disponibles ({availableOnlyPlayers.length})</h3>
             </div>
             
-            {availablePlayers.length === 0 ? (
+            {availableOnlyPlayers.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground italic">
-                No hay jugadores registrados con la nacionalidad "{activeTeam.name}".
+                No hay más jugadores disponibles con la nacionalidad "{activeTeam.name}".
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                {availablePlayers.map(p => {
-                  const isCalledUp = calledUpPlayerIds.has(p.id);
-                  return (
-                    <Link 
-                      href={`/jugadores/${p.id}`} 
-                      key={p.id}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.02] ${isCalledUp ? 'bg-primary/5 border-primary/30' : 'bg-black/30 border-border hover:border-primary/50'}`}
-                    >
-                      <div className="w-12 h-12 bg-secondary rounded flex justify-center items-center font-black text-xl text-muted-foreground shrink-0 overflow-hidden">
-                        {p.user?.image || p.user?.customAvatarUrl ? (
-                          <img src={p.user.image || p.user.customAvatarUrl!} alt={p.nick} className="w-full h-full object-cover" />
-                        ) : p.nick.charAt(0)}
-                      </div>
-                      <div className="flex flex-col overflow-hidden">
-                        <span className="font-bold truncate">{p.nick}</span>
-                        {isCalledUp ? (
-                          <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded w-fit uppercase">Convocado Activo</span>
-                        ) : (
-                          <span className="text-[10px] font-bold text-muted-foreground uppercase">Disponible</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 opacity-80 hover:opacity-100 transition-opacity">
+                {availableOnlyPlayers.map(p => (
+                  <Link 
+                    href={`/jugadores/${p.id}`} 
+                    key={p.id}
+                    className="flex items-center gap-4 p-4 rounded-xl border border-border bg-black/30 transition-all hover:scale-[1.02] hover:border-primary/50"
+                  >
+                    <div className="w-12 h-12 bg-secondary rounded flex justify-center items-center font-black text-xl text-muted-foreground shrink-0 overflow-hidden">
+                      {p.user?.image || p.user?.customAvatarUrl ? (
+                        <img src={p.user.image || p.user.customAvatarUrl!} alt={p.nick} className="w-full h-full object-cover grayscale opacity-70" />
+                      ) : p.nick.charAt(0)}
+                    </div>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="font-bold truncate">{p.nick}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-bold text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded uppercase">Disponible</span>
+                        {p.primaryPosition && p.primaryPosition !== "Ninguna" && (
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase">{p.primaryPosition}</span>
                         )}
                       </div>
-                    </Link>
-                  );
-                })}
+                    </div>
+                  </Link>
+                ))}
               </div>
             )}
           </div>

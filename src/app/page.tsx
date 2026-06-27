@@ -51,15 +51,12 @@ export default async function Home() {
           Bienvenido a Liga TPM
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          El mejor Football Manager Online. Gana torneos, ficha jugadores y lleva a tu equipo a la gloria.
+          TPM Football es un juego donde vos manejas tu propio jugador, que estas esperando? Unite a la comunidad!
         </p>
         <div className="flex justify-center gap-4">
-          <Link href="/liga" className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
-            Ver Torneos Actuales
-          </Link>
-          <Link href="/equipos" className="px-6 py-3 bg-secondary text-secondary-foreground font-bold rounded-full hover:bg-secondary/80 transition-colors border border-border">
-            Ver Equipos
-          </Link>
+          <a href="https://dl.dropboxusercontent.com/s/rud9i5kqrabsajy/TPM.rar?dl=0" target="_blank" rel="noreferrer" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center gap-2 text-lg">
+            ⬇ DESCARGAR JUEGO
+          </a>
         </div>
       </section>
 
@@ -174,7 +171,7 @@ export default async function Home() {
           {/* Discord Links */}
           <section className="bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-xl p-6 flex flex-col items-center text-center gap-4">
             <div>
-              <h3 className="font-bold text-[#5865F2] mb-1 text-lg">Unite a Discord</h3>
+              <h3 className="font-bold text-[#5865F2] mb-1 text-lg">👾 Unite a Discord</h3>
               <p className="text-sm text-muted-foreground">Participá con la comunidad</p>
             </div>
             
@@ -192,7 +189,7 @@ export default async function Home() {
           {/* Kick Links */}
           <section className="bg-[#53FC18]/10 border border-[#53FC18]/20 rounded-xl p-6 flex flex-col items-center text-center gap-4">
             <div>
-              <h3 className="font-bold text-[#53FC18] mb-1 text-lg">Seguinos en Kick</h3>
+              <h3 className="font-bold text-[#53FC18] mb-1 text-lg">🟢 Seguinos en Kick</h3>
               <p className="text-sm text-muted-foreground">Mirá los partidos en vivo</p>
             </div>
             
