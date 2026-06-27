@@ -15,11 +15,10 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers }: { nat
   // Find players that match the active team's name as their nationality
   const availablePlayers = allPlayers.filter(p => p.nationality === activeTeam?.name);
 
-  // Check if they are currently called up in the active season
-  // activeTeam.tournaments contains the active season's tournaments if any
+  // Check if they are currently called up via the isNationalTeamCalledUp boolean
   const calledUpPlayerIds = new Set<string>();
-  activeTeam?.tournaments?.forEach((tt: any) => {
-    tt.players?.forEach((p: any) => calledUpPlayerIds.add(p.playerId));
+  availablePlayers.forEach(p => {
+    if (p.isNationalTeamCalledUp) calledUpPlayerIds.add(p.id);
   });
 
   // Sort availablePlayers: Called Up first, then by name

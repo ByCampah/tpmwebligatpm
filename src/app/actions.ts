@@ -791,3 +791,29 @@ export async function assignTournamentPodium(formData: FormData) {
   }
 }
 
+export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boolean) {
+  const session = await auth();
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+    return { success: false, error: "No autorizado" };
+  }
+
+  try {
+    await prisma.player.update({
+      where: { id: playerId },
+      data: { isNationalTeamCalledUp: isCalledUp }
+    });
+    
+    await createAdminLog(
+      isCalledUp ? "Convocó a jugador" : "Desconvocó a jugador",
+      `Jugador ID: ${playerId}`
+    );
+    
+    revalidatePath("/admin/selecciones");
+    revalidatePath("/selecciones");
+    return { success: true };
+  } catch (e: any) {
+    console.error("Toggle call up error:", e);
+    return { success: false, error: e.message || "Error al cambiar estado de convocatoria" };
+  }
+}
+
