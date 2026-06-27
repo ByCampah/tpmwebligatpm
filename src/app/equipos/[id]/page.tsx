@@ -23,6 +23,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   const team = await prisma.team.findUnique({
     where: { id: params.id },
     include: {
+      captain: true,
       tournaments: {
         include: {
           tournament: { include: { season: true, category: true } },
@@ -113,7 +114,9 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
         </div>
         <div className="flex flex-col items-center md:items-start justify-center h-full z-10 py-4">
           <h1 className="text-4xl md:text-6xl font-black neon-text text-center md:text-left">{team.name}</h1>
-          <p className="text-muted-foreground mt-2 font-mono">ID: {team.id.split('-')[0]}</p>
+          <p className="text-muted-foreground mt-2 font-bold flex items-center gap-2 text-sm md:text-base">
+            Capitán: <span className="text-primary">{team.captain?.nickName || team.captain?.name || "Sin asignar"}</span>
+          </p>
         </div>
       </div>
 

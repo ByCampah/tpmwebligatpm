@@ -42,6 +42,18 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
   if (!jugador) return notFound();
 
+  // Find active season and current team
+  const activeSeason = await prisma.season.findFirst({ where: { isActive: true } });
+  let currentTeam = null;
+  if (activeSeason) {
+    const currentTournamentTeam = jugador.tournamentTeams.find(
+      (tt) => tt.tournamentTeam.tournament.seasonId === activeSeason.id
+    );
+    if (currentTournamentTeam) {
+      currentTeam = currentTournamentTeam.tournamentTeam.team;
+    }
+  }
+
   // Find collective trophies
   const rosterData = jugador.tournamentTeams.map(t => ({
     teamId: t.tournamentTeam.teamId,
@@ -176,6 +188,19 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 className="w-6 h-auto rounded-sm shadow-sm"
               />
               <span>{jugador.nationality}</span>
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-2">
+              {currentTeam ? (
+                <Link href={`/equipos/${currentTeam.id}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                  {currentTeam.logoUrl && (
+                    <img src={currentTeam.logoUrl} alt={currentTeam.name} className="w-5 h-5 object-contain" />
+                  )}
+                  <span className="font-bold text-white">{currentTeam.name}</span>
+                </Link>
+              ) : (
+                <span className="italic">Sin equipo</span>
+              )}
             </span>
           </div>
           

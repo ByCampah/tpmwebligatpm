@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import TrofeosView from "./TrofeosView";
+import TrofeosTabs from "./TrofeosTabs";
 import { getDictionary } from "@/i18n/getDictionary";
 import { cookies } from "next/headers";
 
@@ -7,28 +7,68 @@ export default async function TrofeosPage() {
   const locale = "es";
   const t = await getDictionary(locale);
 
+  // Get Teams
   const teams = await prisma.team.findMany({
     include: {
       trophies: {
-        where: {
-          type: "TEAM"
-        },
+        where: { type: "TEAM" },
+        include: { tournament: { include: { category: true } } }
+      }
+    }
+  });
+
+  // Get Players
+  const playersRaw = await prisma.player.findMany({
+    include: {
+      trophies: {
+        where: { type: "PLAYER" },
+        include: { tournament: { include: { category: true } } }
+      },
+      tournamentTeams: {
         include: {
-          tournament: { include: { category: true } }
+          tournamentTeam: {
+            include: {
+              team: {
+                include: {
+                  trophies: {
+                    where: { type: "TEAM" },
+                    include: { tournament: { include: { category: true } } }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
   });
 
+  const players = playersRaw.map(player => {
+    const collectiveTrophies: any[] = [];
+    player.tournamentTeams.forEach(pt => {
+      const tournamentId = pt.tournamentTeam.tournamentId;
+      const wonTrophies = pt.tournamentTeam.team.trophies.filter(
+        t => t.tournamentId === tournamentId
+      );
+      collectiveTrophies.push(...wonTrophies);
+    });
+
+    return {
+      id: player.id,
+      nick: player.nick,
+      trophies: [...player.trophies, ...collectiveTrophies]
+    };
+  });
+
   return (
     <div className="py-8 max-w-6xl mx-auto flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-4xl font-black neon-text uppercase">{t.trophies.title}</h1>
+        <h1 className="text-4xl font-black neon-text uppercase">Salón de la Fama</h1>
         <p className="text-muted-foreground">
-          {t.trophies.subtitle}
+          Palmarés histórico de equipos y jugadores.
         </p>
       </header>
-      <TrofeosView teams={teams} dictionary={t.trophies} />
+      <TrofeosTabs teams={teams} players={players} dictionary={t.trophies} />
     </div>
   );
 }
