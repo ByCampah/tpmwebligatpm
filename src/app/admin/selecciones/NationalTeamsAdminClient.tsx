@@ -13,6 +13,7 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState<any>(null);
   const [showGallery, setShowGallery] = useState(false);
+  const [logoInput, setLogoInput] = useState("");
   const [manageCallUps, setManageCallUps] = useState<any>(null);
   const [callUpFilter, setCallUpFilter] = useState("");
   
