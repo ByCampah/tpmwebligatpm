@@ -210,13 +210,19 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
             {jugador.primaryPosition && jugador.primaryPosition !== 'Ninguna' && (
               <>
                 <span>•</span>
-                <span className="bg-primary/20 text-primary px-2 py-0.5 rounded font-bold uppercase">{jugador.primaryPosition} Principal</span>
+                <span className="bg-primary/20 text-primary px-3 py-1 rounded-md font-bold uppercase border border-primary/30 flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                  <span className="text-white/60 font-normal text-[10px] tracking-wider uppercase mr-1">Principal:</span>
+                  {jugador.primaryPosition}
+                </span>
               </>
             )}
             {jugador.secondaryPosition && jugador.secondaryPosition !== 'Ninguna' && (
               <>
                 <span>•</span>
-                <span className="bg-secondary/50 text-secondary-foreground px-2 py-0.5 rounded uppercase">{jugador.secondaryPosition} Secundaria</span>
+                <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-md font-bold uppercase border border-blue-500/30 flex items-center gap-1 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+                  <span className="text-white/60 font-normal text-[10px] tracking-wider uppercase mr-1">Secundaria:</span>
+                  {jugador.secondaryPosition}
+                </span>
               </>
             )}
           </div>
@@ -256,25 +262,23 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
               </div>
             </div>
 
-            {totalNatStats.pj > 0 && (
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center md:text-left">Selección</span>
-                <div className="flex flex-wrap gap-2">
-                  <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
-                    <span className="block text-2xl font-black text-primary">{totalNatStats.pj}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold">PJ</span>
-                  </div>
-                  <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
-                    <span className="block text-2xl font-black text-white">{totalNatStats.goles}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold">G</span>
-                  </div>
-                  <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
-                    <span className="block text-2xl font-black text-white">{totalNatStats.asistencias}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
-                  </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center md:text-left">Selección</span>
+              <div className="flex flex-wrap gap-2">
+                <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
+                  <span className="block text-2xl font-black text-primary">{totalNatStats.pj}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold">PJ</span>
+                </div>
+                <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
+                  <span className="block text-2xl font-black text-white">{totalNatStats.goles}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold">G</span>
+                </div>
+                <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
+                  <span className="block text-2xl font-black text-white">{totalNatStats.asistencias}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

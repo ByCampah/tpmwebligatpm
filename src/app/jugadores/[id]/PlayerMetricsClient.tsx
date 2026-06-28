@@ -51,9 +51,24 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
     headersMade: 0, headersTotal: 0, tacklesWon: 0, fouled: 0, offsides: 0, savesMade: 0, savesTotal: 0
   });
 
-  const formatStat = (made: number, total: number) => {
+  const renderStat = (made: number, total: number) => {
     const percentage = total > 0 ? Math.round((made / total) * 100) : 0;
-    return `${made}/${total} ${percentage}%`;
+    
+    let colorClass = "bg-primary text-primary";
+    if (percentage < 40) colorClass = "bg-red-500 text-red-500";
+    else if (percentage < 70) colorClass = "bg-yellow-500 text-yellow-500";
+
+    return (
+      <div className="flex flex-col gap-1 group relative cursor-help w-full" title={`${made}/${total}`}>
+        <span className="text-xl font-black">{percentage}%</span>
+        <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-1">
+          <div 
+            className={`h-full ${colorClass.split(' ')[0]} transition-all duration-500`} 
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -78,7 +93,7 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 shadow-md flex flex-col gap-4">
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-2">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-6">
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Goals</span>
             <span className="text-xl font-black text-primary">{totals.goals}</span>
@@ -97,11 +112,11 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Passes</span>
-            <span className="text-xl font-black">{formatStat(totals.passesMade, totals.passesTotal)}</span>
+            {renderStat(totals.passesMade, totals.passesTotal)}
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Sliding</span>
-            <span className="text-xl font-black">{formatStat(totals.slidingMade, totals.slidingTotal)}</span>
+            {renderStat(totals.slidingMade, totals.slidingTotal)}
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Fouls</span>
@@ -117,11 +132,11 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Shoot Acc</span>
-            <span className="text-xl font-black">{formatStat(totals.shotsMade, totals.shotsTotal)}</span>
+            {renderStat(totals.shotsMade, totals.shotsTotal)}
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Header Duels</span>
-            <span className="text-xl font-black">{formatStat(totals.headersMade, totals.headersTotal)}</span>
+            {renderStat(totals.headersMade, totals.headersTotal)}
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Tackles won</span>
@@ -137,7 +152,7 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Saves</span>
-            <span className="text-xl font-black">{formatStat(totals.savesMade, totals.savesTotal)}</span>
+            {renderStat(totals.savesMade, totals.savesTotal)}
           </div>
         </div>
       </div>
