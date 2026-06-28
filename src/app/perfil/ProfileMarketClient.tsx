@@ -108,7 +108,7 @@ export default function ProfileMarketClient({ user }: { user: any }) {
               )}
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-4">
               <div>
                 <label className="block text-sm font-bold text-muted-foreground mb-1">Posición Principal</label>
                 <select 
