@@ -64,7 +64,11 @@ export async function POST(req: NextRequest) {
             include: {
               user: true,
               tournamentTeams: {
-                include: { team: true }
+                include: { 
+                  tournamentTeam: {
+                    include: { team: true }
+                  }
+                }
               }
             }
           });
@@ -81,7 +85,11 @@ export async function POST(req: NextRequest) {
               include: {
                 user: true,
                 tournamentTeams: {
-                  include: { team: true }
+                  include: { 
+                    tournamentTeam: {
+                      include: { team: true }
+                    }
+                  }
                 }
               }
             });
@@ -102,7 +110,7 @@ export async function POST(req: NextRequest) {
         // Obtener equipo actual (último asignado)
         let equipoActual = 'Agente Libre';
         if (player.tournamentTeams && player.tournamentTeams.length > 0) {
-          equipoActual = player.tournamentTeams[0].team.name;
+          equipoActual = player.tournamentTeams[0].tournamentTeam.team.name;
         }
 
         // Armar el Embed
