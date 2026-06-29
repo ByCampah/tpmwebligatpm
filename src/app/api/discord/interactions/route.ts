@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyKey } from 'discord-interactions';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 // Constantes de tipos de interacciones
 const InteractionType = {
