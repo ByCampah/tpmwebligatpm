@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse('Server Error: Missing DISCORD_PUBLIC_KEY', { status: 500 });
     }
 
-    const isValidRequest = verifyKey(bodyText, signature, timestamp, PUBLIC_KEY);
+    const isValidRequest = await verifyKey(bodyText, signature, timestamp, PUBLIC_KEY);
 
     if (!isValidRequest) {
       return new NextResponse('Bad request signature', { status: 401 });
