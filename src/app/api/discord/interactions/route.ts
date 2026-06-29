@@ -69,6 +69,17 @@ export async function POST(req: NextRequest) {
                     include: { team: true }
                   }
                 }
+              },
+              matchStats: {
+                include: {
+                  match: {
+                    include: {
+                      tournament: {
+                        include: { season: true }
+                      }
+                    }
+                  }
+                }
               }
             }
           });
@@ -88,6 +99,17 @@ export async function POST(req: NextRequest) {
                   include: { 
                     tournamentTeam: {
                       include: { team: true }
+                    }
+                  }
+                },
+                matchStats: {
+                  include: {
+                    match: {
+                      include: {
+                        tournament: {
+                          include: { season: true }
+                        }
+                      }
                     }
                   }
                 }
@@ -113,6 +135,18 @@ export async function POST(req: NextRequest) {
           equipoActual = player.tournamentTeams[0].tournamentTeam.team.name;
         }
 
+        // Calcular estadísticas de la temporada actual
+        let pj = 0;
+        let g = 0;
+        let a = 0;
+        
+        if (player.matchStats) {
+          const statsActuales = player.matchStats.filter(stat => stat.match?.tournament?.season?.isActive);
+          pj = statsActuales.length;
+          g = statsActuales.reduce((sum, stat) => sum + (stat.goals || 0), 0);
+          a = statsActuales.reduce((sum, stat) => sum + (stat.assists || 0), 0);
+        }
+
         // Armar el Embed
         const embed = {
           title: `Perfil de ${player.nick}`,
@@ -135,6 +169,11 @@ export async function POST(req: NextRequest) {
             {
               name: '🎯 Posiciones',
               value: `${player.primaryPosition || 'Ninguna'} ${player.secondaryPosition && player.secondaryPosition !== 'Ninguna' ? `/ ${player.secondaryPosition}` : ''}`,
+              inline: false
+            },
+            {
+              name: '📊 Temp. Actual (Clubes)',
+              value: `**PJ:** ${pj} | **G:** ${g} | **A:** ${a}`,
               inline: false
             }
           ],
