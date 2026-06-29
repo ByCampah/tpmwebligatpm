@@ -106,6 +106,16 @@ const commands = [
         required: false
       }
     ]
+  },
+  {
+    name: "mercado_jugadores",
+    description: "Muestra los jugadores que están buscando equipo (Agentes Libres)",
+    type: 1
+  },
+  {
+    name: "mercado_equipos",
+    description: "Muestra los equipos que están buscando jugadores",
+    type: 1
   }
 ];
 

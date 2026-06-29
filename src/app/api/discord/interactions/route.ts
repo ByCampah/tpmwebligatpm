@@ -337,11 +337,84 @@ export async function POST(req: NextRequest) {
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: { embeds: [embed] },
         });
+
+      } else if (name === 'mercado_jugadores') {
+        const freeAgents = await prisma.player.findMany({
+          where: { isFreeAgent: true },
+          take: 15,
+          orderBy: { createdAt: 'desc' }
+        });
+
+        let description = '';
+        if (freeAgents.length === 0) {
+          description = '*Actualmente no hay jugadores libres buscando equipo.*';
+        } else {
+          freeAgents.forEach(player => {
+            const pos = [player.primaryPosition, player.secondaryPosition]
+              .filter(p => p && p !== 'Ninguna')
+              .join('/');
+            
+            description += `**${player.nick}** (${pos || 'Sin posición'})\n`;
+            if (player.marketDescription) {
+              description += `🗣️ *"${player.marketDescription}"*\n`;
+            }
+            description += '\n';
+          });
+        }
+
+        const embed = {
+          title: '🔄 Mercado de Jugadores (Agentes Libres)',
+          url: 'https://tpmsudamerica.vercel.app/mercado',
+          color: 0x10b981,
+          description: description,
+          footer: { text: 'Liga TPM Sudamérica - Últimos 15 jugadores' }
+        };
+
+        return NextResponse.json({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: { embeds: [embed] },
+        });
+
+      } else if (name === 'mercado_equipos') {
+        const searchingTeams = await prisma.team.findMany({
+          where: { isLookingForPlayers: true },
+          include: { captain: true },
+          take: 15,
+          orderBy: { createdAt: 'desc' }
+        });
+
+        let description = '';
+        if (searchingTeams.length === 0) {
+          description = '*Actualmente no hay equipos buscando jugadores.*';
+        } else {
+          searchingTeams.forEach(team => {
+            description += `**${team.name}**\n`;
+            if (team.captain) {
+              description += `👑 Contacto: ${team.captain.name}\n`;
+            }
+            if (team.marketDescription) {
+              description += `📝 *"${team.marketDescription}"*\n`;
+            }
+            description += '\n';
+          });
+        }
+
+        const embed = {
+          title: '🔄 Mercado de Equipos',
+          url: 'https://tpmsudamerica.vercel.app/mercado',
+          color: 0x3b82f6,
+          description: description,
+          footer: { text: 'Liga TPM Sudamérica - Últimos 15 equipos' }
+        };
+
+        return NextResponse.json({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: { embeds: [embed] },
+        });
       }
     }
 
-    return new NextResponse('Unknown command', { status: 400 });
-
+    return NextResponse.json({ error: 'Unknown interaction type' }, { status: 400 });
   } catch (error: any) {
     console.error('Error handling Discord interaction:', error);
     return new NextResponse(`Internal Server Error: ${error.message || error}`, { status: 500 });
