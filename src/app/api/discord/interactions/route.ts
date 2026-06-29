@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     const bodyText = await req.text();
-    const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY;
+    const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY?.trim();
 
     if (!PUBLIC_KEY) {
       console.error('Missing DISCORD_PUBLIC_KEY in environment variables');
