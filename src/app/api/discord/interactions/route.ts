@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     if (!PUBLIC_KEY) {
       console.error('Missing DISCORD_PUBLIC_KEY in environment variables');
-      return new NextResponse('Server Error', { status: 500 });
+      return new NextResponse('Server Error: Missing DISCORD_PUBLIC_KEY', { status: 500 });
     }
 
     const isValidRequest = verifyKey(bodyText, signature, timestamp, PUBLIC_KEY);
@@ -154,8 +154,8 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse('Unknown command', { status: 400 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error handling Discord interaction:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    return new NextResponse(`Internal Server Error: ${error.message || error}`, { status: 500 });
   }
 }
