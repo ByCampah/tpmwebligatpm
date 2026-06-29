@@ -21,6 +21,89 @@ const commands = [
         description: "El nick del jugador que querés buscar (si lo dejas vacío, muestra el tuyo)",
         type: 3, // STRING
         required: false
+      },
+      {
+        name: "temporada",
+        description: "Nombre de la temporada (ej: Temporada 1). Por defecto muestra la actual.",
+        type: 3, // STRING
+        required: false
+      }
+    ]
+  },
+  {
+    name: "equipo",
+    description: "Muestra la información y estadísticas de un equipo",
+    type: 1,
+    options: [
+      {
+        name: "nombre",
+        description: "Nombre del equipo (ej: Boca Juniors)",
+        type: 3,
+        required: true
+      },
+      {
+        name: "temporada",
+        description: "Nombre de la temporada (ej: Temporada 1). Por defecto muestra la actual.",
+        type: 3,
+        required: false
+      }
+    ]
+  },
+  {
+    name: "seleccion",
+    description: "Muestra la información y estadísticas de una selección nacional",
+    type: 1,
+    options: [
+      {
+        name: "nombre",
+        description: "Nombre de la selección (ej: Argentina)",
+        type: 3,
+        required: true
+      },
+      {
+        name: "temporada",
+        description: "Nombre de la temporada",
+        type: 3,
+        required: false
+      }
+    ]
+  },
+  {
+    name: "clasificacion",
+    description: "Muestra la tabla de posiciones de la liga",
+    type: 1,
+    options: [
+      {
+        name: "temporada",
+        description: "Nombre de la temporada",
+        type: 3,
+        required: false
+      }
+    ]
+  },
+  {
+    name: "goleadores",
+    description: "Muestra el Top 10 de goleadores de la liga",
+    type: 1,
+    options: [
+      {
+        name: "temporada",
+        description: "Nombre de la temporada",
+        type: 3,
+        required: false
+      }
+    ]
+  },
+  {
+    name: "asistidores",
+    description: "Muestra el Top 10 de asistidores de la liga",
+    type: 1,
+    options: [
+      {
+        name: "temporada",
+        description: "Nombre de la temporada",
+        type: 3,
+        required: false
       }
     ]
   }
