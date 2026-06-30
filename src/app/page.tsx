@@ -178,7 +178,7 @@ export default async function Home() {
             <a href="https://discord.gg/7WZVN8qTsA" target="_blank" rel="noreferrer" className="w-full py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md font-bold transition-colors">
               TPM SUDAMERICA
             </a>
-            <a href="https://discord.gg/mev9krPJ5n" target="_blank" rel="noreferrer" className="w-full py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md font-bold transition-colors">
+            <a href="https://discord.com/invite/xpGVgQ4qSN" target="_blank" rel="noreferrer" className="w-full py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md font-bold transition-colors">
               Comunidad de Campah
             </a>
             <a href="https://discord.gg/KMAgjumg6P" target="_blank" rel="noreferrer" className="w-full py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md font-bold transition-colors">
