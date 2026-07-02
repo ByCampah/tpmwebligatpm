@@ -127,11 +127,15 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
               goals: 0,
               assists: 0,
               cleanSheets: 0,
+              savesMade: 0,
+              savesTotal: 0,
             });
           }
           const pStat = statsMap.get(s.playerId);
           pStat.goals += s.goals || 0;
           pStat.assists += s.assists || 0;
+          pStat.savesMade += s.savesMade || 0;
+          pStat.savesTotal += s.savesTotal || 0;
           if (s.cleanSheet) pStat.cleanSheets += 1;
         });
       }
@@ -144,6 +148,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   const topScorers = [...playerStats].sort((a, b) => b.goals - a.goals).slice(0, 10).filter(p => p.goals > 0);
   const topAssists = [...playerStats].sort((a, b) => b.assists - a.assists).slice(0, 10).filter(p => p.assists > 0);
   const topGk = [...playerStats].sort((a, b) => b.cleanSheets - a.cleanSheets).slice(0, 10).filter(p => p.cleanSheets > 0);
+  const topSaves = [...playerStats].sort((a, b) => b.savesMade - a.savesMade).slice(0, 10).filter(p => p.savesMade > 0);
 
   const renderMatchCard = (match: any) => (
     <div key={match.id} className="flex flex-col border border-border rounded-lg overflow-hidden shadow-sm bg-card transition-colors hover:border-primary/50 shrink-0">
@@ -198,7 +203,8 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
               { id: 'standings', label: dictionary.standings },
               { id: 'goleadores', label: dictionary.topScorers },
               { id: 'asistencias', label: dictionary.topAssists },
-              { id: 'vallas', label: dictionary.topGk }
+              { id: 'vallas', label: dictionary.topGk },
+              { id: 'atajadas', label: 'Atajadas' }
             ].map(tab => (
               <button 
                 key={tab.id}
@@ -400,6 +406,46 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+              {activeTab === 'atajadas' && (
+                <div className="flex flex-col gap-3">
+                  <h4 className="text-xl font-bold flex items-center gap-2">Más Atajadas</h4>
+                  <div className="bg-card border border-border rounded-xl shadow-lg p-2">
+                    {topSaves.map((p, idx) => {
+                      const perc = p.savesTotal > 0 ? Math.round((p.savesMade / p.savesTotal) * 100) : 0;
+                      return (
+                      <div key={p.id} className="flex justify-between items-center p-3 hover:bg-white/5 rounded-lg transition-colors border-b border-border/30 last:border-0">
+                        <div className="flex items-center gap-4">
+                          <span className="font-black text-cyan-400 bg-cyan-900/20 px-3 py-1 rounded min-w-[4rem] text-center whitespace-nowrap">
+                            {p.savesMade} <span className="text-xs text-muted-foreground font-normal">/ {p.savesTotal}</span>
+                          </span>
+                          <span className={`text-xs font-bold w-12 text-center rounded px-1 ${perc >= 70 ? 'text-green-400 bg-green-400/10' : perc >= 50 ? 'text-yellow-400 bg-yellow-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                            {perc}%
+                          </span>
+                          <div className="flex items-center gap-2 ml-2">
+                            {p.nationality === 'Desconocida' || p.nationality === 'Sin Nacionalidad' ? (
+                              <span className="w-5 text-center text-sm" title="Desconocida">❓</span>
+                            ) : (
+                              <img 
+                                src={getFlagUrl(p.nationality)} 
+                                alt={p.nationality} 
+                                title={p.nationality}
+                                className="w-5 h-auto rounded-sm shadow-sm"
+                              />
+                            )}
+                            <Link href={`/jugadores/${p.id}`} className="font-bold text-sm sm:text-base hover:text-cyan-400 transition-colors">
+                              {p.name}
+                            </Link>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-muted-foreground hidden sm:block">{p.teamName}</span>
+                          {p.teamLogo && <img src={p.teamLogo} alt={p.teamName} className="w-6 h-6 object-contain" />}
+                        </div>
+                      </div>
+                    )})}
                   </div>
                 </div>
               )}

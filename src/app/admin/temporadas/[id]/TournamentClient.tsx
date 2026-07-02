@@ -64,6 +64,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     const formData = new FormData(e.target);
     const homeScore = formData.get("homeScore");
     const awayScore = formData.get("awayScore");
+    const homePenaltyScore = formData.get("homePenaltyScore");
+    const awayPenaltyScore = formData.get("awayPenaltyScore");
     
     const playerStats = [];
     const matchHomeRoster = enrolledTeamsData.find((t: any) => t.teamId === editingMatch.homeTeamId)?.players || [];
@@ -94,7 +96,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
           savesMade: formData.get(`stats[${pId}][savesMade]`),
           savesTotal: formData.get(`stats[${pId}][savesTotal]`),
           matchTime: formData.get(`stats[${pId}][matchTime]`),
-          cleanSheet: formData.get(`stats[${pId}][cleanSheet]`)
+          gkTime: formData.get(`stats[${pId}][gkTime]`),
+          cleanSheet: formData.get(`stats[${pId}][cleanSheet]`),
+          redCards: formData.get(`stats[${pId}][redCards]`),
+          freeKickGoals: formData.get(`stats[${pId}][freeKickGoals]`),
+          penaltyGoals: formData.get(`stats[${pId}][penaltyGoals]`),
+          penaltiesSaved: formData.get(`stats[${pId}][penaltiesSaved]`),
+          penaltiesConceded: formData.get(`stats[${pId}][penaltiesConceded]`)
         });
       }
     }
@@ -103,6 +111,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
       matchId: editingMatch.id,
       homeScore,
       awayScore,
+      homePenaltyScore,
+      awayPenaltyScore,
       playerStats,
       eventsJson: JSON.stringify(editingEvents)
     });
@@ -428,12 +438,24 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                         <div className="flex justify-center gap-8 items-center bg-card p-6 rounded-2xl border border-border max-w-lg mx-auto">
                           <div className="flex flex-col items-center gap-2">
                             <span className="font-bold text-muted-foreground uppercase">{m.homeTeam.name}</span>
-                            <input type="number" name="homeScore" required min="0" defaultValue={m.homeScore ?? ""} className="w-24 text-center text-5xl font-black bg-black border-2 border-border rounded-xl p-4 focus:border-primary focus:outline-none" placeholder="0" />
+                            <div className="flex items-center gap-2">
+                              <input type="number" name="homeScore" required min="0" defaultValue={m.homeScore ?? ""} className="w-20 text-center text-5xl font-black bg-black border-2 border-border rounded-xl p-2 focus:border-primary focus:outline-none" placeholder="0" />
+                              <div className="flex flex-col items-center">
+                                <span className="text-[10px] text-muted-foreground font-bold">PEN</span>
+                                <input type="number" name="homePenaltyScore" min="0" defaultValue={m.homePenaltyScore ?? ""} className="w-12 text-center text-xl font-bold bg-black border-2 border-border rounded p-1 text-primary focus:border-primary focus:outline-none" placeholder="-" />
+                              </div>
+                            </div>
                           </div>
                           <span className="text-2xl text-muted-foreground font-black">-</span>
                           <div className="flex flex-col items-center gap-2">
                             <span className="font-bold text-muted-foreground uppercase">{m.awayTeam.name}</span>
-                            <input type="number" name="awayScore" required min="0" defaultValue={m.awayScore ?? ""} className="w-24 text-center text-5xl font-black bg-black border-2 border-border rounded-xl p-4 focus:border-primary focus:outline-none" placeholder="0" />
+                            <div className="flex items-center gap-2 flex-row-reverse">
+                              <input type="number" name="awayScore" required min="0" defaultValue={m.awayScore ?? ""} className="w-20 text-center text-5xl font-black bg-black border-2 border-border rounded-xl p-2 focus:border-primary focus:outline-none" placeholder="0" />
+                              <div className="flex flex-col items-center">
+                                <span className="text-[10px] text-muted-foreground font-bold">PEN</span>
+                                <input type="number" name="awayPenaltyScore" min="0" defaultValue={m.awayPenaltyScore ?? ""} className="w-12 text-center text-xl font-bold bg-black border-2 border-border rounded p-1 text-primary focus:border-primary focus:outline-none" placeholder="-" />
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -453,6 +475,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                   {ev.playerName} 
                                   {ev.type === 'FREE_KICK_GOAL' && <span className="ml-2 text-xs text-yellow-500 uppercase">Tiro Libre</span>}
                                   {ev.type === 'PENALTY_GOAL' && <span className="ml-2 text-xs text-blue-500 uppercase">Penal</span>}
+                                  {ev.type === 'SHOOTOUT_GOAL' && <span className="ml-2 text-xs text-green-500 uppercase">Convirtió (Tanda)</span>}
+                                  {ev.type === 'SHOOTOUT_MISS' && <span className="ml-2 text-xs text-red-500 uppercase">Erró (Tanda)</span>}
                                   {ev.assistName ? <span className="ml-2 text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}
                                 </span>
                                 <span className="text-xs uppercase font-bold text-muted-foreground mr-4">{isHome ? m.homeTeam.name : m.awayTeam.name}</span>
@@ -468,6 +492,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                               <option value="FREE_KICK_GOAL">⚽ Tiro Libre</option>
                               <option value="PENALTY_GOAL">⚽ Penal</option>
                               <option value="RED">🟥 Tarjeta Roja</option>
+                              <option value="SHOOTOUT_GOAL">✅ Penal Convertido (Tanda)</option>
+                              <option value="SHOOTOUT_MISS">❌ Penal Errado (Tanda)</option>
                             </select>
                             <input id={`min_${m.id}`} type="number" placeholder="Minuto" className="w-24 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
                             
@@ -557,7 +583,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                       <tr>
                                         <th className="p-3 text-left w-48 sticky left-0 bg-secondary z-10 border-r border-border">Jugador</th>
                                         <th className="p-3" title="Minutos Jugados">MIN</th>
-                                        <th className="p-3 text-primary" title="Goles">G</th>
+                                        <th className="p-3 text-red-500 font-black" title="Tarjetas Rojas">🟥 R</th>
+                                        <th className="p-3 text-primary" title="Goles (Total)">G</th>
+                                        <th className="p-3 text-yellow-500" title="Goles de Tiro Libre">TL</th>
+                                        <th className="p-3 text-blue-500" title="Goles de Penal">PEN</th>
                                         <th className="p-3 text-primary" title="Asistencias">A</th>
                                         <th className="p-3 text-cyan-400" title="Minutos GK">M.GK</th>
                                         <th className="p-3" title="Valla Invicta">🛡️ VI</th>
@@ -571,6 +600,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                         <th className="p-3" title="Barridas Correctas / Totales">Barridas</th>
                                         <th className="p-3" title="Cabezazos Correctos / Totales">Cabezazos</th>
                                         <th className="p-3 text-cyan-400" title="Atajadas / Totales (Arqueros)">Atajadas</th>
+                                        <th className="p-3 text-green-400" title="Penales Atajados">P. Atj</th>
+                                        <th className="p-3 text-red-400" title="Penales Recibidos">P. Rec</th>
                                       </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border">
@@ -582,12 +613,15 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                             {r.player.nick}
                                           </td>
                                           
-                                          {/* MINUTOS */}
+                                          {/* MINUTOS Y ROJAS */}
                                           <td className="p-2"><input type="number" name={`stats[${r.playerId}][matchTime]`} min="0" defaultValue={ps.matchTime ?? "90"} className="w-14 bg-black border border-border rounded p-1.5 text-center focus:border-primary" /></td>
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][redCards]`} min="0" defaultValue={ps.redCards ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-red-500 font-bold text-red-500" /></td>
                                           
-                                          {/* G Y A */}
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][goals]`} min="0" defaultValue={ps.goals ?? "0"} className="w-12 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][assists]`} min="0" defaultValue={ps.assists ?? "0"} className="w-12 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
+                                          {/* G, TL, PEN, A */}
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][goals]`} min="0" defaultValue={ps.goals ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][freeKickGoals]`} min="0" defaultValue={ps.freeKickGoals ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-yellow-500 font-bold text-yellow-500" /></td>
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][penaltyGoals]`} min="0" defaultValue={ps.penaltyGoals ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-blue-500 font-bold text-blue-500" /></td>
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][assists]`} min="0" defaultValue={ps.assists ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
                                           
                                           {/* GK TIME */}
                                           <td className="p-2"><input type="number" name={`stats[${r.playerId}][gkTime]`} min="0" defaultValue={ps.gkTime ?? "0"} className="w-14 bg-black border border-border rounded p-1.5 text-center focus:border-cyan-400 font-bold text-cyan-400" /></td>
@@ -640,7 +674,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                             </div>
                                           </td>
 
-                                          {/* ATAJADAS */}
+                                          {/* ATAJADAS Y PENALES */}
                                           <td className="p-2">
                                             <div className="flex items-center justify-center gap-1 bg-cyan-900/10 p-1 rounded">
                                               <input type="number" name={`stats[${r.playerId}][savesMade]`} min="0" defaultValue={ps.savesMade ?? "0"} className="w-10 bg-black border border-cyan-900/50 rounded p-1 text-center text-xs focus:border-cyan-400" />
@@ -648,6 +682,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                               <input type="number" name={`stats[${r.playerId}][savesTotal]`} min="0" defaultValue={ps.savesTotal ?? "0"} className="w-10 bg-black border border-cyan-900/50 rounded p-1 text-center text-xs focus:border-cyan-400" />
                                             </div>
                                           </td>
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][penaltiesSaved]`} min="0" defaultValue={ps.penaltiesSaved ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center text-xs" /></td>
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][penaltiesConceded]`} min="0" defaultValue={ps.penaltiesConceded ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center text-xs" /></td>
 
                                         </tr>
                                         );

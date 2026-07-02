@@ -122,7 +122,15 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
           {/* Score */}
           <div className="flex flex-col items-center gap-2">
             <div className="px-4 py-3 sm:px-6 sm:py-4 bg-black rounded-xl border border-white/10 font-mono font-black text-3xl sm:text-4xl md:text-6xl text-white shadow-inner whitespace-nowrap">
-              {match.homeScore !== null && match.awayScore !== null ? `${match.homeScore} - ${match.awayScore}` : 'VS'}
+              {match.homeScore !== null && match.awayScore !== null ? (
+                <>
+                  {match.homeScore}
+                  {match.homePenaltyScore !== null && <span className="text-xl sm:text-2xl text-muted-foreground ml-2">({match.homePenaltyScore})</span>}
+                  <span className="mx-2 sm:mx-4">-</span>
+                  {match.awayPenaltyScore !== null && <span className="text-xl sm:text-2xl text-muted-foreground mr-2">({match.awayPenaltyScore})</span>}
+                  {match.awayScore}
+                </>
+              ) : 'VS'}
             </div>
             <div className="text-xs sm:text-sm font-bold text-muted-foreground">
               {match.status === 'PLAYED' ? 'FINALIZADO' : 'PENDIENTE'}
@@ -144,14 +152,14 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
       </div>
 
       {/* Match Events Timeline */}
-      {events.length > 0 && (
+      {events.filter(e => !e.type.includes('SHOOTOUT')).length > 0 && (
         <div className="bg-card border border-border rounded-2xl p-6 shadow-xl w-full max-w-2xl mx-auto flex flex-col gap-6">
           <h3 className="text-xl font-black text-center text-primary border-b border-border/50 pb-2">Línea de Tiempo</h3>
           <div className="flex flex-col gap-4 relative">
             {/* Center line */}
             <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border/50 -translate-x-1/2"></div>
             
-            {events.map((ev, i) => {
+            {events.filter(e => !e.type.includes('SHOOTOUT')).map((ev, i) => {
               const isAway = ev.teamId === match.awayTeamId;
               // If teamId is missing, default to Home or center it? Let's just use flex-start if home, flex-end if away.
               
@@ -224,7 +232,48 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
         </div>
       )}
 
-      {/* Stats Section */}
+      {/* Tanda de Penales */}
+      {events.filter(e => e.type.includes('SHOOTOUT')).length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-xl w-full max-w-2xl mx-auto flex flex-col gap-6">
+          <h3 className="text-xl font-black text-center text-primary border-b border-border/50 pb-2">Tanda de Penaltis</h3>
+          <div className="flex flex-col gap-4 relative">
+            {/* Center line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border/50 -translate-x-1/2"></div>
+            
+            {events.filter(e => e.type.includes('SHOOTOUT')).map((ev, i) => {
+              const isAway = ev.teamId === match.awayTeamId;
+              
+              return (
+              <div key={i} className={`flex w-full ${isAway ? 'justify-end' : 'justify-start'} relative`}>
+                <div className={`w-1/2 flex ${isAway ? 'justify-start pl-6 md:pl-12' : 'justify-end pr-6 md:pr-12'}`}>
+                  
+                  {/* Event Bubble */}
+                  <div className={`flex items-center gap-3 bg-black/60 p-3 md:p-4 rounded-xl border ${isAway ? 'border-blue-500/30 flex-row-reverse text-right' : 'border-primary/30 text-left'} hover:border-primary/60 transition-colors shadow-lg relative min-w-[200px]`}>
+                    
+                    {/* Circle on the timeline */}
+                    <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-4 border-black bg-white z-10 ${isAway ? '-left-[calc(1.5rem+8px)] md:-left-[calc(3rem+8px)]' : '-right-[calc(1.5rem+8px)] md:-right-[calc(3rem+8px)]'}`}></div>
+                    
+                    <div className="font-black text-xl text-primary w-10 text-center">{i + 1}</div>
+                    <div className="text-3xl">{ev.type === 'SHOOTOUT_GOAL' ? '✅' : '❌'}</div>
+                    <div className={`flex flex-col flex-1 ${isAway ? 'items-end' : 'items-start'}`}>
+                      {ev.playerId ? (
+                        <Link href={`/jugadores/${ev.playerId}`} className="font-black text-white hover:text-primary transition-colors hover:underline">
+                          {ev.playerName}
+                        </Link>
+                      ) : (
+                        <span className="font-black text-white">{ev.playerName}</span>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )})}
+          </div>
+        </div>
+      )}
+
+      {/* Player Stats Detailed Tables */}
       {match.status === 'PLAYED' && match.stats.length > 0 && (
         <div className="flex flex-col gap-12">
           {/* Home Stats */}

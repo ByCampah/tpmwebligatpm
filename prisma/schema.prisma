@@ -221,6 +221,8 @@ model Match {
   
   homeScore        Int?
   awayScore        Int?
+  homePenaltyScore Int?
+  awayPenaltyScore Int?
   
   matchDate        DateTime?
   round            String? // e.g. "Fecha 1", "Semifinal"
@@ -249,6 +251,10 @@ model MatchStat {
   offsides         Int     @default(0)
   ballLosses       Int     @default(0)
   tacklesWon       Int     @default(0)
+  redCards         Int     @default(0)
+  
+  freeKickGoals    Int     @default(0)
+  penaltyGoals     Int     @default(0)
   
   passesMade       Int     @default(0)
   passesTotal      Int     @default(0)
@@ -263,6 +269,8 @@ model MatchStat {
   savesMade        Int     @default(0)
   savesTotal       Int     @default(0)
   cleanSheet       Boolean @default(false)
+  penaltiesSaved   Int     @default(0)
+  penaltiesConceded Int    @default(0)
   
   @@unique([matchId, playerId])
 }

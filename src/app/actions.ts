@@ -25,7 +25,7 @@ export async function submitMatchStats(formData: any) {
   const session = await auth();
   if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
-  const { matchId, homeScore, awayScore, playerStats, eventsJson } = formData;
+  const { matchId, homeScore, awayScore, homePenaltyScore, awayPenaltyScore, playerStats, eventsJson } = formData;
 
   if (session.user.role === "MODERATOR") {
     const matchData = await prisma.match.findUnique({
@@ -51,6 +51,8 @@ export async function submitMatchStats(formData: any) {
       data: {
         homeScore: parseInt(homeScore),
         awayScore: parseInt(awayScore),
+        homePenaltyScore: homePenaltyScore ? parseInt(homePenaltyScore) : null,
+        awayPenaltyScore: awayPenaltyScore ? parseInt(awayPenaltyScore) : null,
         status: "PLAYED",
         events: events,
         matchDate: new Date()
@@ -60,6 +62,17 @@ export async function submitMatchStats(formData: any) {
     // 2. Insert/Update Player Stats
     for (const stat of playerStats) {
       if (!stat.playerId) continue;
+
+      const mTime = parseInt(stat.matchTime) || 0;
+      const gTime = parseInt(stat.gkTime) || 0;
+
+      if (mTime === 0 && gTime === 0) {
+        // Player did not play. Ensure they don't have stats for this match.
+        await tx.matchStat.deleteMany({
+          where: { matchId, playerId: stat.playerId }
+        });
+        continue;
+      }
 
       await tx.matchStat.upsert({
         where: {
@@ -83,9 +96,14 @@ export async function submitMatchStats(formData: any) {
           headersTotal: parseInt(stat.headersTotal) || 0,
           savesMade: parseInt(stat.savesMade) || 0,
           savesTotal: parseInt(stat.savesTotal) || 0,
-          matchTime: parseInt(stat.matchTime) || 90,
-          gkTime: parseInt(stat.gkTime) || 0,
-          cleanSheet: stat.cleanSheet === 'on' || stat.cleanSheet === true
+          matchTime: mTime,
+          gkTime: gTime,
+          cleanSheet: stat.cleanSheet === 'on' || stat.cleanSheet === true,
+          redCards: parseInt(stat.redCards) || 0,
+          freeKickGoals: parseInt(stat.freeKickGoals) || 0,
+          penaltyGoals: parseInt(stat.penaltyGoals) || 0,
+          penaltiesSaved: parseInt(stat.penaltiesSaved) || 0,
+          penaltiesConceded: parseInt(stat.penaltiesConceded) || 0
         },
         create: {
           matchId,
@@ -107,9 +125,14 @@ export async function submitMatchStats(formData: any) {
           headersTotal: parseInt(stat.headersTotal) || 0,
           savesMade: parseInt(stat.savesMade) || 0,
           savesTotal: parseInt(stat.savesTotal) || 0,
-          matchTime: parseInt(stat.matchTime) || 90,
-          gkTime: parseInt(stat.gkTime) || 0,
-          cleanSheet: stat.cleanSheet === 'on' || stat.cleanSheet === true
+          matchTime: mTime,
+          gkTime: gTime,
+          cleanSheet: stat.cleanSheet === 'on' || stat.cleanSheet === true,
+          redCards: parseInt(stat.redCards) || 0,
+          freeKickGoals: parseInt(stat.freeKickGoals) || 0,
+          penaltyGoals: parseInt(stat.penaltyGoals) || 0,
+          penaltiesSaved: parseInt(stat.penaltiesSaved) || 0,
+          penaltiesConceded: parseInt(stat.penaltiesConceded) || 0
         }
       });
     }
