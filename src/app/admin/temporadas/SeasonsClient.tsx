@@ -103,17 +103,19 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
                   {season.isActive ? (
                     <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded">ACTIVA</span>
                   ) : (
-                    <button 
-                      onClick={async () => {
-                        setLoading(true);
-                        await setActiveSeason(season.id);
-                        setLoading(false);
-                      }}
-                      className="bg-secondary hover:bg-primary hover:text-black text-secondary-foreground text-xs px-3 py-1 rounded font-bold transition-colors"
-                      disabled={loading}
-                    >
-                      HACER ACTIVA
-                    </button>
+                    userRole === "ADMIN" && (
+                      <button 
+                        onClick={async () => {
+                          setLoading(true);
+                          await setActiveSeason(season.id);
+                          setLoading(false);
+                        }}
+                        className="bg-secondary hover:bg-primary hover:text-black text-secondary-foreground text-xs px-3 py-1 rounded font-bold transition-colors"
+                        disabled={loading}
+                      >
+                        HACER ACTIVA
+                      </button>
+                    )
                   )}
                   {userRole === "ADMIN" && (
                     <button 
@@ -144,9 +146,11 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
                       <span className="text-xs text-muted-foreground font-mono">{t.format}</span>
                     </div>
                     <div className="flex gap-2">
-                      <a href={`/admin/temporadas/${t.id}`} className="bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground text-xs font-bold px-4 py-2 rounded transition-colors">
-                        GESTIONAR
-                      </a>
+                      {(userRole === "ADMIN" || season.isActive) && (
+                        <a href={`/admin/temporadas/${t.id}`} className="bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground text-xs font-bold px-4 py-2 rounded transition-colors">
+                          GESTIONAR
+                        </a>
+                      )}
                       {userRole === "ADMIN" && (
                         <button 
                           onClick={async () => {

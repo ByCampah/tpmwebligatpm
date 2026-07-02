@@ -36,11 +36,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
 
             <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Operaciones</div>
-            <Link href="/admin/partidos" className="px-4 py-2 rounded-lg text-sm font-bold text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors">
-              Gestión de Partidos
-            </Link>
             <Link href="/admin/noticias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
               Publicar Noticias
+            </Link>
+            <Link href="/admin/temporadas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+              Temporadas y Torneos
             </Link>
 
             {session.user.role === "ADMIN" && (
@@ -60,9 +60,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 </Link>
                 <Link href="/admin/usuarios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
                   Cuentas y Roles
-                </Link>
-                <Link href="/admin/temporadas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Temporadas y Torneos
                 </Link>
 
                 <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Premios</div>
