@@ -422,7 +422,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   {/* PLANILLA DE CARGA GIGANTE */}
                   {isEditing && (
                     <div className="p-6 border-t border-border bg-black/50">
-                      <form onSubmit={handleMatchSubmit} className="flex flex-col gap-8 w-full">
+                      <form onSubmit={handleMatchSubmit} key={m.id} className="flex flex-col gap-8 w-full">
                         
                         {/* RESULTADO FINAL */}
                         <div className="flex justify-center gap-8 items-center bg-card p-6 rounded-2xl border border-border max-w-lg mx-auto">
@@ -448,8 +448,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                               return (
                               <div key={idx} className={`flex items-center gap-4 bg-black/50 p-3 rounded border ${isHome ? 'border-primary/50' : 'border-blue-500/50'}`}>
                                 <span className="font-black text-lg w-16 text-muted-foreground">{ev.minute}'</span>
-                                <span className="text-2xl">{ev.type === 'GOAL' ? '⚽' : '🟥'}</span>
-                                <span className="font-bold flex-1">{ev.playerName} {ev.assistName ? <span className="text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}</span>
+                                <span className="text-2xl">{ev.type.includes('GOAL') ? '⚽' : '🟥'}</span>
+                                <span className="font-bold flex-1">
+                                  {ev.playerName} 
+                                  {ev.type === 'FREE_KICK_GOAL' && <span className="ml-2 text-xs text-yellow-500 uppercase">Tiro Libre</span>}
+                                  {ev.type === 'PENALTY_GOAL' && <span className="ml-2 text-xs text-blue-500 uppercase">Penal</span>}
+                                  {ev.assistName ? <span className="ml-2 text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}
+                                </span>
                                 <span className="text-xs uppercase font-bold text-muted-foreground mr-4">{isHome ? m.homeTeam.name : m.awayTeam.name}</span>
                                 <button type="button" onClick={() => setEditingEvents(prev => prev.filter((_, i) => i !== idx))} className="text-destructive font-black hover:scale-110">×</button>
                               </div>
@@ -460,6 +465,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                           <div className="mt-4 flex flex-col md:flex-row gap-2 bg-secondary/20 p-4 rounded-lg border border-border">
                             <select id={`type_${m.id}`} className="bg-black border border-border rounded p-2 focus:border-primary text-sm">
                               <option value="GOAL">⚽ Gol</option>
+                              <option value="FREE_KICK_GOAL">⚽ Tiro Libre</option>
+                              <option value="PENALTY_GOAL">⚽ Penal</option>
                               <option value="RED">🟥 Tarjeta Roja</option>
                             </select>
                             <input id={`min_${m.id}`} type="number" placeholder="Minuto" className="w-24 bg-black border border-border rounded p-2 focus:border-primary text-sm" />
@@ -552,6 +559,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                         <th className="p-3" title="Minutos Jugados">MIN</th>
                                         <th className="p-3 text-primary" title="Goles">G</th>
                                         <th className="p-3 text-primary" title="Asistencias">A</th>
+                                        <th className="p-3 text-cyan-400" title="Minutos GK">M.GK</th>
                                         <th className="p-3" title="Valla Invicta">🛡️ VI</th>
                                         <th className="p-3 text-yellow-500" title="Tiros al Arco / Totales">Tiros</th>
                                         <th className="p-3 text-blue-400" title="Pases Correctos / Totales">Pases</th>
@@ -581,6 +589,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                           <td className="p-2"><input type="number" name={`stats[${r.playerId}][goals]`} min="0" defaultValue={ps.goals ?? "0"} className="w-12 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
                                           <td className="p-2"><input type="number" name={`stats[${r.playerId}][assists]`} min="0" defaultValue={ps.assists ?? "0"} className="w-12 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
                                           
+                                          {/* GK TIME */}
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][gkTime]`} min="0" defaultValue={ps.gkTime ?? "0"} className="w-14 bg-black border border-border rounded p-1.5 text-center focus:border-cyan-400 font-bold text-cyan-400" /></td>
+
                                           {/* VALLA INVICTA */}
                                           <td className="p-2">
                                             <input type="checkbox" name={`stats[${r.playerId}][cleanSheet]`} defaultChecked={ps.cleanSheet} className="w-5 h-5 accent-primary cursor-pointer" />

@@ -226,7 +226,7 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
 
       {/* Stats Section */}
       {match.status === 'PLAYED' && match.stats.length > 0 && (
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-12">
           {/* Home Stats */}
           <div className="flex flex-col gap-4">
             <h3 className="text-2xl font-black border-b border-border/50 pb-2 flex items-center gap-2">
