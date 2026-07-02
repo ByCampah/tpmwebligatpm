@@ -614,7 +614,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                           </td>
                                           
                                           {/* MINUTOS Y ROJAS */}
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][matchTime]`} min="0" defaultValue={ps.matchTime ?? "90"} className="w-14 bg-black border border-border rounded p-1.5 text-center focus:border-primary" /></td>
+                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][matchTime]`} min="0" defaultValue={ps.matchTime ?? (m.status === 'PLAYED' ? "0" : "90")} className="w-14 bg-black border border-border rounded p-1.5 text-center focus:border-primary" /></td>
                                           <td className="p-2"><input type="number" name={`stats[${r.playerId}][redCards]`} min="0" defaultValue={ps.redCards ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-red-500 font-bold text-red-500" /></td>
                                           
                                           {/* G, TL, PEN, A */}
