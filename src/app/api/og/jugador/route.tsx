@@ -120,15 +120,19 @@ export async function GET(req: NextRequest) {
           >
             {/* Top Section */}
             <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span style={{ fontSize: 60, fontWeight: 900, color: '#fff' }}>99</span>
-                <span style={{ fontSize: 24, fontWeight: 700, color: '#D4AF37', textTransform: 'uppercase' }}>{isGK ? 'POR' : 'JUG'}</span>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 15 }}>
+                <img src={`${req.nextUrl.origin}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain' }} />
                 {teamLogo && (
-                  <img src={teamLogo} alt="Team" style={{ width: 80, height: 80, objectFit: 'contain', marginTop: 20 }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <img src={teamLogo} alt="Team" style={{ width: 80, height: 80, objectFit: 'contain' }} />
+                    <span style={{ fontSize: 16, fontWeight: 700, color: '#D4AF37', marginTop: 10, textAlign: 'center', width: 120 }}>{teamName}</span>
+                  </div>
                 )}
               </div>
+
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 250, height: 250 }}>
-                {/* Default Avatar if no image */}
+                {/* Foto de perfil del jugador */}
                 <div style={{
                   width: 200,
                   height: 200,
@@ -182,23 +186,12 @@ export async function GET(req: NextRequest) {
               {/* Right Column */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
-                  <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{passAcc}</span>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>PAS</span>
+                  <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{passAcc}%</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>PASES</span>
                 </div>
-                {!isGK ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
-                    <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{slidingAcc}</span>
-                    <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>QUI</span>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
-                    <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{saveAcc}</span>
-                    <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>ATA</span>
-                  </div>
-                )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
-                  <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>99</span>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>FIS</span>
+                  <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{saveAcc}%</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>SAVES</span>
                 </div>
               </div>
             </div>
