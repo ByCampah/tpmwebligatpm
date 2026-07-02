@@ -2,21 +2,23 @@
 
 import { useState } from "react";
 
-export default function GraficasClient({ teams, players }: { teams: any[], players: any[] }) {
+export default function GraficasClient({ teams, players, tournaments }: { teams: any[], players: any[], tournaments: any[] }) {
   const [activeTab, setActiveTab] = useState<"JUGADOR" | "ESTADISTICAS" | "PARTIDO">("PARTIDO");
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
 
-  const [partidoLocalId, setPartidoLocalId] = useState("");
-  const [partidoVisitanteId, setPartidoVisitanteId] = useState("");
+  const [partidoLocalName, setPartidoLocalName] = useState("");
+  const [partidoVisitanteName, setPartidoVisitanteName] = useState("");
   const [partidoTorneo, setPartidoTorneo] = useState("");
   const [partidoFecha, setPartidoFecha] = useState("");
+
+  const [estadisticasTorneoId, setEstadisticasTorneoId] = useState("");
 
   const [jugadorNick, setJugadorNick] = useState("");
 
   const handleGeneratePartido = (e: any) => {
     e.preventDefault();
-    const local = teams.find(t => t.id === partidoLocalId)?.name;
-    const visitante = teams.find(t => t.id === partidoVisitanteId)?.name;
+    const local = partidoLocalName;
+    const visitante = partidoVisitanteName;
     
     if (!local || !visitante || !partidoTorneo || !partidoFecha) {
       alert("Completá todos los campos.");
@@ -27,8 +29,10 @@ export default function GraficasClient({ teams, players }: { teams: any[], playe
     setGeneratedUrl(url);
   };
 
-  const handleGenerateEstadisticas = () => {
-    setGeneratedUrl(`/api/og/estadisticas`);
+  const handleGenerateEstadisticas = (e: any) => {
+    e.preventDefault();
+    const url = estadisticasTorneoId ? `/api/og/estadisticas?tournamentId=${estadisticasTorneoId}` : `/api/og/estadisticas`;
+    setGeneratedUrl(url);
   };
 
   const handleGenerateJugador = (e: any) => {
@@ -65,6 +69,14 @@ export default function GraficasClient({ teams, players }: { teams: any[], playe
         </button>
       </div>
 
+      {/* DATALISTS PARA BÚSQUEDA RÁPIDA */}
+      <datalist id="teams-list">
+        {teams.map(t => <option key={t.id} value={t.name} />)}
+      </datalist>
+      <datalist id="players-list">
+        {players.map(p => <option key={p.id} value={p.nick} />)}
+      </datalist>
+
       <div className="grid lg:grid-cols-2 gap-8">
         
         {/* CONTROLES */}
@@ -74,18 +86,12 @@ export default function GraficasClient({ teams, players }: { teams: any[], playe
           {activeTab === "PARTIDO" && (
             <form onSubmit={handleGeneratePartido} className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-bold text-muted-foreground mb-1">Equipo Local</label>
-                <select value={partidoLocalId} onChange={e => setPartidoLocalId(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
-                  <option value="">-- Seleccionar Local --</option>
-                  {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                </select>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Equipo Local (Buscar)</label>
+                <input list="teams-list" value={partidoLocalName} onChange={e => setPartidoLocalName(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Buscar local..." />
               </div>
               <div>
-                <label className="block text-sm font-bold text-muted-foreground mb-1">Equipo Visitante</label>
-                <select value={partidoVisitanteId} onChange={e => setPartidoVisitanteId(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
-                  <option value="">-- Seleccionar Visitante --</option>
-                  {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                </select>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Equipo Visitante (Buscar)</label>
+                <input list="teams-list" value={partidoVisitanteName} onChange={e => setPartidoVisitanteName(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Buscar visitante..." />
               </div>
               <div>
                 <label className="block text-sm font-bold text-muted-foreground mb-1">Nombre del Torneo / Copa</label>
@@ -102,24 +108,28 @@ export default function GraficasClient({ teams, players }: { teams: any[], playe
           )}
 
           {activeTab === "ESTADISTICAS" && (
-            <div className="flex flex-col gap-4">
+            <form onSubmit={handleGenerateEstadisticas} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Filtrar por Torneo de Temporada Activa</label>
+                <select value={estadisticasTorneoId} onChange={e => setEstadisticasTorneoId(e.target.value)} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
+                  <option value="">-- Todos los torneos (Temporada Completa) --</option>
+                  {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </div>
               <p className="text-muted-foreground text-sm">
-                Esta gráfica tomará automáticamente los datos de la <strong>Temporada Activa</strong> y generará una imagen combinada con el Top 5 de Goleadores y el Top 5 de Asistidores.
+                Esta gráfica generará una imagen combinada con el Top 5 de Goleadores y el Top 5 de Asistidores del torneo elegido (o temporada completa).
               </p>
-              <button onClick={handleGenerateEstadisticas} className="bg-primary text-primary-foreground font-black py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_5px_20px_rgba(var(--primary),0.2)] mt-2">
+              <button type="submit" className="bg-primary text-primary-foreground font-black py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_5px_20px_rgba(var(--primary),0.2)] mt-2">
                 GENERAR GRÁFICA DE ESTADÍSTICAS
               </button>
-            </div>
+            </form>
           )}
 
           {activeTab === "JUGADOR" && (
             <form onSubmit={handleGenerateJugador} className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-bold text-muted-foreground mb-1">Seleccionar Jugador</label>
-                <select value={jugadorNick} onChange={e => setJugadorNick(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none">
-                  <option value="">-- Seleccionar Jugador --</option>
-                  {players.map(p => <option key={p.id} value={p.nick}>{p.nick}</option>)}
-                </select>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Buscar Jugador</label>
+                <input list="players-list" value={jugadorNick} onChange={e => setJugadorNick(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Buscar por nick..." />
               </div>
               <p className="text-muted-foreground text-xs">
                 Se calcularán las estadísticas de este jugador para la Temporada Activa.

@@ -12,6 +12,13 @@ export default async function AdminGraficasPage() {
     orderBy: { nick: "asc" }
   });
 
+  const activeSeason = await prisma.season.findFirst({
+    where: { isActive: true },
+    include: { tournaments: true }
+  });
+  
+  const tournaments = activeSeason ? activeSeason.tournaments : [];
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -21,7 +28,7 @@ export default async function AdminGraficasPage() {
         </p>
       </div>
 
-      <GraficasClient teams={teams} players={players} />
+      <GraficasClient teams={teams} players={players} tournaments={tournaments} />
     </div>
   );
 }

@@ -6,7 +6,10 @@ export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   try {
-    // 1. Obtener temporada activa
+    const { searchParams } = new URL(req.url);
+    const tournamentIdParam = searchParams.get('tournamentId');
+
+    // 1. Obtener temporada activa y torneos
     const activeSeason = await prisma.season.findFirst({
       where: { isActive: true },
       include: {
@@ -18,7 +21,16 @@ export async function GET(req: NextRequest) {
       return new Response('No hay temporada activa', { status: 404 });
     }
 
-    const tournamentIds = activeSeason.tournaments.map(t => t.id);
+    let tournamentIds = activeSeason.tournaments.map(t => t.id);
+    let tournamentName = activeSeason.name;
+
+    if (tournamentIdParam) {
+      const specificTournament = activeSeason.tournaments.find(t => t.id === tournamentIdParam);
+      if (specificTournament) {
+        tournamentIds = [specificTournament.id];
+        tournamentName = specificTournament.name;
+      }
+    }
 
     // 2. Obtener todas las stats de esta temporada
     const stats = await prisma.matchStat.findMany({
@@ -101,7 +113,7 @@ export async function GET(req: NextRequest) {
             <img src={`${req.nextUrl.origin}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 100, height: 100, objectFit: 'contain', marginRight: 30 }} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h1 style={{ fontSize: 50, fontWeight: 900, color: '#D4AF37', margin: 0, textTransform: 'uppercase' }}>ESTADÍSTICAS</h1>
-              <h2 style={{ fontSize: 30, fontWeight: 700, color: '#fff', margin: 0 }}>{activeSeason.name}</h2>
+              <h2 style={{ fontSize: 30, fontWeight: 700, color: '#fff', margin: 0 }}>{tournamentName}</h2>
             </div>
           </div>
 

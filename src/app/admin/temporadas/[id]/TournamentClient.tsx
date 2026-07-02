@@ -185,6 +185,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             Podio y Premios
           </button>
         )}
+        {(userRole === "ADMIN" || userRole === "MODERATOR") && (
+          <button 
+            onClick={() => setActiveTab("AJUSTES")}
+            className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "AJUSTES" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+          >
+            Ajustes
+          </button>
+        )}
       </div>
 
       {/* TAB CONTENT: EQUIPOS */}
