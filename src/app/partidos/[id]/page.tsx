@@ -308,7 +308,7 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                           {stat.player.nick}
                         </Link>
                       </td>
-                      <td className="p-3 text-center font-black text-white">{stat.goals > 0 ? stat.goals : '-'}</td>
+                      <td className="p-3 text-center font-black text-white">{((stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0)) > 0 ? ((stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0)) : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.shotsMade, stat.shotsTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
@@ -361,7 +361,7 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                           {stat.player.nick}
                         </Link>
                       </td>
-                      <td className="p-3 text-center font-black text-white">{stat.goals > 0 ? stat.goals : '-'}</td>
+                      <td className="p-3 text-center font-black text-white">{((stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0)) > 0 ? ((stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0)) : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.shotsMade, stat.shotsTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
