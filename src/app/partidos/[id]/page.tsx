@@ -58,8 +58,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
     return tt?.tournamentTeam.teamId || null;
   };
 
-  const homeStats = match.stats.filter(s => getPlayerTeamId(s.playerId) === match.homeTeamId);
-  const awayStats = match.stats.filter(s => getPlayerTeamId(s.playerId) === match.awayTeamId);
+  const homeStats = match.stats.filter(s => getPlayerTeamId(s.playerId) === match.homeTeamId && ((s.matchTime || 0) > 0 || (s.gkTime || 0) > 0));
+  const awayStats = match.stats.filter(s => getPlayerTeamId(s.playerId) === match.awayTeamId && ((s.matchTime || 0) > 0 || (s.gkTime || 0) > 0));
 
   const events: any[] = match.events ? (typeof match.events === 'string' ? JSON.parse(match.events) : match.events) : [];
   events.sort((a, b) => a.minute - b.minute);

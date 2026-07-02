@@ -100,8 +100,11 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
     return tTeam?.tournamentTeam.team.isNationalTeam || false;
   };
 
-  const clubStatsObj = jugador.matchStats.filter(s => !getIsNationalStat(s));
-  const natStatsObj = jugador.matchStats.filter(s => getIsNationalStat(s));
+  // Filtrar partidos donde no jugó (minutos y gkTime en 0)
+  const validStatsObj = jugador.matchStats.filter(s => (s.matchTime || 0) > 0 || (s.gkTime || 0) > 0);
+
+  const clubStatsObj = validStatsObj.filter(s => !getIsNationalStat(s));
+  const natStatsObj = validStatsObj.filter(s => getIsNationalStat(s));
 
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
