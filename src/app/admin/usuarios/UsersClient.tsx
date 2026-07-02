@@ -22,7 +22,11 @@ export default function UsersClient({ users, players, teams }: { users: any[], p
     // Text Search Filter
     if (searchFilter) {
       const search = searchFilter.toLowerCase();
-      if (!user.name?.toLowerCase().includes(search) && !user.player?.nick?.toLowerCase().includes(search)) {
+      if (
+        !user.name?.toLowerCase().includes(search) && 
+        !user.nickName?.toLowerCase().includes(search) &&
+        !user.player?.nick?.toLowerCase().includes(search)
+      ) {
         return false;
       }
     }
@@ -78,6 +82,11 @@ export default function UsersClient({ users, players, teams }: { users: any[], p
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold">{user.name}</span>
+                      {user.nickName && (
+                        <span className="text-sm text-primary font-black uppercase">
+                          Alias: {user.nickName}
+                        </span>
+                      )}
                       <span className="text-xs text-muted-foreground">{user.email}</span>
                     </div>
                   </td>
