@@ -266,25 +266,6 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 <div className="bg-secondary/50 px-4 py-2 rounded-xl border border-border text-center min-w-[70px]">
                   <span className="block text-2xl font-black text-white">{totalClubStats.asistencias}</span>
                   <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
-                </div>
-                {totalClubStats.rojas > 0 && (
-                  <div className="bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/30 text-center min-w-[70px]">
-                    <span className="block text-2xl font-black text-red-500">{totalClubStats.rojas}</span>
-                    <span className="text-[10px] text-red-500/80 uppercase font-bold">Rojas</span>
-                  </div>
-                )}
-                {totalClubStats.golesTiroLibre > 0 && (
-                  <div className="bg-yellow-500/10 px-4 py-2 rounded-xl border border-yellow-500/30 text-center min-w-[70px]" title="Goles de Tiro Libre">
-                    <span className="block text-2xl font-black text-yellow-500">{totalClubStats.golesTiroLibre}</span>
-                    <span className="text-[10px] text-yellow-500/80 uppercase font-bold">G.TL</span>
-                  </div>
-                )}
-                {totalClubStats.golesPenal > 0 && (
-                  <div className="bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/30 text-center min-w-[70px]" title="Goles de Penal">
-                    <span className="block text-2xl font-black text-blue-500">{totalClubStats.golesPenal}</span>
-                    <span className="text-[10px] text-blue-500/80 uppercase font-bold">G.PEN</span>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -302,25 +283,6 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
                   <span className="block text-2xl font-black text-white">{totalNatStats.asistencias}</span>
                   <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
-                </div>
-                {totalNatStats.rojas > 0 && (
-                  <div className="bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/30 text-center min-w-[70px]">
-                    <span className="block text-2xl font-black text-red-500">{totalNatStats.rojas}</span>
-                    <span className="text-[10px] text-red-500/80 uppercase font-bold">Rojas</span>
-                  </div>
-                )}
-                {totalNatStats.golesTiroLibre > 0 && (
-                  <div className="bg-yellow-500/10 px-4 py-2 rounded-xl border border-yellow-500/30 text-center min-w-[70px]" title="Goles de Tiro Libre">
-                    <span className="block text-2xl font-black text-yellow-500">{totalNatStats.golesTiroLibre}</span>
-                    <span className="text-[10px] text-yellow-500/80 uppercase font-bold">G.TL</span>
-                  </div>
-                )}
-                {totalNatStats.golesPenal > 0 && (
-                  <div className="bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/30 text-center min-w-[70px]" title="Goles de Penal">
-                    <span className="block text-2xl font-black text-blue-500">{totalNatStats.golesPenal}</span>
-                    <span className="text-[10px] text-blue-500/80 uppercase font-bold">G.PEN</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>

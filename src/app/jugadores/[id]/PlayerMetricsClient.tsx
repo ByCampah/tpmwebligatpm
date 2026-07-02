@@ -43,12 +43,17 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
     acc.fouled += stat.fouled || 0;
     acc.offsides += stat.offsides || 0;
     acc.savesMade += stat.savesMade || 0;
-    acc.savesTotal += stat.savesTotal || 0;
+    acc.redCards += stat.redCards || 0;
+    acc.freeKickGoals += stat.freeKickGoals || 0;
+    acc.penaltyGoals += stat.penaltyGoals || 0;
+    acc.penaltiesSaved += stat.penaltiesSaved || 0;
+    acc.penaltiesConceded += stat.penaltiesConceded || 0;
     return acc;
   }, {
     goals: 0, assists: 0, teamPoints: 0, matchTime: 0, passesMade: 0, passesTotal: 0,
     slidingMade: 0, slidingTotal: 0, fouls: 0, ballLosses: 0, gkTime: 0, shotsMade: 0, shotsTotal: 0,
-    headersMade: 0, headersTotal: 0, tacklesWon: 0, fouled: 0, offsides: 0, savesMade: 0, savesTotal: 0
+    headersMade: 0, headersTotal: 0, tacklesWon: 0, fouled: 0, offsides: 0, savesMade: 0, savesTotal: 0,
+    redCards: 0, freeKickGoals: 0, penaltyGoals: 0, penaltiesSaved: 0, penaltiesConceded: 0
   });
 
   const renderStat = (made: number, total: number) => {
@@ -153,6 +158,26 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Saves</span>
             {renderStat(totals.savesMade, totals.savesTotal)}
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Red Cards</span>
+            <span className="text-xl font-black text-red-500">{totals.redCards}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Free Kick Goals</span>
+            <span className="text-xl font-black text-yellow-500">{totals.freeKickGoals}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Penalty Goals</span>
+            <span className="text-xl font-black text-blue-500">{totals.penaltyGoals}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Penalties Saved</span>
+            <span className="text-xl font-black text-green-400">{totals.penaltiesSaved}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Pen. Conceded</span>
+            <span className="text-xl font-black text-red-400">{totals.penaltiesConceded}</span>
           </div>
         </div>
       </div>
