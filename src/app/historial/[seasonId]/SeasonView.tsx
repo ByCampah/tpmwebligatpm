@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { getFlagUrl } from "@/lib/flags";
 
 interface TournamentData {
   id: string;
@@ -315,12 +316,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                             ) : (
                               <img 
                                 src={
-                                  p.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
-                                  p.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
-                                  p.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
-                                  p.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
-                                  p.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
-                                  `https://flagcdn.com/w320/${p.nationality.toLowerCase().substring(0, 2)}.png`
+                                  getFlagUrl(p.nationality)
                                 } 
                                 alt={p.nationality} 
                                 title={p.nationality}

@@ -84,6 +84,7 @@ export async function submitMatchStats(formData: any) {
           savesMade: parseInt(stat.savesMade) || 0,
           savesTotal: parseInt(stat.savesTotal) || 0,
           matchTime: parseInt(stat.matchTime) || 90,
+          gkTime: parseInt(stat.gkTime) || 0,
           cleanSheet: stat.cleanSheet === 'on' || stat.cleanSheet === true
         },
         create: {
@@ -107,6 +108,7 @@ export async function submitMatchStats(formData: any) {
           savesMade: parseInt(stat.savesMade) || 0,
           savesTotal: parseInt(stat.savesTotal) || 0,
           matchTime: parseInt(stat.matchTime) || 90,
+          gkTime: parseInt(stat.gkTime) || 0,
           cleanSheet: stat.cleanSheet === 'on' || stat.cleanSheet === true
         }
       });

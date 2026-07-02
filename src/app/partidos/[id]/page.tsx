@@ -166,7 +166,7 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                     <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-4 border-black bg-white z-10 ${isAway ? '-left-[calc(1.5rem+8px)] md:-left-[calc(3rem+8px)]' : '-right-[calc(1.5rem+8px)] md:-right-[calc(3rem+8px)]'}`}></div>
                     
                     <div className="font-black text-xl text-primary w-10 text-center">{ev.minute}'</div>
-                    <div className="text-3xl">{ev.type === 'GOAL' ? '⚽' : '🟥'}</div>
+                    <div className="text-3xl">{ev.type.includes('GOAL') ? '⚽' : '🟥'}</div>
                     <div className={`flex flex-col flex-1 ${isAway ? 'items-end' : 'items-start'}`}>
                       {ev.playerId ? (
                         <Link href={`/jugadores/${ev.playerId}`} className="font-black text-white hover:text-primary transition-colors hover:underline">
@@ -175,6 +175,9 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       ) : (
                         <span className="font-black text-white">{ev.playerName}</span>
                       )}
+                      
+                      {ev.type === 'FREE_KICK_GOAL' && <div className="text-xs font-bold text-yellow-500 uppercase">Tiro Libre</div>}
+                      {ev.type === 'PENALTY_GOAL' && <div className="text-xs font-bold text-blue-500 uppercase">Penal</div>}
                       
                       {ev.assistName && (
                         <div className="text-xs font-bold text-muted-foreground mt-1 flex gap-1">
@@ -241,6 +244,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                     <th className="p-3 text-center font-bold" title="Pases">Pases</th>
                     <th className="p-3 text-center font-bold" title="Quites">Quites</th>
                     <th className="p-3 text-center font-bold" title="Valla Invicta">🛡️ VI</th>
+                    <th className="p-3 text-center font-bold text-cyan-400" title="Minutos GK">GK Time</th>
+                    <th className="p-3 text-center font-bold text-cyan-400" title="Atajadas">Atajadas</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
@@ -257,6 +262,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
                       <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
+                      <td className="p-3 text-center font-bold text-cyan-400">{stat.gkTime > 0 ? stat.gkTime + "'" : '-'}</td>
+                      <td className="p-3 text-center font-bold text-cyan-400">{formatStat(stat.savesMade, stat.savesTotal)}</td>
                     </tr>
                   ))}
                   {homeStats.length === 0 && (
@@ -284,6 +291,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                     <th className="p-3 text-center font-bold" title="Pases">Pases</th>
                     <th className="p-3 text-center font-bold" title="Quites">Quites</th>
                     <th className="p-3 text-center font-bold" title="Valla Invicta">🛡️ VI</th>
+                    <th className="p-3 text-center font-bold text-cyan-400" title="Minutos GK">GK Time</th>
+                    <th className="p-3 text-center font-bold text-cyan-400" title="Atajadas">Atajadas</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
@@ -300,6 +309,8 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
                       <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
+                      <td className="p-3 text-center font-bold text-cyan-400">{stat.gkTime > 0 ? stat.gkTime + "'" : '-'}</td>
+                      <td className="p-3 text-center font-bold text-cyan-400">{formatStat(stat.savesMade, stat.savesTotal)}</td>
                     </tr>
                   ))}
                   {awayStats.length === 0 && (

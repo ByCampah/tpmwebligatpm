@@ -66,7 +66,7 @@ export default function PlayersClient({ players, users }: { players: any[], user
           setEditMode(null);
           router.refresh();
           (document.getElementById('createPlayerForm') as HTMLFormElement)?.reset();
-        }} id="createPlayerForm" className="flex flex-col gap-4">
+        }} id="createPlayerForm" key={editMode?.id || 'new'} className="flex flex-col gap-4">
           
           <div className="grid md:grid-cols-3 gap-4">
             <div>

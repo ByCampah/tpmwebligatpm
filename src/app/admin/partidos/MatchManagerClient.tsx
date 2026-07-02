@@ -69,6 +69,7 @@ export default function MatchManagerClient({ initialMatches }: { initialMatches:
           savesMade: formData.get(`stats[${pId}][savesMade]`),
           savesTotal: formData.get(`stats[${pId}][savesTotal]`),
           matchTime: formData.get(`stats[${pId}][matchTime]`),
+          gkTime: formData.get(`stats[${pId}][gkTime]`),
           cleanSheet: formData.get(`stats[${pId}][cleanSheet]`)
         });
       }
@@ -187,7 +188,7 @@ export default function MatchManagerClient({ initialMatches }: { initialMatches:
               <button onClick={() => setEditingMatch(null)} className="text-muted-foreground hover:text-white bg-secondary w-8 h-8 rounded-full font-bold">X</button>
             </div>
             
-            <form onSubmit={handleMatchSubmit} className="overflow-y-auto p-6 flex flex-col gap-8 custom-scrollbar relative">
+            <form key={editingMatch.id} onSubmit={handleMatchSubmit} className="overflow-y-auto p-6 flex flex-col gap-8 custom-scrollbar relative">
               
               {/* RESULTADO HEADER */}
               <div className="flex justify-center items-center gap-8 bg-black/30 p-6 rounded-xl border border-border">
@@ -208,6 +209,8 @@ export default function MatchManagerClient({ initialMatches }: { initialMatches:
                   <h4 className="font-black text-lg text-primary uppercase">Eventos del Partido (Timeline)</h4>
                   <div className="flex gap-2">
                     <button type="button" onClick={() => addEvent("GOAL")} className="px-3 py-1 bg-green-500/20 text-green-500 border border-green-500/50 rounded text-xs font-bold hover:bg-green-500 hover:text-black transition-colors">+ Gol</button>
+                    <button type="button" onClick={() => addEvent("FREE_KICK_GOAL")} className="px-3 py-1 bg-green-500/20 text-green-500 border border-green-500/50 rounded text-xs font-bold hover:bg-green-500 hover:text-black transition-colors">+ Gol Tiro Libre</button>
+                    <button type="button" onClick={() => addEvent("PENALTY_GOAL")} className="px-3 py-1 bg-green-500/20 text-green-500 border border-green-500/50 rounded text-xs font-bold hover:bg-green-500 hover:text-black transition-colors">+ Gol Penal</button>
                     <button type="button" onClick={() => addEvent("RED_CARD")} className="px-3 py-1 bg-red-500/20 text-red-500 border border-red-500/50 rounded text-xs font-bold hover:bg-red-500 hover:text-black transition-colors">+ Roja</button>
                   </div>
                 </div>
@@ -221,15 +224,15 @@ export default function MatchManagerClient({ initialMatches }: { initialMatches:
                         <option value={editingMatch.awayTeam.id}>{editingMatch.awayTeam.name}</option>
                       </select>
 
-                      <div className={`px-2 py-1 rounded text-xs font-bold ${ev.type === 'GOAL' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
-                        {ev.type === 'GOAL' ? '⚽ GOL' : '🟥 ROJA'}
+                      <div className={`px-2 py-1 rounded text-xs font-bold ${ev.type.includes('GOAL') ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                        {ev.type === 'GOAL' ? '⚽ GOL' : ev.type === 'FREE_KICK_GOAL' ? '🎯 GOL T.L.' : ev.type === 'PENALTY_GOAL' ? '🥅 GOL PENAL' : '🟥 ROJA'}
                       </div>
                       
                       <input type="number" placeholder="Min" value={ev.minute} onChange={(e) => updateEvent(ev.id, "minute", e.target.value)} className="w-16 bg-black border border-border rounded p-1 text-xs text-center focus:border-primary" required />
                       
                       {ev.teamId ? (
                         <select value={ev.playerNick} onChange={(e) => updateEvent(ev.id, "playerNick", e.target.value)} className="bg-black border border-border rounded p-1 text-xs focus:border-primary flex-1" required>
-                          <option value="">-- Jugador ({ev.type === 'GOAL' ? 'Gol' : 'Roja'}) --</option>
+                          <option value="">-- Jugador ({ev.type.includes('GOAL') ? 'Gol' : 'Roja'}) --</option>
                           {getPlayersForTeam(editingMatch.tournament, ev.teamId).map((p: any) => (
                             <option key={p.player.id} value={p.player.nick}>{p.player.nick}</option>
                           ))}
@@ -288,6 +291,7 @@ export default function MatchManagerClient({ initialMatches }: { initialMatches:
                               <th className="p-2 font-bold text-center" title="Barridas">BARR</th>
                               <th className="p-2 font-bold text-center" title="Tiros">TIROS</th>
                               <th className="p-2 font-bold text-center" title="Cabezazos">CABZ</th>
+                              <th className="p-2 font-bold text-center text-cyan-400" title="Minutos GK">M.GK</th>
                               <th className="p-2 font-bold text-center text-cyan-400" title="Atajadas">ATAJ</th>
                             </tr>
                           </thead>
@@ -341,6 +345,9 @@ export default function MatchManagerClient({ initialMatches }: { initialMatches:
                                     <span className="text-muted-foreground">/</span>
                                     <input type="number" name={`stats[${r.playerId}][headersTotal]`} min="0" defaultValue={ps.headersTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs focus:border-primary" />
                                   </div>
+                                </td>
+                                <td className="p-1">
+                                  <input type="number" name={`stats[${r.playerId}][gkTime]`} min="0" defaultValue={ps.gkTime ?? "0"} className="w-12 mx-auto block bg-black border border-cyan-900/50 rounded p-1 text-center font-bold text-xs focus:border-cyan-400" />
                                 </td>
                                 <td className="p-1">
                                   <div className="flex items-center gap-1 justify-center">

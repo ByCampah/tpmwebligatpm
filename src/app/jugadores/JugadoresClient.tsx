@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { getFlagUrl } from "@/lib/flags";
 
 interface JugadoresClientProps {
   jugadores: {
@@ -155,9 +156,7 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
                             jugador.nationality === 'Argentina' ? '/img/banderas/argentina.svg' :
                             jugador.nationality === 'Uruguay' ? '/img/banderas/uruguay.svg' :
                             jugador.nationality === 'Brasil' ? '/img/banderas/brazil.svg' :
-                            jugador.nationality === 'Norte América' ? 'https://flagcdn.com/w320/us.png' :
-                            jugador.nationality === 'Europa' ? 'https://flagcdn.com/w320/eu.png' :
-                            `https://flagcdn.com/w320/${jugador.nationality.toLowerCase().substring(0, 2)}.png`
+                              getFlagUrl(jugador.nationality)
                           } 
                           alt={jugador.nationality} 
                           title={jugador.nationality}
