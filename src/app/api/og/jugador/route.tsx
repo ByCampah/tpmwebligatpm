@@ -41,6 +41,9 @@ export async function GET(req: NextRequest) {
       if (currentEnrollment && currentEnrollment.tournamentTeam && currentEnrollment.tournamentTeam.team) {
         teamName = currentEnrollment.tournamentTeam.team.name;
         teamLogo = currentEnrollment.tournamentTeam.team.logoUrl;
+        if (teamLogo && teamLogo.startsWith('/')) {
+          teamLogo = `${req.nextUrl.origin}${teamLogo}`;
+        }
       }
     }
 
