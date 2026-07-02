@@ -18,9 +18,11 @@ export async function GET(req: NextRequest) {
     const player = await prisma.player.findFirst({
       where: id ? { id } : { nick: { equals: nick as string, mode: 'insensitive' } },
       include: {
-        enrollments: {
+        tournamentTeams: {
           include: {
-            team: true,
+            tournamentTeam: {
+              include: { team: true }
+            }
           }
         }
       }
@@ -33,12 +35,12 @@ export async function GET(req: NextRequest) {
     // Obtener equipo actual (último)
     let teamName = "Agente Libre";
     let teamLogo = null;
-    if (player.enrollments && player.enrollments.length > 0) {
+    if (player.tournamentTeams && player.tournamentTeams.length > 0) {
       // Find the most recent enrollment or just take the last one
-      const currentEnrollment = player.enrollments[player.enrollments.length - 1];
-      if (currentEnrollment) {
-        teamName = currentEnrollment.team.name;
-        teamLogo = currentEnrollment.team.logoUrl;
+      const currentEnrollment = player.tournamentTeams[player.tournamentTeams.length - 1];
+      if (currentEnrollment && currentEnrollment.tournamentTeam && currentEnrollment.tournamentTeam.team) {
+        teamName = currentEnrollment.tournamentTeam.team.name;
+        teamLogo = currentEnrollment.tournamentTeam.team.logoUrl;
       }
     }
 
