@@ -132,7 +132,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
             });
           }
           const pStat = statsMap.get(s.playerId);
-          pStat.goals += s.goals || 0;
+          pStat.goals += (s.goals || 0) + (s.freeKickGoals || 0) + (s.penaltyGoals || 0);
           pStat.assists += s.assists || 0;
           pStat.savesMade += s.savesMade || 0;
           pStat.savesTotal += s.savesTotal || 0;

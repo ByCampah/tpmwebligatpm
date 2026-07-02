@@ -584,7 +584,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                         <th className="p-3 text-left w-48 sticky left-0 bg-secondary z-10 border-r border-border">Jugador</th>
                                         <th className="p-3" title="Minutos Jugados">MIN</th>
                                         <th className="p-3 text-red-500 font-black" title="Tarjetas Rojas">🟥 R</th>
-                                        <th className="p-3 text-primary" title="Goles (Total)">G</th>
+                                        <th className="p-3 text-primary" title="Goles de Jugada (Normales)">G</th>
                                         <th className="p-3 text-yellow-500" title="Goles de Tiro Libre">TL</th>
                                         <th className="p-3 text-blue-500" title="Goles de Penal">PEN</th>
                                         <th className="p-3 text-primary" title="Asistencias">A</th>

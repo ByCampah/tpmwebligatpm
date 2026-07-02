@@ -106,7 +106,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
       acc.pj += (stat.match.round === "Estadísticas Históricas" ? (stat.matchTime || 1) : 1);
-      acc.goles += stat.goals;
+      acc.goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
       acc.asistencias += stat.assists;
       acc.rojas += stat.redCards || 0;
       acc.golesTiroLibre += stat.freeKickGoals || 0;
@@ -381,7 +381,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
         <div className="lg:col-span-1 flex flex-col gap-4">
           <h2 className="text-lg font-bold text-muted-foreground uppercase tracking-wider border-b border-border pb-2">Rendimiento en Clubes</h2>
           <PlayerMetricsClient matchStats={clubStatsObj.map(s => ({
-            goals: s.goals,
+            goals: (s.goals || 0) + (s.freeKickGoals || 0) + (s.penaltyGoals || 0),
             assists: s.assists,
             teamPoints: s.teamPoints,
             matchTime: s.matchTime,
@@ -413,7 +413,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
             <>
               <h2 className="text-lg font-bold text-muted-foreground uppercase tracking-wider border-b border-border pb-2 mt-4">Rendimiento en Selección</h2>
               <PlayerMetricsClient matchStats={natStatsObj.map(s => ({
-                goals: s.goals,
+                goals: (s.goals || 0) + (s.freeKickGoals || 0) + (s.penaltyGoals || 0),
                 assists: s.assists,
                 teamPoints: s.teamPoints,
                 matchTime: s.matchTime,
