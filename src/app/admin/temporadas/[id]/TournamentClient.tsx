@@ -575,7 +575,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                     </thead>
                                     <tbody className="divide-y divide-border">
                                       {tData.roster.map((r: any) => {
-                                        const ps = m.playerStats?.find((s: any) => s.playerId === r.playerId) || {};
+                                        const ps = m.stats?.find((s: any) => s.playerId === r.playerId) || {};
                                         return (
                                         <tr key={r.playerId} className="hover:bg-white/5 transition-colors">
                                           <td className="p-3 font-bold text-left sticky left-0 bg-card z-10 border-r border-border">

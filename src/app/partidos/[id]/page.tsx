@@ -242,7 +242,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                     <th className="p-3 text-center font-bold" title="Asistencias">👟</th>
                     <th className="p-3 text-center font-bold" title="Tiros">Tiros</th>
                     <th className="p-3 text-center font-bold" title="Pases">Pases</th>
-                    <th className="p-3 text-center font-bold" title="Quites">Quites</th>
+                    <th className="p-3 text-center font-bold text-red-400" title="Pérdidas">Pérdidas</th>
+                    <th className="p-3 text-center font-bold text-orange-400" title="Faltas Hechas">Faltas H</th>
+                    <th className="p-3 text-center font-bold text-purple-400" title="Faltas Recibidas">Faltas R</th>
+                    <th className="p-3 text-center font-bold" title="Offsides">Offside</th>
                     <th className="p-3 text-center font-bold" title="Valla Invicta">🛡️ VI</th>
                     <th className="p-3 text-center font-bold text-cyan-400" title="Minutos GK">GK Time</th>
                     <th className="p-3 text-center font-bold text-cyan-400" title="Atajadas">Atajadas</th>
@@ -260,7 +263,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.shotsMade, stat.shotsTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
-                      <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.ballLosses}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.fouls}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.fouled}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.offsides}</td>
                       <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
                       <td className="p-3 text-center font-bold text-cyan-400">{stat.gkTime > 0 ? stat.gkTime + "'" : '-'}</td>
                       <td className="p-3 text-center font-bold text-cyan-400">{formatStat(stat.savesMade, stat.savesTotal)}</td>
@@ -289,7 +295,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                     <th className="p-3 text-center font-bold" title="Asistencias">👟</th>
                     <th className="p-3 text-center font-bold" title="Tiros">Tiros</th>
                     <th className="p-3 text-center font-bold" title="Pases">Pases</th>
-                    <th className="p-3 text-center font-bold" title="Quites">Quites</th>
+                    <th className="p-3 text-center font-bold text-red-400" title="Pérdidas">Pérdidas</th>
+                    <th className="p-3 text-center font-bold text-orange-400" title="Faltas Hechas">Faltas H</th>
+                    <th className="p-3 text-center font-bold text-purple-400" title="Faltas Recibidas">Faltas R</th>
+                    <th className="p-3 text-center font-bold" title="Offsides">Offside</th>
                     <th className="p-3 text-center font-bold" title="Valla Invicta">🛡️ VI</th>
                     <th className="p-3 text-center font-bold text-cyan-400" title="Minutos GK">GK Time</th>
                     <th className="p-3 text-center font-bold text-cyan-400" title="Atajadas">Atajadas</th>
@@ -307,7 +316,10 @@ export default async function PartidoPage(props: { params: Promise<{ id: string 
                       <td className="p-3 text-center font-bold text-white/80">{stat.assists > 0 ? stat.assists : '-'}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.shotsMade, stat.shotsTotal)}</td>
                       <td className="p-3 text-center font-bold text-white/80">{formatStat(stat.passesMade, stat.passesTotal)}</td>
-                      <td className="p-3 text-center font-bold text-white/80">{stat.tacklesWon}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.ballLosses}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.fouls}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.fouled}</td>
+                      <td className="p-3 text-center font-bold text-white/80">{stat.offsides}</td>
                       <td className="p-3 text-center font-bold">{stat.cleanSheet ? '✅' : '-'}</td>
                       <td className="p-3 text-center font-bold text-cyan-400">{stat.gkTime > 0 ? stat.gkTime + "'" : '-'}</td>
                       <td className="p-3 text-center font-bold text-cyan-400">{formatStat(stat.savesMade, stat.savesTotal)}</td>
