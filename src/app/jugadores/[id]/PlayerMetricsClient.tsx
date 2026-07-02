@@ -43,6 +43,7 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
     acc.fouled += stat.fouled || 0;
     acc.offsides += stat.offsides || 0;
     acc.savesMade += stat.savesMade || 0;
+    acc.savesTotal += stat.savesTotal || 0;
     acc.redCards += stat.redCards || 0;
     acc.freeKickGoals += stat.freeKickGoals || 0;
     acc.penaltyGoals += stat.penaltyGoals || 0;
