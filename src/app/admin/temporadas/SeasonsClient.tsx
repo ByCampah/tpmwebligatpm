@@ -82,6 +82,11 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-bold text-muted-foreground mb-1">URL de la Llave / Bracket (Opcional, para Copas)</label>
+              <input name="bracketImageUrl" type="url" className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="https://ejemplo.com/llave.png" />
+            </div>
+
             <button disabled={loading} type="submit" className="bg-primary text-primary-foreground font-black py-3 rounded-lg hover:bg-primary/90 transition-colors mt-2">
               CREAR TORNEO
             </button>

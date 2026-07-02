@@ -809,6 +809,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 </select>
               </div>
 
+              <div>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">URL de la Llave / Bracket (Opcional, para Copas)</label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Pega un enlace directo a una imagen (jpg, png) con el formato de la llave. Si este torneo es formato Copa, la imagen se mostrará en la sección de Tablas.
+                </p>
+                <input name="bracketImageUrl" type="url" defaultValue={tournament.bracketImageUrl || ""} className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="https://ejemplo.com/llave.png" />
+              </div>
+
               <button disabled={loading} type="submit" className="bg-primary text-primary-foreground font-black py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(var(--primary),0.2)] mt-4">
                 {loading ? 'GUARDANDO CAMBIOS...' : 'GUARDAR CAMBIOS'}
               </button>

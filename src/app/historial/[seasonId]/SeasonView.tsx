@@ -8,6 +8,7 @@ interface TournamentData {
   id: string;
   name: string;
   format: string;
+  bracketImageUrl?: string | null;
   matches: any[];
   teams: any[];
   trophies: any[];
@@ -267,6 +268,14 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                 </div>
               ) : (
                 <>
+                  {selectedTournament.bracketImageUrl && (
+                    <div className="flex flex-col gap-4 mb-8">
+                      <h3 className="text-xl font-bold">Llave del Torneo</h3>
+                      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+                        <img src={selectedTournament.bracketImageUrl} alt="Llave del torneo" className="w-full h-auto object-contain bg-black/50" />
+                      </div>
+                    </div>
+                  )}
                   {groupStandings.map((group, idx) => (
                     <div key={idx} className="flex flex-col gap-4">
                       <h3 className="text-xl font-bold">{group.name as string}</h3>

@@ -167,6 +167,8 @@ model Tournament {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  bracketImageUrl String? // Imagen para las llaves de las copas
+
   matches    Match[]
   teams      TournamentTeam[]
   trophies   Trophy[] // Trophies awarded in this tournament
