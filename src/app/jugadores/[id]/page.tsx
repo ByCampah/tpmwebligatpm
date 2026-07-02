@@ -269,6 +269,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 <div className="bg-secondary/50 px-4 py-2 rounded-xl border border-border text-center min-w-[70px]">
                   <span className="block text-2xl font-black text-white">{totalClubStats.asistencias}</span>
                   <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
+                </div>
               </div>
             </div>
 
@@ -286,6 +287,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/30 text-center min-w-[70px]">
                   <span className="block text-2xl font-black text-white">{totalNatStats.asistencias}</span>
                   <span className="text-[10px] text-muted-foreground uppercase font-bold">A</span>
+                </div>
               </div>
             </div>
           </div>
