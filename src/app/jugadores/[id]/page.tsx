@@ -457,7 +457,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {jugador.matchStats.map((stat: any) => {
+                  {validStatsObj.map((stat: any) => {
                     const isHistorico = stat.match.round === "Estadísticas Históricas";
                     return (
                     <tr key={stat.id} className={`transition-colors ${isHistorico ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-white/5'}`}>
@@ -476,7 +476,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                           </div>
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-center font-black text-lg">{stat.goals || 0}</td>
+                      <td className="px-4 py-3 text-center font-black text-lg">{(stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0)}</td>
                       <td className="px-4 py-3 text-center font-black text-lg">{stat.assists || 0}</td>
                     </tr>
                     );
