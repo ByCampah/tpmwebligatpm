@@ -32,7 +32,7 @@ export async function submitMatchStats(formData: any) {
       where: { id: matchId },
       include: { tournament: { include: { season: true } } }
     });
-    if (!matchData?.tournament.season.isActive) {
+    if (matchData?.tournament.isOfficial && !matchData?.tournament.season?.isActive) {
       return { success: false, error: "Los moderadores solo pueden editar partidos de la temporada actual." };
     }
   }

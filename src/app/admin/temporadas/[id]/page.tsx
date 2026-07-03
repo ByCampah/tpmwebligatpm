@@ -31,9 +31,9 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
 
   if (!tournament) return notFound();
   
-  if (userRole === "MODERATOR" && !tournament.season.isActive) {
+  if (userRole === "MODERATOR" && tournament.isOfficial && !tournament.season?.isActive) {
     return (
-      <div className="max-w-4xl mx-auto mt-20 p-8 bg-destructive/10 border border-destructive/20 rounded-xl text-center">
+      <div className="max-w-4xl mx-auto mt-20 p-8 bg-destructive/10 border border-destructive rounded-xl text-center">
         <h1 className="text-2xl font-black text-destructive mb-4">ACCESO DENEGADO</h1>
         <p className="text-muted-foreground mb-6">Los moderadores solo pueden editar torneos de la temporada activa.</p>
       </div>

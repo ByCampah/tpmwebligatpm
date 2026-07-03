@@ -64,7 +64,7 @@ export default async function ExtraTournamentPage(props: { params: Promise<{ id:
     name: "Torneo Extra",
     isActive: false,
     createdAt: tournament.createdAt,
-    updatedAt: tournament.updatedAt
+    updatedAt: tournament.createdAt
   };
 
   return (
