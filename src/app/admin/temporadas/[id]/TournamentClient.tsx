@@ -202,8 +202,11 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
       {activeTab === "EQUIPOS" && (
         <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
           {/* AÑADIR EQUIPOS */}
-          <div className="bg-secondary/30 p-6 rounded-xl border border-border">
-            <h3 className="font-bold text-lg mb-4">Inscribir Nuevo Equipo al Torneo</h3>
+          <div className="bg-blue-900/10 p-6 rounded-xl border border-blue-500/30 relative overflow-hidden shadow-sm">
+            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+            <h3 className="font-bold text-lg mb-4 text-blue-400 flex items-center gap-2">
+              <span className="bg-blue-500/20 p-1.5 rounded-md text-blue-400">🛡️</span> Inscribir Nuevo Equipo al Torneo
+            </h3>
             <form action={async (formData) => {
               setLoading(true);
               setError("");
@@ -256,14 +259,19 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     <button onClick={() => { setEditingRosterTeam(isEditingRoster ? null : team.id); setPlayerSearch(""); }} className="text-sm bg-primary/20 text-primary px-4 py-2 rounded hover:bg-primary hover:text-black font-bold transition-colors">
                       {isEditingRoster ? 'Cerrar Plantel' : 'Gestionar Plantel'}
                     </button>
-                    <button onClick={() => handleRemoveTeam(team.id, team.name)} disabled={loading} className="text-sm text-destructive hover:underline font-bold px-2">Quitar</button>
+                    {userRole === "ADMIN" && (
+                      <button onClick={() => handleRemoveTeam(team.id, team.name)} disabled={loading} className="text-sm text-destructive hover:underline font-bold px-2">Quitar</button>
+                    )}
                   </div>
                 </div>
 
                 {isEditingRoster && (
                   <div className="mt-6 pt-6 border-t border-border flex flex-col gap-6">
-                    <div className="bg-black/30 p-4 rounded border border-border">
-                      <h4 className="font-bold text-sm text-muted-foreground mb-3 uppercase tracking-wider">Añadir Jugador</h4>
+                    <div className="bg-emerald-900/10 p-5 rounded-xl border border-emerald-500/30 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+                      <h4 className="font-bold text-sm text-emerald-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+                        <span className="bg-emerald-500/20 p-1 rounded-md">👤</span> Añadir Jugador
+                      </h4>
                       <form action={async (formData) => {
                         setLoading(true);
                         setError("");
@@ -300,7 +308,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                         {roster.map((r: any) => (
                           <div key={r.id} className="bg-secondary/50 border border-border px-4 py-2 rounded-full text-sm flex items-center gap-3">
                             <span className="font-bold">{r.player.nick}</span>
-                            <button onClick={() => handleRemovePlayer(team.id, r.playerId, r.player.nick)} className="text-destructive font-black hover:text-red-400 hover:scale-125 transition-all">×</button>
+                            {userRole === "ADMIN" && (
+                              <button onClick={() => handleRemovePlayer(team.id, r.playerId, r.player.nick)} className="text-destructive font-black hover:text-red-400 hover:scale-125 transition-all">×</button>
+                            )}
                           </div>
                         ))}
                         {roster.length === 0 && <span className="text-sm text-muted-foreground italic">No hay jugadores inscritos en este equipo para este torneo.</span>}
@@ -350,10 +360,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             )}
 
             {userRole === "ADMIN" && (
-              <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-4 relative overflow-hidden shadow-sm">
-                <div className="absolute top-0 left-0 w-1 h-full bg-secondary-foreground"></div>
-                <h3 className="font-bold text-lg text-secondary-foreground flex items-center gap-2">
-                  <span className="bg-secondary p-1.5 rounded-md">🛠️</span> Partido Manual
+              <div className="bg-orange-900/10 p-6 rounded-xl border border-orange-500/30 flex flex-col gap-4 relative overflow-hidden shadow-sm">
+                <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                <h3 className="font-bold text-lg text-orange-400 flex items-center gap-2">
+                  <span className="bg-orange-500/20 p-1.5 rounded-md">🛠️</span> Partido Manual
                 </h3>
                 <p className="text-sm text-muted-foreground">Añade un partido extra al calendario para Copas o Playoffs.</p>
                 <form action={async (formData) => {
@@ -379,7 +389,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       {enrolledTeamsData.map((t: any) => <option key={t.team.id} value={t.team.id}>{t.team.name}</option>)}
                     </select>
                   </div>
-                  <button disabled={loading} type="submit" className="w-full bg-secondary text-secondary-foreground hover:text-white font-bold px-6 py-3 rounded-lg text-sm hover:bg-border transition-colors">
+                  <button disabled={loading} type="submit" className="w-full bg-orange-600 text-white font-bold px-6 py-3 rounded-lg text-sm hover:bg-orange-500 transition-colors shadow-[0_0_10px_rgba(249,115,22,0.2)]">
                     CREAR PARTIDO
                   </button>
                 </form>
@@ -388,7 +398,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
           </div>
 
           <div className="flex flex-col gap-4 mt-4">
-            <h3 className="font-bold text-2xl border-b border-border pb-2">Calendario</h3>
+            <h3 className="font-bold text-2xl border-b border-border pb-2 flex items-center gap-3">
+              <span className="text-3xl">📅</span> Calendario de Partidos
+            </h3>
             
             {/* Agrupar Partidos por Fecha/Round */}
             {(() => {
