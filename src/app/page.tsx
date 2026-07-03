@@ -61,12 +61,6 @@ export default async function Home() {
           <a href="https://dl.dropboxusercontent.com/s/rud9i5kqrabsajy/TPM.rar?dl=0" target="_blank" rel="noreferrer" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center gap-2 text-lg">
             ⬇ DESCARGAR JUEGO
           </a>
-          
-          {activeExtra && (
-            <Link href="/extras" className="mt-4 px-6 py-3 bg-secondary/80 text-white font-bold rounded-full border border-primary/50 hover:bg-secondary transition-colors shadow-[0_0_10px_rgba(16,185,129,0.2)] hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] animate-pulse hover:animate-none flex items-center gap-2">
-              🏆 Torneo Extra en Curso: {activeExtra.name}
-            </Link>
-          )}
         </div>
       </section>
 
@@ -179,6 +173,19 @@ export default async function Home() {
               <p className="text-sm text-muted-foreground">No hay temporada activa</p>
             )}
           </section>
+
+          {/* Active Extra Tournament */}
+          {activeExtra && (
+            <section className="bg-card border border-primary/30 rounded-xl p-6 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+              <h3 className="text-lg font-bold mb-4 uppercase tracking-wider text-primary flex items-center gap-2">
+                <span className="animate-pulse">🏆</span> Torneo Extra Activo
+              </h3>
+              <div className="text-2xl font-black mb-4">{activeExtra.name}</div>
+              <Link href="/extras" className="w-full py-3 bg-secondary/80 hover:bg-secondary text-white font-bold rounded-lg border border-border transition-colors flex items-center justify-center gap-2">
+                Ver Torneo &rarr;
+              </Link>
+            </section>
+          )}
 
           {/* Discord Links */}
           <section className="bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-xl p-6 flex flex-col items-center text-center gap-4">

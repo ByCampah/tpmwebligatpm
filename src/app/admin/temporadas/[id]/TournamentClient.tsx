@@ -154,7 +154,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
       {/* HEADER BAR */}
       <div className="flex items-center justify-between bg-card border border-border p-4 rounded-xl">
         <div className="flex flex-col">
-          <span className="text-muted-foreground text-sm font-bold uppercase tracking-wider">{tournament.season.name}</span>
+          <span className="text-muted-foreground text-sm font-bold uppercase tracking-wider">{tournament.season?.name || "Torneo Extra"}</span>
           <h1 className="text-2xl font-black text-primary">{tournament.name} <span className="text-sm bg-secondary text-secondary-foreground px-2 py-1 rounded ml-2">{tournament.format}</span></h1>
         </div>
         <Link href="/admin/temporadas" className="text-sm font-bold bg-secondary hover:bg-secondary/80 text-secondary-foreground px-4 py-2 rounded transition-colors">
