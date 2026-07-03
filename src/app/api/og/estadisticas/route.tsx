@@ -6,6 +6,10 @@ export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   try {
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const host = req.headers.get("host") || "localhost:3000";
+    const baseUrl = `${protocol}://${host}`;
+
     const { searchParams } = new URL(req.url);
     const tournamentIdParam = searchParams.get('tournamentId');
 
@@ -71,7 +75,7 @@ export async function GET(req: NextRequest) {
         if (stat.player.tournamentTeams.length > 0) {
           teamLogo = stat.player.tournamentTeams[0].tournamentTeam.team.logoUrl;
           if (teamLogo && teamLogo.startsWith('/')) {
-            teamLogo = `${req.nextUrl.origin}${teamLogo}`;
+            teamLogo = `${baseUrl}${teamLogo}`;
           }
         }
 
@@ -110,7 +114,7 @@ export async function GET(req: NextRequest) {
         >
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 40, borderBottom: '2px solid #D4AF37', paddingBottom: 20 }}>
-            <img src={`${req.nextUrl.origin}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 100, height: 100, objectFit: 'contain', marginRight: 30 }} />
+            <img src={`${baseUrl}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 100, height: 100, objectFit: 'contain', marginRight: 30 }} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h1 style={{ fontSize: 50, fontWeight: 900, color: '#D4AF37', margin: 0, textTransform: 'uppercase' }}>ESTADÍSTICAS</h1>
               <h2 style={{ fontSize: 30, fontWeight: 700, color: '#fff', margin: 0 }}>{tournamentName}</h2>

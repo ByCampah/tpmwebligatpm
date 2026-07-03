@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { getDictionary } from "@/i18n/getDictionary";
 import SeasonView from "./SeasonView";
+import { Suspense } from "react";
 
 export const dynamicParams = false;
 
@@ -78,7 +79,9 @@ export default async function HistorialSeasonPage({ params }: { params: Promise<
         </p>
       </header>
 
-      <SeasonView season={season} tournaments={sortedTournaments} dictionary={t.history} />
+      <Suspense fallback={<div className="p-12 text-center">Cargando temporada...</div>}>
+        <SeasonView season={season} tournaments={sortedTournaments} dictionary={t.history} />
+      </Suspense>
     </div>
   );
 }

@@ -157,7 +157,9 @@ export default async function Home() {
                   <h4 className="font-bold text-sm border-b border-border pb-2">Torneos en Juego:</h4>
                   {activeSeason.tournaments.map(tData => (
                     <div key={tData.id} className="flex items-center justify-between">
-                      <span className="text-sm">{tData.name}</span>
+                      <Link href={`/liga?torneo=${tData.id}`} className="text-sm font-bold hover:text-primary hover:underline transition-colors">
+                        {tData.name}
+                      </Link>
                       <span className="text-xs bg-secondary px-2 py-1 rounded text-muted-foreground">{tData.format}</span>
                     </div>
                   ))}

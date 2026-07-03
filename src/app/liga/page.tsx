@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { getDictionary } from "@/i18n/getDictionary";
 import SeasonView from "@/app/historial/[seasonId]/SeasonView";
+import { Suspense } from "react";
 
 export default async function LigaPage() {
   const locale = "es";
@@ -81,7 +82,9 @@ export default async function LigaPage() {
         </p>
       </header>
 
-      <SeasonView season={activeSeason} tournaments={sortedTournaments} dictionary={t.history} />
+      <Suspense fallback={<div className="p-12 text-center">Cargando temporada...</div>}>
+        <SeasonView season={activeSeason} tournaments={sortedTournaments} dictionary={t.history} />
+      </Suspense>
     </div>
   );
 }

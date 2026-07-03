@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getFlagUrl } from "@/lib/flags";
+import { useSearchParams } from "next/navigation";
 
 interface TournamentData {
   id: string;
@@ -21,9 +22,25 @@ interface SeasonViewProps {
 }
 
 export default function SeasonView({ season, tournaments, dictionary }: SeasonViewProps) {
-  const [selectedTournamentId, setSelectedTournamentId] = useState(tournaments[0]?.id);
+  const searchParams = useSearchParams();
+  const initialTorneo = searchParams.get('torneo');
+  
+  const [selectedTournamentId, setSelectedTournamentId] = useState(
+    initialTorneo && tournaments.some(t => t.id === initialTorneo) 
+      ? initialTorneo 
+      : tournaments[0]?.id
+  );
+  
   const [selectedRound, setSelectedRound] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('standings');
+
+  // Si cambia el parametro en la url y no habiamos renderizado, sincronizamos (opcional, por si navegan)
+  useEffect(() => {
+    const t = searchParams.get('torneo');
+    if (t && tournaments.some(x => x.id === t)) {
+      setSelectedTournamentId(t);
+    }
+  }, [searchParams, tournaments]);
 
   if (tournaments.length === 0) {
     return (

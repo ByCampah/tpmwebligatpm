@@ -6,6 +6,10 @@ export const runtime = 'nodejs'; // Use nodejs so we can safely use Prisma witho
 
 export async function GET(req: NextRequest) {
   try {
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const host = req.headers.get("host") || "localhost:3000";
+    const baseUrl = `${protocol}://${host}`;
+
     const { searchParams } = new URL(req.url);
     const nick = searchParams.get('nick');
     const id = searchParams.get('id');
@@ -42,7 +46,7 @@ export async function GET(req: NextRequest) {
         teamName = currentEnrollment.tournamentTeam.team.name;
         teamLogo = currentEnrollment.tournamentTeam.team.logoUrl;
         if (teamLogo && teamLogo.startsWith('/')) {
-          teamLogo = `${req.nextUrl.origin}${teamLogo}`;
+          teamLogo = `${baseUrl}${teamLogo}`;
         }
       }
     }
@@ -122,7 +126,7 @@ export async function GET(req: NextRequest) {
             <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 15 }}>
-                <img src={`${req.nextUrl.origin}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain' }} />
+                <img src={`${baseUrl}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain' }} />
                 {teamLogo && (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <img src={teamLogo} alt="Team" style={{ width: 80, height: 80, objectFit: 'contain' }} />

@@ -6,14 +6,18 @@ export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   try {
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const host = req.headers.get("host") || "localhost:3000";
+    const baseUrl = `${protocol}://${host}`;
+
     const { searchParams } = new URL(req.url);
     const local = searchParams.get('local');
     const visitante = searchParams.get('visitante');
     const torneo = searchParams.get('torneo');
     const fecha = searchParams.get('fecha');
 
-    if (!local || !visitante || !torneo || !fecha) {
-      return new Response('Faltan parámetros', { status: 400 });
+    if (!local || !visitante) {
+      return new Response('Missing team parameters', { status: 400 });
     }
 
     // Buscar equipos
@@ -25,11 +29,11 @@ export async function GET(req: NextRequest) {
       where: { name: { contains: visitante, mode: 'insensitive' } }
     });
 
-    let localLogo = teamLocal?.logoUrl || '';
-    if (localLogo && localLogo.startsWith('/')) localLogo = `${req.nextUrl.origin}${localLogo}`;
+    let localLogo = teamLocal?.logoUrl;
+    if (localLogo && localLogo.startsWith('/')) localLogo = `${baseUrl}${localLogo}`;
 
-    let visitanteLogo = teamVisitante?.logoUrl || '';
-    if (visitanteLogo && visitanteLogo.startsWith('/')) visitanteLogo = `${req.nextUrl.origin}${visitanteLogo}`;
+    let visitanteLogo = teamVisitante?.logoUrl;
+    if (visitanteLogo && visitanteLogo.startsWith('/')) visitanteLogo = `${baseUrl}${visitanteLogo}`;
 
     // Renderizar
     return new ImageResponse(
@@ -49,12 +53,12 @@ export async function GET(req: NextRequest) {
         >
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 60, paddingBottom: 20 }}>
-            <img src={`${req.nextUrl.origin}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain', marginRight: 20 }} />
+            <img src={`${baseUrl}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain', marginRight: 20 }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <h1 style={{ fontSize: 36, fontWeight: 900, color: '#D4AF37', margin: 0, textTransform: 'uppercase' }}>{torneo}</h1>
               <h2 style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: 0, marginTop: 10 }}>{fecha}</h2>
             </div>
-            <img src={`${req.nextUrl.origin}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain', marginLeft: 20, opacity: 0 }} />
+            <img src={`${baseUrl}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain', marginLeft: 20, opacity: 0 }} />
           </div>
 
           {/* Match Content */}
