@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createTournament, deleteTournament } from "@/app/actions";
+import { createTournament, deleteTournament, setActiveExtraTournament } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Trophy, Trash2, Users, CalendarDays, ExternalLink } from "lucide-react";
@@ -75,7 +75,7 @@ export default function ExtraTournamentsClient({ tournaments, categories, userRo
             {tournaments.map(t => (
               <div key={t.id} className="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-secondary/50 flex items-center justify-center text-primary">
+                  <div className={`w-12 h-12 rounded-lg ${t.isActiveExtra ? 'bg-primary/20 text-primary border border-primary' : 'bg-secondary/50 text-primary'} flex items-center justify-center`}>
                     <Trophy className="w-6 h-6" />
                   </div>
                   <div>
@@ -84,6 +84,11 @@ export default function ExtraTournamentsClient({ tournaments, categories, userRo
                       <span className="text-[10px] bg-secondary text-muted-foreground px-2 py-0.5 rounded uppercase font-bold tracking-wider">
                         {t.format}
                       </span>
+                      {t.isActiveExtra && (
+                        <span className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                          ACTIVO
+                        </span>
+                      )}
                     </h4>
                     <p className="text-xs text-muted-foreground font-bold mt-1">
                       {t._count.teams} Equipos • {t._count.matches} Partidos
@@ -92,16 +97,29 @@ export default function ExtraTournamentsClient({ tournaments, categories, userRo
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-2">
+                  {(userRole === "ADMIN" || userRole === "MODERATOR") && !t.isActiveExtra && (
+                    <button 
+                      disabled={loading}
+                      onClick={async () => {
+                        setLoading(true);
+                        await setActiveExtraTournament(t.id);
+                        setLoading(false);
+                      }}
+                      className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-xs font-bold hover:bg-green-500/30 transition-colors"
+                    >
+                      HACER ACTIVO
+                    </button>
+                  )}
                   <Link href={`/admin/temporadas/${t.id}`} className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
                     Editar
                   </Link>
                   <Link href={`/extras/${t.id}`} className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-xs font-bold hover:bg-blue-500/30 transition-colors">
                     <ExternalLink className="w-3 h-3" /> Ver Público
                   </Link>
-                  <Link href={`/admin/temporadas/${t.id}/equipos`} className="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white rounded-lg text-xs font-bold hover:bg-secondary/80 transition-colors">
+                  <Link href={`/admin/temporadas/${t.id}?tab=EQUIPOS`} className="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white rounded-lg text-xs font-bold hover:bg-secondary/80 transition-colors">
                     <Users className="w-3 h-3" /> Equipos
                   </Link>
-                  <Link href={`/admin/temporadas/${t.id}/partidos`} className="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white rounded-lg text-xs font-bold hover:bg-secondary/80 transition-colors">
+                  <Link href={`/admin/temporadas/${t.id}?tab=PARTIDOS`} className="flex items-center gap-1 px-3 py-1.5 bg-secondary text-white rounded-lg text-xs font-bold hover:bg-secondary/80 transition-colors">
                     <CalendarDays className="w-3 h-3" /> Partidos
                   </Link>
                   {userRole === "ADMIN" && (

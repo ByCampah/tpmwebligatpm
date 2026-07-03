@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament } from "@/app/actions";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function TournamentClient({ tournament, allTeams, allPlayers, categories, userRole }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[], userRole: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") as "EQUIPOS" | "PARTIDOS" | "PREMIOS" | "AJUSTES" || (userRole === "MODERATOR" ? "PARTIDOS" : "EQUIPOS");
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "AJUSTES">(userRole === "MODERATOR" ? "PARTIDOS" : "EQUIPOS");
+  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "AJUSTES">(initialTab);
   
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");

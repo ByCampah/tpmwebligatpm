@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import TournamentClient from "./TournamentClient";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import React from "react";
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +54,8 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
   });
 
   return (
-    <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} categories={categories} userRole={userRole} />
+    <React.Suspense fallback={<div>Cargando Torneo...</div>}>
+      <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} categories={categories} userRole={userRole} />
+    </React.Suspense>
   );
 }

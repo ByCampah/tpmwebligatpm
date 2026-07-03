@@ -227,6 +227,31 @@ export async function deleteSeason(seasonId: string) {
   }
 }
 
+export async function setActiveExtraTournament(tournamentId: string) {
+  const session = await auth();
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
+
+  await prisma.$transaction(async (tx) => {
+    // Set all extra tournaments to false
+    await tx.tournament.updateMany({
+      where: { isOfficial: false },
+      data: { isActiveExtra: false }
+    });
+    // Set target to true
+    await tx.tournament.update({
+      where: { id: tournamentId },
+      data: { isActiveExtra: true }
+    });
+  });
+
+  revalidatePath("/admin/torneos-extra");
+  revalidatePath("/extras");
+  
+  await createAdminLog("Torneo Extra Activo", `Hizo activo el torneo extra ID: ${tournamentId}`);
+  
+  return { success: true };
+}
+
 // ==========================================
 // TEAM ACTIONS
 // ==========================================

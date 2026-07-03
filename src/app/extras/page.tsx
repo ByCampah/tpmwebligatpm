@@ -47,8 +47,8 @@ export default async function ExtrasPage() {
     orderBy: { createdAt: "desc" }
   });
 
-  const currentExtra = extraTournaments.length > 0 ? extraTournaments[0] : null;
-  const historyExtras = extraTournaments.length > 1 ? extraTournaments.slice(1) : [];
+  const currentExtra = extraTournaments.find(t => t.isActiveExtra) || (extraTournaments.length > 0 ? extraTournaments[0] : null);
+  const historyExtras = currentExtra ? extraTournaments.filter(t => t.id !== currentExtra.id) : [];
   
   const locale = "es";
   const t = await getDictionary(locale);

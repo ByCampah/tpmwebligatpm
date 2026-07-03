@@ -164,6 +164,7 @@ model Tournament {
   seasonId  String?
   season    Season?   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   isOfficial Boolean  @default(true)
+  isActiveExtra Boolean @default(false)
   
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
