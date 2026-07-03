@@ -113,9 +113,11 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   const mostCleanSheets = playerRecordsArray.filter(p => p.cleanSheets > 0).sort((a, b) => b.cleanSheets - a.cleanSheets)[0];
 
   // Group Trophies
-  const campeon = team.trophies.filter(t => getTrophyCategory(t.name) === "CAMPEON");
-  const subcampeon = team.trophies.filter(t => getTrophyCategory(t.name) === "SUBCAMPEON");
-  const tercer = team.trophies.filter(t => getTrophyCategory(t.name) === "TERCER");
+  const officialTrophies = team.trophies.filter(t => t.tournament?.isOfficial !== false);
+  const extraTrophies = team.trophies.filter(t => t.tournament?.isOfficial === false);
+
+  const getTrophiesByCategory = (trophies: typeof team.trophies, category: string) => 
+    trophies.filter(t => getTrophyCategory(t.name) === category);
 
   // Group Plantillas by Season
   const tournamentsBySeason: Record<string, typeof team.tournaments> = {};
@@ -136,7 +138,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   const renderTrophyCard = (trofeo: any) => {
     const styles = getTournamentStyles(trofeo.name, trofeo.tournament?.name || "");
     return (
-      <div key={trofeo.id} className={`bg-card border ${styles.borderClass} rounded-xl p-4 flex items-center gap-4 min-w-[200px] relative overflow-hidden`}>
+      <div key={trofeo.id} className={`bg-card border ${styles.borderClass} rounded-xl p-4 flex items-center gap-4 min-w-[200px] relative overflow-hidden shadow-lg hover:scale-105 transition-transform`}>
         <div className={`w-12 h-12 ${styles.bgClass} ${styles.textClass} rounded-full flex items-center justify-center text-2xl font-black z-10 overflow-hidden`}>
           {styles.imageSrc ? (
             <img src={styles.imageSrc} alt={trofeo.name} className="w-8 h-8 object-contain" />
@@ -148,13 +150,72 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
           <span className={`font-black ${styles.textClass} uppercase tracking-wider`}>{trofeo.name}</span>
           <span className="text-xs text-muted-foreground">{trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : 'Histórico'}</span>
         </div>
+        <div className="absolute -right-4 -bottom-4 opacity-5 text-8xl z-0 pointer-events-none">
+          {styles.icon}
+        </div>
+      </div>
+    );
+  };
+
+  const renderTrophySection = (trophies: typeof team.trophies, title: string, isExtra: boolean = false) => {
+    if (trophies.length === 0) {
+      return (
+        <div className="flex flex-col gap-4 mb-4 opacity-50">
+          <h3 className={`text-2xl font-black flex items-center gap-2 border-b border-border pb-2 ${isExtra ? 'text-amber-500' : 'text-blue-500'}`}>
+            <span className={`w-2 h-6 ${isExtra ? 'bg-amber-500' : 'bg-blue-500'} rounded-full inline-block`}></span>
+            {title}
+          </h3>
+          <p className="text-muted-foreground italic pl-4">Sin títulos.</p>
+        </div>
+      );
+    }
+    
+    const campeon = getTrophiesByCategory(trophies, "CAMPEON");
+    const subcampeon = getTrophiesByCategory(trophies, "SUBCAMPEON");
+    const tercer = getTrophiesByCategory(trophies, "TERCER");
+
+    return (
+      <div className="flex flex-col gap-6 mb-8">
+        <h3 className={`text-2xl font-black flex items-center gap-2 border-b border-border pb-2 ${isExtra ? 'text-amber-500' : 'text-blue-500'}`}>
+          <span className={`w-2 h-6 ${isExtra ? 'bg-amber-500' : 'bg-blue-500'} rounded-full inline-block`}></span>
+          {title}
+        </h3>
+        
+        <div className="flex flex-col gap-8">
+          {campeon.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <h4 className="text-lg font-bold text-white flex items-center gap-2"><span className="text-xl">🥇</span> {t.teams.champion}</h4>
+              <div className="flex flex-wrap gap-4">
+                {campeon.map(renderTrophyCard)}
+              </div>
+            </div>
+          )}
+
+          {subcampeon.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <h4 className="text-lg font-bold text-zinc-300 flex items-center gap-2"><span className="text-xl">🥈</span> {t.teams.runnerUp}</h4>
+              <div className="flex flex-wrap gap-4">
+                {subcampeon.map(renderTrophyCard)}
+              </div>
+            </div>
+          )}
+
+          {tercer.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <h4 className="text-lg font-bold text-amber-600/80 flex items-center gap-2"><span className="text-xl">🥉</span> {t.teams.thirdPlace}</h4>
+              <div className="flex flex-wrap gap-4">
+                {tercer.map(renderTrophyCard)}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-12">
-      <TeamConfetti hasTrophies={campeon.length > 0} />
+      <TeamConfetti hasTrophies={officialTrophies.length > 0} />
       <Link href="/equipos" className="text-primary hover:underline flex items-center gap-2 w-fit">
         <span>←</span> {t.teams.back}
       </Link>
@@ -252,44 +313,15 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
 
       <div className="grid md:grid-cols-2 gap-8">
         
-        {/* VITRINA DE TROFEOS (Si tiene) */}
-        {team.trophies.length > 0 && (
-          <div className="md:col-span-2 flex flex-col gap-6 mb-4">
-            <h2 className="text-3xl font-black flex items-center gap-2 border-b border-border pb-2 neon-text">
-              <span className="w-2 h-8 bg-primary rounded-full inline-block"></span>
-              {t.teams.trophies}
-            </h2>
-            
-            <div className="flex flex-col gap-8">
-              {campeon.length > 0 && (
-                <div className="flex flex-col gap-3">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2"><span className="text-2xl">🥇</span> {t.teams.champion}</h3>
-                  <div className="flex flex-wrap gap-4">
-                    {campeon.map(renderTrophyCard)}
-                  </div>
-                </div>
-              )}
-
-              {subcampeon.length > 0 && (
-                <div className="flex flex-col gap-3">
-                  <h3 className="text-xl font-bold text-zinc-300 flex items-center gap-2"><span className="text-2xl">🥈</span> {t.teams.runnerUp}</h3>
-                  <div className="flex flex-wrap gap-4">
-                    {subcampeon.map(renderTrophyCard)}
-                  </div>
-                </div>
-              )}
-
-              {tercer.length > 0 && (
-                <div className="flex flex-col gap-3">
-                  <h3 className="text-xl font-bold text-amber-600/80 flex items-center gap-2"><span className="text-2xl">🥉</span> {t.teams.thirdPlace}</h3>
-                  <div className="flex flex-wrap gap-4">
-                    {tercer.map(renderTrophyCard)}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {/* VITRINA DE TROFEOS */}
+        <div className="md:col-span-2 flex flex-col gap-6 mb-4">
+          <h2 className="text-3xl font-black flex items-center gap-2 border-b border-border pb-2 neon-text">
+            <span className="w-2 h-8 bg-primary rounded-full inline-block"></span>
+            {t.teams.trophies}
+          </h2>
+          {renderTrophySection(officialTrophies, "Trofeos Oficiales", false)}
+          {renderTrophySection(extraTrophies, "Trofeos Extra", true)}
+        </div>
 
         {/* PLANTILLAS HISTORICAS */}
         <div className="flex flex-col gap-4">

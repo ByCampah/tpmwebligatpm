@@ -742,44 +742,108 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
       {activeTab === "PREMIOS" && (
         <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
           <div className="bg-secondary/30 p-6 rounded-xl border border-border text-center">
-            <h2 className="text-2xl font-black text-primary uppercase mb-2">🏆 Asignación de Podio</h2>
+            <h2 className="text-2xl font-black text-primary uppercase mb-2">🏆 Asignación de Podio y Premios</h2>
             <p className="text-muted-foreground text-sm mb-6 max-w-2xl mx-auto">
-              Selecciona los equipos que finalizaron en el podio. El sistema le entregará automáticamente la medalla correspondiente al club y a todos los jugadores anotados en su plantel.
+              Asigna los lugares del podio y los premios individuales. Los trofeos se entregarán de forma automática.
             </p>
             
-            <form onSubmit={handlePodiumSubmit} className="flex flex-col gap-6 max-w-xl mx-auto">
+            <form onSubmit={handlePodiumSubmit} className="flex flex-col gap-8 max-w-xl mx-auto">
               
-              <div className="bg-amber-500/10 border border-amber-500/50 p-4 rounded-xl flex flex-col items-center">
-                <span className="text-4xl mb-2">🏆</span>
-                <label className="text-amber-500 font-black mb-2">CAMPEÓN (1er Puesto)</label>
-                <select name="firstId" className="w-full bg-black border border-amber-500/50 rounded p-3 text-center font-bold focus:outline-none focus:border-amber-500">
-                  <option value="">-- Seleccionar Equipo --</option>
-                  {enrolledTeamsData.map((t: any) => (
-                    <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
-                  ))}
-                </select>
+              <div className="flex flex-col gap-4">
+                <h3 className="text-xl font-bold border-b border-border pb-2">Premios de Equipo</h3>
+                
+                <div className="bg-amber-500/10 border border-amber-500/50 p-4 rounded-xl flex flex-col items-center">
+                  <span className="text-4xl mb-2">🏆</span>
+                  <label className="text-amber-500 font-black mb-2">CAMPEÓN (1er Puesto)</label>
+                  <select name="firstId" className="w-full bg-black border border-amber-500/50 rounded p-3 text-center font-bold focus:outline-none focus:border-amber-500">
+                    <option value="">-- Seleccionar Equipo --</option>
+                    {enrolledTeamsData.map((t: any) => (
+                      <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="bg-gray-400/10 border border-gray-400/50 p-4 rounded-xl flex flex-col items-center">
+                  <span className="text-4xl mb-2">🥈</span>
+                  <label className="text-gray-300 font-black mb-2">SUBCAMPEÓN (2do Puesto)</label>
+                  <select name="secondId" className="w-full bg-black border border-gray-400/50 rounded p-3 text-center font-bold focus:outline-none focus:border-gray-400">
+                    <option value="">-- Seleccionar Equipo --</option>
+                    {enrolledTeamsData.map((t: any) => (
+                      <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="bg-orange-700/10 border border-orange-700/50 p-4 rounded-xl flex flex-col items-center">
+                  <span className="text-4xl mb-2">🥉</span>
+                  <label className="text-orange-500 font-black mb-2">TERCER PUESTO</label>
+                  <select name="thirdId" className="w-full bg-black border border-orange-700/50 rounded p-3 text-center font-bold focus:outline-none focus:border-orange-500">
+                    <option value="">-- Seleccionar Equipo --</option>
+                    {enrolledTeamsData.map((t: any) => (
+                      <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="bg-gray-400/10 border border-gray-400/50 p-4 rounded-xl flex flex-col items-center">
-                <span className="text-4xl mb-2">🥈</span>
-                <label className="text-gray-300 font-black mb-2">SUBCAMPEÓN (2do Puesto)</label>
-                <select name="secondId" className="w-full bg-black border border-gray-400/50 rounded p-3 text-center font-bold focus:outline-none focus:border-gray-400">
-                  <option value="">-- Seleccionar Equipo --</option>
-                  {enrolledTeamsData.map((t: any) => (
-                    <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
-                  ))}
-                </select>
-              </div>
+              <div className="flex flex-col gap-4 mt-4">
+                <h3 className="text-xl font-bold border-b border-border pb-2 text-blue-400">Premios Individuales</h3>
+                
+                <div className="bg-blue-500/10 border border-blue-500/50 p-4 rounded-xl flex flex-col items-start text-left">
+                  <label className="text-blue-400 font-black mb-2 w-full text-center">⚽ Máximo Goleador</label>
+                  <select name="topScorerId" className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500">
+                    <option value="">-- Seleccionar Jugador --</option>
+                    {enrolledTeamsData.map((t: any) => (
+                      <optgroup key={`ts_${t.team.id}`} label={t.team.name}>
+                        {t.players?.map((p: any) => (
+                          <option key={`tsp_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="bg-orange-700/10 border border-orange-700/50 p-4 rounded-xl flex flex-col items-center">
-                <span className="text-4xl mb-2">🥉</span>
-                <label className="text-orange-500 font-black mb-2">TERCER PUESTO</label>
-                <select name="thirdId" className="w-full bg-black border border-orange-700/50 rounded p-3 text-center font-bold focus:outline-none focus:border-orange-500">
-                  <option value="">-- Seleccionar Equipo --</option>
-                  {enrolledTeamsData.map((t: any) => (
-                    <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
-                  ))}
-                </select>
+                <div className="bg-green-500/10 border border-green-500/50 p-4 rounded-xl flex flex-col items-start text-left">
+                  <label className="text-green-400 font-black mb-2 w-full text-center">👟 Máximo Asistidor</label>
+                  <select name="topAssisterId" className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500">
+                    <option value="">-- Seleccionar Jugador --</option>
+                    {enrolledTeamsData.map((t: any) => (
+                      <optgroup key={`ta_${t.team.id}`} label={t.team.name}>
+                        {t.players?.map((p: any) => (
+                          <option key={`tap_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="bg-cyan-500/10 border border-cyan-500/50 p-4 rounded-xl flex flex-col items-start text-left">
+                  <label className="text-cyan-400 font-black mb-2 w-full text-center">🧤 Mejor Arquero (Valla Invicta)</label>
+                  <select name="bestGkId" className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500">
+                    <option value="">-- Seleccionar Jugador --</option>
+                    {enrolledTeamsData.map((t: any) => (
+                      <optgroup key={`gk_${t.team.id}`} label={t.team.name}>
+                        {t.players?.map((p: any) => (
+                          <option key={`gkp_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="bg-purple-500/10 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
+                  <label className="text-purple-400 font-black mb-2 w-full text-center">⭐ MVP del Torneo</label>
+                  <select name="mvpId" className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500">
+                    <option value="">-- Seleccionar Jugador --</option>
+                    {enrolledTeamsData.map((t: any) => (
+                      <optgroup key={`mvp_${t.team.id}`} label={t.team.name}>
+                        {t.players?.map((p: any) => (
+                          <option key={`mvpp_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <button disabled={loading} type="submit" className="mt-4 bg-primary text-primary-foreground font-black py-4 px-8 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 text-xl shadow-[0_10px_40px_rgba(var(--primary),0.3)]">

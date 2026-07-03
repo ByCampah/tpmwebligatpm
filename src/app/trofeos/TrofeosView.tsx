@@ -8,6 +8,7 @@ type TrophyRecord = {
   name: string;
   tournament?: {
     name: string;
+    isOfficial?: boolean;
     category?: { name: string } | null;
   } | null;
 };
@@ -23,6 +24,11 @@ export default function TrofeosView({ teams, dictionary }: { teams: TeamWithTrop
   const categoryNamesSet = new Set<string>();
   teams.forEach(team => {
     team.trophies.forEach(t => {
+      if (t.tournament && t.tournament.isOfficial === false) {
+        categoryNamesSet.add("Torneos Extras");
+        return;
+      }
+      
       const catName = t.tournament?.category?.name;
       if (catName) {
         categoryNamesSet.add(catName);
@@ -41,6 +47,8 @@ export default function TrofeosView({ teams, dictionary }: { teams: TeamWithTrop
     if (!a.includes("Primera") && b.includes("Primera")) return 1;
     if (a.includes("Segunda") && !b.includes("Segunda")) return -1;
     if (!a.includes("Segunda") && b.includes("Segunda")) return 1;
+    if (a === "Torneos Extras") return 1; // Extras at the end
+    if (b === "Torneos Extras") return -1;
     return a.localeCompare(b);
   });
 
@@ -50,6 +58,13 @@ export default function TrofeosView({ teams, dictionary }: { teams: TeamWithTrop
 
   const getRelevantTrophies = (trophies: TrophyRecord[], cat: string) => {
     return trophies.filter(t => {
+      if (cat === "Torneos Extras") {
+        return t.tournament?.isOfficial === false;
+      }
+      
+      // If it's looking for official tournaments but this is extra, skip
+      if (t.tournament && t.tournament.isOfficial === false) return false;
+
       const tCat = t.tournament?.category?.name;
       if (tCat) return tCat === cat;
       

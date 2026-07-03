@@ -804,17 +804,31 @@ export async function assignTournamentPodium(formData: FormData) {
   const secondId = formData.get("secondId") as string | null;
   const thirdId = formData.get("thirdId") as string | null;
 
+  const topScorerId = formData.get("topScorerId") as string | null;
+  const topAssisterId = formData.get("topAssisterId") as string | null;
+  const bestGkId = formData.get("bestGkId") as string | null;
+  const mvpId = formData.get("mvpId") as string | null;
+
   try {
-    // 1. Delete all old podium trophies for this tournament to allow fixing errors (efecto cascada)
+    // 1. Delete all old podium and individual trophies for this tournament to allow fixing errors (efecto cascada)
     await prisma.trophy.deleteMany({
       where: {
         tournamentId,
         name: {
-          in: ["Campeón (1er Puesto)", "Subcampeón (2do Puesto)", "Tercer Puesto (3ro)"]
+          in: [
+            "Campeón (1er Puesto)", 
+            "Subcampeón (2do Puesto)", 
+            "Tercer Puesto (3ro)",
+            "Máximo Goleador",
+            "Máximo Asistidor",
+            "Mejor Arquero (Valla Invicta)",
+            "MVP del Torneo"
+          ]
         }
       }
     });
 
+    // 2. Team placements
     const placements = [
       { teamId: firstId, name: "Campeón (1er Puesto)" },
       { teamId: secondId, name: "Subcampeón (2do Puesto)" },
@@ -824,7 +838,7 @@ export async function assignTournamentPodium(formData: FormData) {
     for (const place of placements) {
       if (!place.teamId) continue;
 
-      // Give trophy to the team
+      // Give collective trophy to the team
       await prisma.trophy.create({
         data: {
           name: place.name,
@@ -833,15 +847,28 @@ export async function assignTournamentPodium(formData: FormData) {
           teamId: place.teamId
         }
       });
+    }
 
-      // Find the roster
-      const tt = await prisma.tournamentTeam.findUnique({
-        where: { tournamentId_teamId: { tournamentId, teamId: place.teamId } },
-        include: { players: true }
+    // 3. Individual Awards
+    const individualAwards = [
+      { playerId: topScorerId, name: "Máximo Goleador" },
+      { playerId: topAssisterId, name: "Máximo Asistidor" },
+      { playerId: bestGkId, name: "Mejor Arquero (Valla Invicta)" },
+      { playerId: mvpId, name: "MVP del Torneo" }
+    ];
+
+    for (const award of individualAwards) {
+      if (!award.playerId) continue;
+
+      // Give individual trophy to the player
+      await prisma.trophy.create({
+        data: {
+          name: award.name,
+          type: "PLAYER",
+          tournamentId,
+          playerId: award.playerId
+        }
       });
-
-      // No need to create individual trophies because the player profile automatically 
-      // fetches team trophies via collectiveTrophies (which also adds the "con Equipo" label).
     }
 
     revalidatePath(`/admin/temporadas/${tournamentId}`);

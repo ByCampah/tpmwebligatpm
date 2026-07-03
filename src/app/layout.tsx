@@ -45,18 +45,22 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-transparent`}
       >
-        <div className="fixed inset-0 z-[-1] bg-[#050505] overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[120px] animate-pulse-slow"></div>
-          <div className="absolute top-[60%] -right-[10%] w-[60%] h-[60%] rounded-full bg-blue-900/20 blur-[150px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        <div className="fixed inset-0 z-[-1] bg-[#000000] overflow-hidden pointer-events-none">
+          {/* Animated gradient orbs */}
+          <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-600/20 blur-[120px] mix-blend-screen animate-pulse-slow"></div>
+          <div className="absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-blue-700/20 blur-[150px] mix-blend-screen animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-[40%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-purple-600/10 blur-[100px] mix-blend-screen animate-pulse-slow" style={{ animationDelay: '4s' }}></div>
+          {/* Grid overlay for texture */}
+          <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
         </div>
 
-        <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl sticky top-0 z-50 shadow-2xl">
+        <header className="border-b border-white/5 bg-black/50 backdrop-blur-2xl sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
           <div className="container mx-auto px-4 h-20 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all duration-300">
-                <img src="/img/logos/LogoTPM.png" alt="Logo TPM" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 overflow-hidden shadow-[0_0_15px_rgba(16,185,129,0.4)] bg-black/80">
+                <img src="/img/logos/LogoTPM.png" alt="Logo TPM" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
               </div>
-              <span className="font-black text-2xl tracking-tighter hidden sm:block group-hover:neon-text transition-all duration-300">Liga TPM</span>
+              <span className="font-black text-3xl tracking-tighter hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 drop-shadow-lg group-hover:neon-text transition-all duration-300">Liga TPM</span>
             </Link>
             
             <div className="flex-1 flex justify-center hidden lg:flex">
