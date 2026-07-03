@@ -66,12 +66,14 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   // Group Plantillas by Season
   const tournamentsBySeason: Record<string, typeof team.tournaments> = {};
   team.tournaments.forEach(t => {
-    const sName = t.tournament.season?.name || "Sin Temporada";
+    const sName = t.tournament.isOfficial ? (t.tournament.season?.name || "Sin Temporada") : "Torneos Extras (No Oficiales)";
     if (!tournamentsBySeason[sName]) tournamentsBySeason[sName] = [];
     tournamentsBySeason[sName].push(t);
   });
 
   const sortedSeasons = Object.keys(tournamentsBySeason).sort((a, b) => {
+    if (a.includes("Extras")) return 1;
+    if (b.includes("Extras")) return -1;
     const numA = parseInt(a.replace(/\D/g, "")) || 0;
     const numB = parseInt(b.replace(/\D/g, "")) || 0;
     return numB - numA; // Sort descending (newest season first)
@@ -90,7 +92,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
         </div>
         <div className="flex flex-col z-10">
           <span className={`font-black ${styles.textClass} uppercase tracking-wider`}>{trofeo.name}</span>
-          <span className="text-xs text-muted-foreground">{trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.season?.name || ''}` : 'Histórico'}</span>
+          <span className="text-xs text-muted-foreground">{trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : 'Histórico'}</span>
         </div>
       </div>
     );
