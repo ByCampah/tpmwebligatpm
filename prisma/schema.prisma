@@ -161,8 +161,9 @@ model Tournament {
   id        String   @id @default(cuid())
   name      String
   format    String   @default("LEAGUE") // LEAGUE, CUP, PLAYOFF
-  seasonId  String
-  season    Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  seasonId  String?
+  season    Season?   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  isOfficial Boolean  @default(true)
   
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)

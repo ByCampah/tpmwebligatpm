@@ -42,6 +42,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/admin/temporadas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
               Temporadas y Torneos
             </Link>
+            <Link href="/admin/torneos-extra" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+              Torneos Extras
+            </Link>
             <Link href="/admin/graficas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
               Generador Gráfico
             </Link>

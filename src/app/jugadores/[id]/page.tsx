@@ -103,8 +103,11 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   // Filtrar partidos donde no jugó (minutos y gkTime en 0)
   const validStatsObj = jugador.matchStats.filter(s => (s.matchTime || 0) > 0 || (s.gkTime || 0) > 0);
 
-  const clubStatsObj = validStatsObj.filter(s => !getIsNationalStat(s));
-  const natStatsObj = validStatsObj.filter(s => getIsNationalStat(s));
+  const officialStatsObj = validStatsObj.filter(s => s.match.tournament.isOfficial !== false);
+  const extraStatsObj = validStatsObj.filter(s => s.match.tournament.isOfficial === false);
+
+  const clubStatsObj = officialStatsObj.filter(s => !getIsNationalStat(s));
+  const natStatsObj = officialStatsObj.filter(s => getIsNationalStat(s));
 
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
@@ -406,6 +409,40 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 penaltiesSaved: s.penaltiesSaved || 0,
                 penaltiesConceded: s.penaltiesConceded || 0,
                 categoryName: s.match?.tournament?.category?.name || "Sin Categoría"
+              }))} />
+            </>
+          )}
+
+          {extraStatsObj.length > 0 && (
+            <>
+              <h2 className="text-lg font-bold text-blue-400 uppercase tracking-wider border-b border-border pb-2 mt-4">Torneos Extras (No Oficiales)</h2>
+              <PlayerMetricsClient matchStats={extraStatsObj.map(s => ({
+                goals: (s.goals || 0) + (s.freeKickGoals || 0) + (s.penaltyGoals || 0),
+                assists: s.assists,
+                teamPoints: s.teamPoints,
+                matchTime: s.matchTime,
+                passesMade: s.passesMade,
+                passesTotal: s.passesTotal,
+                slidingMade: s.slidingMade,
+                slidingTotal: s.slidingTotal,
+                fouls: s.fouls,
+                ballLosses: s.ballLosses,
+                gkTime: s.gkTime,
+                shotsMade: s.shotsMade,
+                shotsTotal: s.shotsTotal,
+                headersMade: s.headersMade,
+                headersTotal: s.headersTotal,
+                tacklesWon: s.tacklesWon,
+                fouled: s.fouled,
+                offsides: s.offsides,
+                savesMade: s.savesMade,
+                savesTotal: s.savesTotal,
+                redCards: s.redCards || 0,
+                freeKickGoals: s.freeKickGoals || 0,
+                penaltyGoals: s.penaltyGoals || 0,
+                penaltiesSaved: s.penaltiesSaved || 0,
+                penaltiesConceded: s.penaltiesConceded || 0,
+                categoryName: s.match?.tournament?.name || "Torneo Extra"
               }))} />
             </>
           )}

@@ -40,31 +40,40 @@ export default async function JugadoresPage() {
 
   const jugadoresStats = jugadores.map(p => {
     const compStats: Record<string, { pj: number, goles: number, asistencias: number }> = {
-      "Global": { pj: 0, goles: 0, asistencias: 0 }
+      "Global": { pj: 0, goles: 0, asistencias: 0 },
+      "Torneos Extra (No Oficial)": { pj: 0, goles: 0, asistencias: 0 }
     };
 
     p.matchStats.forEach(stat => {
       const matchPj = stat.match.round === "Estadísticas Históricas" ? (stat.matchTime || 1) : 1;
       
-      // Global stats
-      compStats["Global"].pj += matchPj;
-      compStats["Global"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
-      compStats["Global"].asistencias += stat.assists;
+      const isOfficial = stat.match.tournament.isOfficial;
 
-      // Extract base competition name from the database schema field directly!
-      const comp = stat.match.tournament.category?.name || "General";
-      
-      if (!compStats[comp]) {
-        compStats[comp] = { pj: 0, goles: 0, asistencias: 0 };
+      if (isOfficial) {
+        // Global stats
+        compStats["Global"].pj += matchPj;
+        compStats["Global"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+        compStats["Global"].asistencias += stat.assists;
+
+        // Extract base competition name from the database schema field directly!
+        const comp = stat.match.tournament.category?.name || "General";
+        
+        if (!compStats[comp]) {
+          compStats[comp] = { pj: 0, goles: 0, asistencias: 0 };
+        }
+        compStats[comp].pj += matchPj;
+        compStats[comp].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+        compStats[comp].asistencias += stat.assists;
+      } else {
+        compStats["Torneos Extra (No Oficial)"].pj += matchPj;
+        compStats["Torneos Extra (No Oficial)"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+        compStats["Torneos Extra (No Oficial)"].asistencias += stat.assists;
       }
-      compStats[comp].pj += matchPj;
-      compStats[comp].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
-      compStats[comp].asistencias += stat.assists;
     });
     
     // Get the active season club
     const activeSeasonTeam = p.tournamentTeams.find(tt => 
-      tt.tournamentTeam.tournament.season.isActive && !tt.tournamentTeam.team.isNationalTeam
+      tt.tournamentTeam.tournament.season?.isActive && !tt.tournamentTeam.team.isNationalTeam
     );
     
     const lastTeam = activeSeasonTeam 
@@ -78,7 +87,7 @@ export default async function JugadoresPage() {
     // Check if called up in active season
     const isCalledUp = p.tournamentTeams.some(tt => 
       tt.tournamentTeam.team.isNationalTeam && 
-      tt.tournamentTeam.tournament.season.isActive
+      tt.tournamentTeam.tournament.season?.isActive
     );
 
     return {

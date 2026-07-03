@@ -465,13 +465,24 @@ export async function createTournament(formData: FormData) {
   const format = formData.get("format") as string;
   const categoryId = formData.get("categoryId") as string;
   const bracketImageUrl = formData.get("bracketImageUrl") as string;
+  const isOfficialStr = formData.get("isOfficial") as string;
+
+  const isOfficial = isOfficialStr === "false" ? false : true;
 
   await prisma.tournament.create({
-    data: { seasonId, name, format, categoryId: categoryId || null, bracketImageUrl: bracketImageUrl || null }
+    data: { 
+      seasonId: seasonId || null, 
+      name, 
+      format, 
+      categoryId: categoryId || null, 
+      bracketImageUrl: bracketImageUrl || null,
+      isOfficial
+    }
   });
 
   revalidatePath("/admin/temporadas");
-  await createAdminLog("Crear Torneo", `Creó el torneo: ${name} en Temporada ID: ${seasonId}`);
+  revalidatePath("/admin/torneos-extra");
+  await createAdminLog("Crear Torneo", `Creó el torneo: ${name} (Oficial: ${isOfficial})`);
   return { success: true };
 }
 
@@ -502,7 +513,6 @@ export async function deleteTournament(tournamentId: string) {
   const session = await auth();
   if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
-
   try {
     await prisma.tournament.delete({
       where: { id: tournamentId }
@@ -511,6 +521,7 @@ export async function deleteTournament(tournamentId: string) {
     await createAdminLog("Eliminar Torneo", `Eliminó el torneo ID: ${tournamentId}`);
     
     revalidatePath("/admin/temporadas");
+    revalidatePath("/admin/torneos-extra");
     revalidatePath("/liga");
     return { success: true };
   } catch (e: any) {
