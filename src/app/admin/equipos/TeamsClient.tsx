@@ -100,18 +100,27 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
                 </button>
               </div>
             </div>
-          </div>
+            <div>
+              <label className="block text-sm font-bold text-muted-foreground mb-1">URL del Banner (Portada) (Opcional)</label>
+              <input 
+                name="bannerUrl" 
+                type="text" 
+                defaultValue={editMode?.bannerUrl || ""}
+                className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" 
+                placeholder="Ej: https://..." 
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-bold text-muted-foreground mb-1">Cuenta Capitán (Opcional)</label>
-            <SearchableSelect
-              name="captainId"
-              options={users.map(u => ({ value: u.id, label: u.nickName || u.name || "Usuario Desconocido" }))}
-              defaultValue={editMode?.captainId || ""}
-              placeholder="-- Sin capitán asignado --"
-            />
-            <p className="text-xs text-muted-foreground mt-1">Asigna a un usuario registrado para que sea el manager del equipo.</p>
-          </div>
+            <div>
+              <label className="block text-sm font-bold text-muted-foreground mb-1">Cuenta Capitán (Opcional)</label>
+              <SearchableSelect
+                name="captainId"
+                options={users.map(u => ({ value: u.id, label: u.nickName || u.name || "Usuario Desconocido" }))}
+                defaultValue={editMode?.captainId || ""}
+                placeholder="-- Sin capitán asignado --"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Asigna a un usuario registrado para que sea el manager del equipo.</p>
+            </div>
 
           <div className="flex gap-2 mt-2">
             <button disabled={loading} type="submit" className="flex-1 bg-primary text-primary-foreground font-black py-3 rounded-lg hover:bg-primary/90 transition-colors">

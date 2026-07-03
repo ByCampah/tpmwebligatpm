@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { getDictionary } from "@/i18n/getDictionary";
 import HeadToHeadClient from "./HeadToHeadClient";
 import { getTournamentStyles, getTrophyCategory } from "@/lib/colors";
+import TeamConfetti from "@/components/TeamConfetti";
 
 export const dynamicParams = false;
 
@@ -31,11 +32,11 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
         }
       },
       homeMatches: {
-        include: { awayTeam: true, tournament: true },
+        include: { awayTeam: true, tournament: true, stats: { include: { player: true } } },
         orderBy: { matchDate: "desc" }
       },
       awayMatches: {
-        include: { homeTeam: true, tournament: true },
+        include: { homeTeam: true, tournament: true, stats: { include: { player: true } } },
         orderBy: { matchDate: "desc" }
       },
       trophies: {
@@ -57,6 +58,59 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
     .filter(m => m.round !== "Estadísticas Históricas")
     .sort((a, b) => new Date(b.matchDate || 0).getTime() - new Date(a.matchDate || 0).getTime())
     .slice(0, 5);
+
+  // Compute Overall Team Stats
+  let officialPJ = 0, officialG = 0, officialA = 0;
+  let extraPJ = 0, extraG = 0, extraA = 0;
+
+  allMatches.forEach(match => {
+    if (match.status !== "PLAYED") return;
+    const isOfficial = match.tournament.isOfficial;
+    const isHome = match.homeTeamId === team.id;
+    
+    if (isOfficial) {
+      officialPJ++;
+      officialG += isHome ? (match.homeScore || 0) : (match.awayScore || 0);
+      officialA += isHome ? (match.awayScore || 0) : (match.homeScore || 0);
+    } else {
+      extraPJ++;
+      extraG += isHome ? (match.homeScore || 0) : (match.awayScore || 0);
+      extraA += isHome ? (match.awayScore || 0) : (match.homeScore || 0);
+    }
+  });
+
+  // Calculate player records for this team
+  const playerStatsMap = new Map<string, { player: any, goals: number, assists: number, appearances: number, cleanSheets: number }>();
+  
+  allMatches.forEach(match => {
+    if (match.status !== "PLAYED") return;
+    
+    // Find players enrolled in this team for this tournament
+    const tournamentTeam = team.tournaments.find(t => t.tournamentId === match.tournamentId);
+    if (!tournamentTeam) return;
+
+    const enrolledPlayerIds = new Set(tournamentTeam.players.map(p => p.playerId));
+
+    match.stats.forEach(stat => {
+      if (!enrolledPlayerIds.has(stat.playerId)) return;
+      
+      let pData = playerStatsMap.get(stat.playerId);
+      if (!pData) {
+        pData = { player: stat.player, goals: 0, assists: 0, appearances: 0, cleanSheets: 0 };
+        playerStatsMap.set(stat.playerId, pData);
+      }
+      pData.goals += stat.goals;
+      pData.assists += stat.assists;
+      if (stat.matchTime > 0) pData.appearances++;
+      if (stat.cleanSheet) pData.cleanSheets++;
+    });
+  });
+
+  const playerRecordsArray = Array.from(playerStatsMap.values());
+  const topScorer = playerRecordsArray.sort((a, b) => b.goals - a.goals)[0];
+  const topAssister = playerRecordsArray.sort((a, b) => b.assists - a.assists)[0];
+  const mostAppearances = playerRecordsArray.sort((a, b) => b.appearances - a.appearances)[0];
+  const mostCleanSheets = playerRecordsArray.filter(p => p.cleanSheets > 0).sort((a, b) => b.cleanSheets - a.cleanSheets)[0];
 
   // Group Trophies
   const campeon = team.trophies.filter(t => getTrophyCategory(t.name) === "CAMPEON");
@@ -100,25 +154,99 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-12">
+      <TeamConfetti hasTrophies={campeon.length > 0} />
       <Link href="/equipos" className="text-primary hover:underline flex items-center gap-2 w-fit">
         <span>←</span> {t.teams.back}
       </Link>
       
       {/* HEADER PERFIL */}
-      <div className="relative bg-card border border-border rounded-2xl p-8 overflow-hidden shadow-lg flex flex-col md:flex-row items-center md:items-start gap-8">
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent pointer-events-none"></div>
-        <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center p-4 border-4 border-card shadow-[0_0_20px_rgba(16,185,129,0.3)] z-10">
-          {team.logoUrl ? (
-            <img src={team.logoUrl} alt={team.name} className="w-full h-full object-contain" />
+      <div className="relative bg-card border border-border rounded-2xl overflow-hidden shadow-lg flex flex-col items-center md:items-start group">
+        {/* BANNER */}
+        <div className="w-full h-48 md:h-64 bg-secondary/50 relative overflow-hidden">
+          {team.bannerUrl ? (
+             <img src={team.bannerUrl} alt="Banner" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
           ) : (
-            <span className="text-6xl font-black text-muted-foreground">{team.name.charAt(0)}</span>
+             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-black to-black opacity-80"></div>
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent"></div>
         </div>
-        <div className="flex flex-col items-center md:items-start justify-center h-full z-10 py-4">
-          <h1 className="text-4xl md:text-6xl font-black neon-text text-center md:text-left">{team.name}</h1>
-          <p className="text-muted-foreground mt-2 font-bold flex items-center gap-2 text-sm md:text-base">
-            Capitán: <span className="text-primary">{team.captain?.nickName || team.captain?.name || "Sin asignar"}</span>
-          </p>
+        
+        {/* INFO EQUIPO */}
+        <div className="relative -mt-20 md:-mt-24 px-8 pb-8 flex flex-col md:flex-row items-center md:items-end gap-6 w-full z-10">
+          <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center p-4 border-4 border-card shadow-[0_0_20px_rgba(16,185,129,0.3)] overflow-hidden bg-black/80 backdrop-blur-md">
+            {team.logoUrl ? (
+              <img src={team.logoUrl} alt={team.name} className="w-full h-full object-contain" />
+            ) : (
+              <span className="text-6xl font-black text-muted-foreground">{team.name.charAt(0)}</span>
+            )}
+          </div>
+          <div className="flex flex-col items-center md:items-start flex-1 md:mb-4">
+            <h1 className="text-4xl md:text-5xl font-black neon-text text-center md:text-left drop-shadow-lg leading-tight">{team.name}</h1>
+            <p className="text-muted-foreground mt-3 font-bold flex items-center gap-2 text-sm md:text-base bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-sm w-fit mx-auto md:mx-0 shadow-lg">
+              👑 Capitán: <span className="text-primary">{team.captain?.nickName || team.captain?.name || "Sin asignar"}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ESTADÍSTICAS E HISTÓRICOS */}
+      <div className="grid lg:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2 border-b border-border pb-2">
+            <span className="w-2 h-6 bg-blue-500 rounded-full inline-block"></span>
+            Estadísticas Globales
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1 items-center justify-center shadow-lg group hover:border-blue-500/50 transition-colors">
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center">Torneos Oficiales</span>
+              <div className="flex gap-4 mt-2">
+                <div className="flex flex-col items-center"><span className="text-2xl font-black text-blue-400">{officialPJ}</span><span className="text-[10px] text-muted-foreground">PJ</span></div>
+                <div className="flex flex-col items-center"><span className="text-2xl font-black text-blue-400">{officialG}</span><span className="text-[10px] text-muted-foreground">GF</span></div>
+                <div className="flex flex-col items-center"><span className="text-2xl font-black text-blue-400">{officialA}</span><span className="text-[10px] text-muted-foreground">GC</span></div>
+              </div>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1 items-center justify-center shadow-lg group hover:border-amber-500/50 transition-colors">
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center">Torneos Extras</span>
+              <div className="flex gap-4 mt-2">
+                <div className="flex flex-col items-center"><span className="text-2xl font-black text-amber-400">{extraPJ}</span><span className="text-[10px] text-muted-foreground">PJ</span></div>
+                <div className="flex flex-col items-center"><span className="text-2xl font-black text-amber-400">{extraG}</span><span className="text-[10px] text-muted-foreground">GF</span></div>
+                <div className="flex flex-col items-center"><span className="text-2xl font-black text-amber-400">{extraA}</span><span className="text-[10px] text-muted-foreground">GC</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2 border-b border-border pb-2">
+            <span className="w-2 h-6 bg-emerald-500 rounded-full inline-block"></span>
+            Líderes Históricos
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Máximo Goleador</span>
+              {topScorer && topScorer.goals > 0 ? (
+                <div className="flex justify-between items-center"><Link href={`/jugadores/${topScorer.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{topScorer.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{topScorer.goals} ⚽</span></div>
+              ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
+            </div>
+            <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Máximo Asistidor</span>
+              {topAssister && topAssister.assists > 0 ? (
+                <div className="flex justify-between items-center"><Link href={`/jugadores/${topAssister.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{topAssister.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{topAssister.assists} 👟</span></div>
+              ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
+            </div>
+            <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Más Presencias</span>
+              {mostAppearances && mostAppearances.appearances > 0 ? (
+                <div className="flex justify-between items-center"><Link href={`/jugadores/${mostAppearances.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{mostAppearances.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{mostAppearances.appearances} 🏃</span></div>
+              ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
+            </div>
+            <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Vallas Invictas</span>
+              {mostCleanSheets && mostCleanSheets.cleanSheets > 0 ? (
+                <div className="flex justify-between items-center"><Link href={`/jugadores/${mostCleanSheets.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{mostCleanSheets.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{mostCleanSheets.cleanSheets} 🧤</span></div>
+              ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
+            </div>
+          </div>
         </div>
       </div>
 

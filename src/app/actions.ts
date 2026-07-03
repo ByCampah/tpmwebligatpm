@@ -263,6 +263,7 @@ export async function createTeam(formData: FormData) {
   try {
     const name = formData.get("name") as string;
     const logoUrl = formData.get("logoUrl") as string;
+    const bannerUrl = formData.get("bannerUrl") as string;
     const captainId = formData.get("captainId") as string;
     const isNationalTeam = formData.get("isNationalTeam") === "true";
 
@@ -270,6 +271,7 @@ export async function createTeam(formData: FormData) {
       data: {
         name,
         logoUrl: logoUrl || null,
+        bannerUrl: bannerUrl || null,
         captainId: captainId || null,
         isNationalTeam
       }
@@ -294,6 +296,7 @@ export async function editTeam(formData: FormData) {
     const id = formData.get("id") as string;
     const name = formData.get("name") as string;
     const logoUrl = formData.get("logoUrl") as string;
+    const bannerUrl = formData.get("bannerUrl") as string;
     const captainId = formData.get("captainId") as string;
     const isNationalTeam = formData.get("isNationalTeam") === "true";
 
@@ -302,6 +305,7 @@ export async function editTeam(formData: FormData) {
       data: {
         name,
         logoUrl: logoUrl || null,
+        bannerUrl: bannerUrl || null,
         captainId: captainId || null,
         isNationalTeam
       }

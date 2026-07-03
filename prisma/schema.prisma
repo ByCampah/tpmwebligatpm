@@ -116,6 +116,7 @@ model Team {
   id               String  @id @default(uuid())
   name             String  @unique
   logoUrl          String?
+  bannerUrl        String?
   
   // Team Captain / Manager
   captainId        String?

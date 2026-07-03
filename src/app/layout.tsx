@@ -43,9 +43,14 @@ export default async function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-transparent`}
       >
-        <header className="border-b border-border/50 bg-card/60 backdrop-blur-xl sticky top-0 z-50">
+        <div className="fixed inset-0 z-[-1] bg-[#050505] overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[120px] animate-pulse-slow"></div>
+          <div className="absolute top-[60%] -right-[10%] w-[60%] h-[60%] rounded-full bg-blue-900/20 blur-[150px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        </div>
+
+        <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl sticky top-0 z-50 shadow-2xl">
           <div className="container mx-auto px-4 h-20 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="w-12 h-12 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all duration-300">
