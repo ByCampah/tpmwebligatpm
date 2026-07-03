@@ -81,9 +81,9 @@ export default function TrofeosView({ teams, dictionary }: { teams: TeamWithTrop
   const getRankedTeams = () => {
     const ranked = teams.filter(t => t.name.toLowerCase().includes(searchTerm.toLowerCase())).map(team => {
       const relevantTrophies = getRelevantTrophies(team.trophies, activeTab);
-      const firsts = relevantTrophies.filter(t => t.name === "Campeón");
-      const seconds = relevantTrophies.filter(t => t.name === "Subcampeón");
-      const thirds = relevantTrophies.filter(t => t.name === "3er Puesto");
+      const firsts = relevantTrophies.filter(t => t.name.includes("Campeón"));
+      const seconds = relevantTrophies.filter(t => t.name.includes("Subcampeón"));
+      const thirds = relevantTrophies.filter(t => t.name.includes("Tercer Puesto") || t.name.includes("3er Puesto"));
       
       return {
         ...team,

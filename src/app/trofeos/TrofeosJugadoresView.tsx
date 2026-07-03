@@ -81,9 +81,9 @@ export default function TrofeosJugadoresView({ players, dictionary }: { players:
       const relevantTrophies = getRelevantTrophies(player.trophies, activeTab);
       
       const teamTrophies = relevantTrophies.filter(t => !t.name.includes("Goleador") && !t.name.includes("Asistidor") && !t.name.includes("Mejor GK") && !t.name.includes("Valla Invicta"));
-      const firsts = teamTrophies.filter(t => t.name === "Campeón");
-      const seconds = teamTrophies.filter(t => t.name === "Subcampeón");
-      const thirds = teamTrophies.filter(t => t.name === "3er Puesto");
+      const firsts = teamTrophies.filter(t => t.name.includes("Campeón"));
+      const seconds = teamTrophies.filter(t => t.name.includes("Subcampeón"));
+      const thirds = teamTrophies.filter(t => t.name.includes("Tercer Puesto") || t.name.includes("3er Puesto"));
       
       const goleador = relevantTrophies.filter(t => t.name.includes("Goleador"));
       const asistidor = relevantTrophies.filter(t => t.name.includes("Asistidor"));
