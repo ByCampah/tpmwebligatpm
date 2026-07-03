@@ -230,14 +230,17 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
 
               return (
                 <div key={match.id} className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <span className={`w-6 h-6 flex items-center justify-center rounded font-bold text-xs bg-card border border-border ${resultClass}`}>
-                      {resultText}
-                    </span>
-                    <span className="text-xs text-muted-foreground w-8">{isHome ? '(L)' : '(V)'}</span>
-                    <Link href={`/partidos/${match.id}`} className="font-bold truncate max-w-[120px] sm:max-w-[200px] hover:text-primary hover:underline transition-colors">
-                      vs {opponent.name}
-                    </Link>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">{(match as any).tournament?.name || "Sin Torneo"}</span>
+                    <div className="flex items-center gap-4">
+                      <span className={`w-6 h-6 flex items-center justify-center rounded font-bold text-xs bg-card border border-border ${resultClass}`}>
+                        {resultText}
+                      </span>
+                      <span className="text-xs text-muted-foreground w-8">{isHome ? '(L)' : '(V)'}</span>
+                      <Link href={`/partidos/${match.id}`} className="font-bold truncate max-w-[120px] sm:max-w-[200px] hover:text-primary hover:underline transition-colors">
+                        vs {opponent.name}
+                      </Link>
+                    </div>
                   </div>
                   
                   {match.status === 'PLAYED' ? (

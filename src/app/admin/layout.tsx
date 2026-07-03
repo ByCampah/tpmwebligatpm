@@ -31,51 +31,51 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <h2 className="font-black text-xl text-primary mb-4 border-b border-border pb-2">Panel Admin</h2>
           
           <nav className="flex flex-col gap-2">
-            <Link href="/admin" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Inicio Admin
+            <Link href="/admin" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2">
+              <span>🏠</span> Inicio Admin
             </Link>
 
-            <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Operaciones</div>
-            <Link href="/admin/noticias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Publicar Noticias
+            <div className="text-xs font-black text-blue-400 uppercase mt-4 mb-2 px-4 tracking-wider flex items-center gap-2"><span>⚙️</span> Operaciones</div>
+            <Link href="/admin/noticias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-blue-300 hover:bg-blue-900/30 transition-colors flex items-center gap-2">
+              <span>📰</span> Publicar Noticias
             </Link>
-            <Link href="/admin/temporadas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Temporadas y Torneos
+            <Link href="/admin/temporadas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-blue-300 hover:bg-blue-900/30 transition-colors flex items-center gap-2">
+              <span>🏆</span> Temporadas y Torneos
             </Link>
-            <Link href="/admin/torneos-extra" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Torneos Extras
+            <Link href="/admin/torneos-extra" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-blue-300 hover:bg-blue-900/30 transition-colors flex items-center gap-2">
+              <span>⚡</span> Torneos Extras
             </Link>
-            <Link href="/admin/graficas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-              Generador Gráfico
+            <Link href="/admin/graficas" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-blue-300 hover:bg-blue-900/30 transition-colors flex items-center gap-2">
+              <span>🎨</span> Generador Gráfico
             </Link>
 
             {session.user.role === "ADMIN" && (
               <>
-                <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Base de Datos</div>
-                <Link href="/admin/equipos" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Gestión de Clubes
+                <div className="text-xs font-black text-emerald-400 uppercase mt-4 mb-2 px-4 tracking-wider flex items-center gap-2"><span>🗄️</span> Base de Datos</div>
+                <Link href="/admin/equipos" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-emerald-300 hover:bg-emerald-900/30 transition-colors flex items-center gap-2">
+                  <span>🛡️</span> Gestión de Clubes
                 </Link>
-                <Link href="/admin/selecciones" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Gestión de Selecciones
+                <Link href="/admin/selecciones" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-emerald-300 hover:bg-emerald-900/30 transition-colors flex items-center gap-2">
+                  <span>🌎</span> Gestión de Selecciones
                 </Link>
-                <Link href="/admin/jugadores" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Gestión de Jugadores
+                <Link href="/admin/jugadores" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-emerald-300 hover:bg-emerald-900/30 transition-colors flex items-center gap-2">
+                  <span>🏃</span> Gestión de Jugadores
                 </Link>
-                <Link href="/admin/categorias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Gestión de Categorías
+                <Link href="/admin/categorias" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-emerald-300 hover:bg-emerald-900/30 transition-colors flex items-center gap-2">
+                  <span>🏷️</span> Gestión de Categorías
                 </Link>
-                <Link href="/admin/usuarios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Cuentas y Roles
-                </Link>
-
-                <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Premios</div>
-                <Link href="/admin/premios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Asignar Premios
+                <Link href="/admin/usuarios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-emerald-300 hover:bg-emerald-900/30 transition-colors flex items-center gap-2">
+                  <span>👥</span> Cuentas y Roles
                 </Link>
 
-                <div className="text-xs font-bold text-muted-foreground uppercase mt-4 mb-2 px-4">Seguridad</div>
-                <Link href="/admin/logs" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
-                  Registro de Acciones (Logs)
+                <div className="text-xs font-black text-amber-400 uppercase mt-4 mb-2 px-4 tracking-wider flex items-center gap-2"><span>🥇</span> Premios</div>
+                <Link href="/admin/premios" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-amber-300 hover:bg-amber-900/30 transition-colors flex items-center gap-2">
+                  <span>🎁</span> Asignar Premios
+                </Link>
+
+                <div className="text-xs font-black text-red-400 uppercase mt-4 mb-2 px-4 tracking-wider flex items-center gap-2"><span>🔒</span> Seguridad</div>
+                <Link href="/admin/logs" className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-red-300 hover:bg-red-900/30 transition-colors flex items-center gap-2">
+                  <span>📋</span> Registro de Acciones (Logs)
                 </Link>
               </>
             )}
