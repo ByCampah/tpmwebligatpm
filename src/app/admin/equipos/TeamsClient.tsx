@@ -121,6 +121,7 @@ export default function TeamsClient({ teams, users }: { teams: any[], users: any
               />
               <p className="text-xs text-muted-foreground mt-1">Asigna a un usuario registrado para que sea el manager del equipo.</p>
             </div>
+          </div>
 
           <div className="flex gap-2 mt-2">
             <button disabled={loading} type="submit" className="flex-1 bg-primary text-primary-foreground font-black py-3 rounded-lg hover:bg-primary/90 transition-colors">
