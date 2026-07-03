@@ -25,6 +25,7 @@ const navLinks = [
   { name: 'Noticias', href: '/noticias' },
   { name: 'Liga Actual', href: '/liga' },
   { name: 'Historial', href: '/historial' },
+  { name: 'Extras', href: '/extras' },
   { name: 'Trofeos', href: '/trofeos' },
   { name: 'Equipos', href: '/equipos' },
   { name: 'Selecciones', href: '/selecciones' },

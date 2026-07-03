@@ -92,6 +92,9 @@ export default function ExtraTournamentsClient({ tournaments, categories, userRo
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-2">
+                  <Link href={`/admin/temporadas/${t.id}`} className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
+                    Editar
+                  </Link>
                   <Link href={`/extras/${t.id}`} className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-xs font-bold hover:bg-blue-500/30 transition-colors">
                     <ExternalLink className="w-3 h-3" /> Ver Público
                   </Link>
