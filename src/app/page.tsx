@@ -18,6 +18,10 @@ export default async function Home() {
     }
   });
 
+  const activeExtra = await prisma.tournament.findFirst({
+    where: { isActiveExtra: true }
+  });
+
   const championsRaw = await prisma.trophy.groupBy({
     by: ['teamId'],
     where: { name: 'Campeón', type: 'TEAM', tournament: { name: 'Primera Division' } },
@@ -53,10 +57,16 @@ export default async function Home() {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
           TPM Football es un juego donde vos manejas tu propio jugador, que estas esperando? Unite a la comunidad!
         </p>
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-col items-center justify-center gap-4">
           <a href="https://dl.dropboxusercontent.com/s/rud9i5kqrabsajy/TPM.rar?dl=0" target="_blank" rel="noreferrer" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center gap-2 text-lg">
             ⬇ DESCARGAR JUEGO
           </a>
+          
+          {activeExtra && (
+            <Link href="/extras" className="mt-4 px-6 py-3 bg-secondary/80 text-white font-bold rounded-full border border-primary/50 hover:bg-secondary transition-colors shadow-[0_0_10px_rgba(16,185,129,0.2)] hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] animate-pulse hover:animate-none flex items-center gap-2">
+              🏆 Torneo Extra en Curso: {activeExtra.name}
+            </Link>
+          )}
         </div>
       </section>
 
