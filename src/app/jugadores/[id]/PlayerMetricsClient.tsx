@@ -24,7 +24,7 @@ export default function PlayerMetricsClient({ matchStats }: { matchStats: any[] 
     : matchStats.filter(stat => (stat.categoryName || "Sin Categoría") === selectedCategory);
 
   const totals = filteredStats.reduce((acc, stat) => {
-    acc.goals += stat.goals || 0;
+    acc.goals += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
     acc.assists += stat.assists || 0;
     acc.teamPoints += stat.teamPoints || 0;
     acc.matchTime += stat.matchTime || 0;

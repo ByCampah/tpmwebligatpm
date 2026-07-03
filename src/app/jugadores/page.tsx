@@ -48,7 +48,7 @@ export default async function JugadoresPage() {
       
       // Global stats
       compStats["Global"].pj += matchPj;
-      compStats["Global"].goles += stat.goals;
+      compStats["Global"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
       compStats["Global"].asistencias += stat.assists;
 
       // Extract base competition name from the database schema field directly!
@@ -58,7 +58,7 @@ export default async function JugadoresPage() {
         compStats[comp] = { pj: 0, goles: 0, asistencias: 0 };
       }
       compStats[comp].pj += matchPj;
-      compStats[comp].goles += stat.goals;
+      compStats[comp].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
       compStats[comp].asistencias += stat.assists;
     });
     
