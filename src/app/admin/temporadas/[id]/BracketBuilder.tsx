@@ -34,7 +34,7 @@ export default function BracketBuilder({ tournamentId, enrolledTeamsData, initia
   const [bracket, setBracket] = useState<any>(initialData || defaultBracket);
 
   const handleSizeChange = (size: number) => {
-    let rounds = [];
+    let rounds: any[] = [];
     if (size === 4) {
       rounds = [
         { name: "Semifinal", matches: Array(2).fill(null).map((_, i) => ({ id: `s${i+1}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" })) },
