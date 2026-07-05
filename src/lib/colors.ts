@@ -1,8 +1,11 @@
 export function getTournamentStyles(trophyName: string, tournamentName: string) {
   const combined = `${trophyName} ${tournamentName}`.toLowerCase();
   const isCampeon = combined.includes("campeon") || combined.includes("campeón");
-  const isSub = combined.includes("subcampeon") || combined.includes("subcampeón");
+  const isSub = combined.includes("subcampeon") || combined.includes("subcampeón") || combined.includes("2do") || combined.includes("segundo");
+  const isThird = combined.includes("tercer") || combined.includes("3er") || combined.includes("3ro");
   const isFirstPlace = isCampeon && !isSub;
+
+  const defaultIcon = isSub ? "🥈" : isThird ? "🥉" : "🏆";
 
   // Distinciones get special colors regardless of tournament
   if (combined.includes("goleador")) {
@@ -21,7 +24,7 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
       textClass: "text-red-500",
       bgClass: "bg-red-500/10",
       borderClass: "border-red-500/30",
-      icon: "🏆",
+      icon: defaultIcon,
       ...(isFirstPlace && { imageSrc: '/img/trofeos/SupercopaTPMNew.png' })
     };
   }
@@ -32,7 +35,7 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
       textClass: "text-emerald-500",
       bgClass: "bg-emerald-500/10",
       borderClass: "border-emerald-500/30",
-      icon: "🏆",
+      icon: defaultIcon,
       ...(isFirstPlace && { imageSrc: '/img/trofeos/CopaDePromesasNew.png' })
     };
   }
@@ -43,7 +46,7 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
       textClass: "text-green-500",
       bgClass: "bg-green-500/10",
       borderClass: "border-green-500/30",
-      icon: "🏆",
+      icon: defaultIcon,
       ...(isFirstPlace && { imageSrc: '/img/trofeos/CopaTPMNew.png' })
     };
   }
@@ -54,7 +57,7 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
       textClass: "text-purple-500",
       bgClass: "bg-purple-500/10",
       borderClass: "border-purple-500/30",
-      icon: "🏆",
+      icon: defaultIcon,
       ...(isFirstPlace && { imageSrc: '/img/trofeos/LigaTPMx8.png' })
     };
   }
@@ -65,7 +68,7 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
       textClass: "text-orange-500",
       bgClass: "bg-orange-500/10",
       borderClass: "border-orange-500/30",
-      icon: "🏆",
+      icon: defaultIcon,
       ...(isFirstPlace && { imageSrc: '/img/trofeos/LigaBTPMNew.png' })
     };
   }
@@ -76,7 +79,7 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
       textClass: "text-blue-500",
       bgClass: "bg-blue-500/10",
       borderClass: "border-blue-500/30",
-      icon: "🏆",
+      icon: defaultIcon,
       ...(isFirstPlace && { imageSrc: '/img/trofeos/LigaTPMNew.png' })
     };
   }
@@ -86,7 +89,7 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
     textClass: "text-yellow-500",
     bgClass: "bg-yellow-500/10",
     borderClass: "border-yellow-500/30",
-    icon: "🏅"
+    icon: defaultIcon
   };
 }
 

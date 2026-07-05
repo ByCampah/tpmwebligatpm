@@ -145,6 +145,33 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const renderTrophyCard = (trofeo: any) => {
     const styles = getTournamentStyles(trofeo.name, trofeo.tournament?.name || "");
     const formattedName = formatTrophyName(trofeo.name);
+    const isCampeon = formattedName.toLowerCase() === "campeón";
+
+    if (isCampeon) {
+      return (
+        <div key={trofeo.id} className={`bg-card border ${styles.borderClass} rounded-xl p-6 flex flex-col items-center justify-center gap-2 min-w-[220px] relative overflow-hidden shadow-xl hover:scale-110 transition-transform text-center`}>
+          <div className="z-10 flex items-center justify-center mb-2">
+            {styles.imageSrc ? (
+              <img src={styles.imageSrc} alt={formattedName} className="h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]" />
+            ) : (
+              <div className="text-7xl drop-shadow-xl">{styles.icon}</div>
+            )}
+          </div>
+          <div className="flex flex-col z-10 items-center">
+            <span className={`font-black text-xl ${styles.textClass} uppercase tracking-widest drop-shadow-md`}>{formattedName}</span>
+            <span className="text-sm font-bold text-white/90 uppercase tracking-wider mt-1">
+              {trofeo.tournament ? trofeo.tournament.name : 'Histórico'}
+              {trofeo.type === 'TEAM' && trofeo.team ? ` (con ${trofeo.team.name})` : ''}
+            </span>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none z-0"></div>
+          <div className="absolute -right-4 -bottom-4 opacity-5 text-9xl z-0 pointer-events-none">
+            {trofeo.type === 'TEAM' ? '👥' : styles.icon}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div key={trofeo.id} className={`bg-card border ${styles.borderClass} rounded-xl p-4 flex items-center gap-4 min-w-[200px] relative overflow-hidden shadow-lg hover:scale-105 transition-transform`}>
           <div className={`w-12 h-12 ${styles.bgClass} ${styles.textClass} rounded-full flex items-center justify-center text-2xl font-black z-10 overflow-hidden`}>
