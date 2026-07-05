@@ -175,12 +175,12 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         {/* HEADER */}
         <div className="flex flex-col items-center mt-16 z-10 w-full px-16">
           <div className="flex items-center justify-between w-full">
-            <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+            <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
             <div className="flex flex-col items-end text-right">
               <h2 className="text-3xl font-bold tracking-widest text-blue-400 uppercase mb-2">
                 {tournament.season?.name || "Torneo Extra"}
               </h2>
-              <h1 className="text-5xl font-black uppercase max-w-2xl drop-shadow-lg text-white">
+              <h1 className="text-5xl font-black uppercase max-w-2xl text-white" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
                 {tournament.name}
               </h1>
             </div>
@@ -194,22 +194,22 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           {/* EL CAMPEÓN */}
           {championTeam && (
             <div className="flex flex-col items-center justify-center p-12 bg-gradient-to-tr from-yellow-900/40 to-amber-600/20 border border-yellow-500/40 rounded-3xl backdrop-blur-md relative overflow-hidden shadow-2xl">
-              <h3 className="text-3xl font-black text-yellow-500 uppercase tracking-[0.3em] mb-12 drop-shadow-[0_0_15px_rgba(234,179,8,0.7)]">
+              <h3 className="text-3xl font-black text-yellow-500 uppercase tracking-[0.3em] mb-12" style={{ textShadow: "0 0 15px rgba(234,179,8,0.7)" }}>
                 ¡Campeón!
               </h3>
               
               <div className="flex items-center justify-center gap-20 relative">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full scale-150"></div>
-                  <img src={championTeam.logoUrl || "/img/trophy-default.png"} alt={championTeam.name} className="w-56 h-56 object-contain relative z-10 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" />
+                  <img src={championTeam.logoUrl || "/img/trophy-default.png"} alt={championTeam.name} className="w-56 h-56 object-contain relative z-10" />
                 </div>
 
                 <div className="relative">
-                  <img src={trophyImageUrl || undefined} alt="Trofeo" className="w-64 h-64 object-contain drop-shadow-[0_0_30px_rgba(234,179,8,0.6)] relative z-10" />
+                  <img src={trophyImageUrl || undefined} alt="Trofeo" className="w-64 h-64 object-contain relative z-10" />
                 </div>
               </div>
               
-              <h2 className="text-6xl font-black mt-12 text-center text-white drop-shadow-md">
+              <h2 className="text-6xl font-black mt-12 text-center text-white" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
                 {championTeam.name}
               </h2>
             </div>
