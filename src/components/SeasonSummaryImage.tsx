@@ -187,6 +187,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             </div>
           </div>
           <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent mt-8 rounded-full"></div>
+        </div>
         
         {/* CONTENT LAYOUT */}
         <div className={`w-full ${layout === "square" ? "max-w-7xl" : "max-w-5xl"} px-12 mt-12 flex ${layout === "square" ? "flex-row" : "flex-col"} gap-10 z-10 flex-1`}>
