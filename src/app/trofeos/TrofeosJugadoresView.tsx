@@ -115,7 +115,84 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
             No hay jugadores con trofeos en esta categoría.
           </div>
         ) : (
+          rankedPlayers.map((player, index) => (
+            <div key={player.id} className="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row gap-6 items-center shadow-lg hover:border-primary/50 transition-all">
+              
+              {/* Pos & Player Info */}
+              <div className="flex items-center gap-4 min-w-[250px] w-full md:w-auto border-b md:border-b-0 md:border-r border-border pb-4 md:pb-0 md:pr-6">
+                <div className="text-3xl font-black text-muted-foreground/30 w-10 text-center">
+                  #{index + 1}
+                </div>
+                <div className="w-12 h-12 bg-secondary rounded-full p-1 flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-xs">{player.nick.substring(0, 3).toUpperCase()}</span>
+                </div>
+                <div className="flex flex-col">
+                  <Link href={`/jugadores/${player.id}`} className="font-bold text-lg hover:text-primary transition-colors">
+                    {player.nick}
+                  </Link>
+                  <div className="text-sm text-muted-foreground font-semibold">
+                    <span className="text-primary">{player.count}</span> 🥇 • <span className="text-zinc-400">{player.count2nd}</span> 🥈 • <span className="text-amber-700">{player.count3rd}</span> 🥉
+                  </div>
+                </div>
+              </div>
 
+              {/* Trophies Visuals */}
+              <div className="flex flex-wrap items-center gap-4 w-full flex-1">
+                {player.allTrophies.map((trophy) => {
+                  const isFirst = trophy.name.includes("Campeón") || trophy.name === "Campeon";
+                  const isSecond = trophy.name.includes("Subcampeón") || trophy.name === "Subcampeon";
+                  const isThird = trophy.name.includes("Tercer") || trophy.name.includes("3er");
+                  
+                  const indBadge = getIndividualBadge(trophy.name);
+                  const isIndividual = indBadge !== null;
+                  
+                  const tournamentName = trophy.tournament?.name || "Torneo Desconocido";
+                  const imageUrl = getTrophyImage(tournamentName);
+                  
+                  return (
+                    <div 
+                      key={trophy.id} 
+                      className="relative group flex items-end justify-center"
+                      title={`${trophy.name} - ${tournamentName}`}
+                    >
+                      {isFirst && !isIndividual && (
+                        <div className="flex flex-col items-center">
+                          <img src={imageUrl} alt={tournamentName} className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                        </div>
+                      )}
+
+                      {isIndividual && (
+                        <div className="flex flex-col items-center relative">
+                          <div className="absolute -top-3 -right-2 text-2xl z-10 drop-shadow-lg">{indBadge}</div>
+                          <img src={imageUrl} alt={tournamentName} className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                        </div>
+                      )}
+                      
+                      {isSecond && (
+                        <div className="flex flex-col items-center relative">
+                          <div className="absolute -top-2 -right-2 text-xl z-10 drop-shadow-md">🥈</div>
+                          <img src={imageUrl} alt={tournamentName} className="w-8 h-8 object-contain opacity-80" />
+                        </div>
+                      )}
+                      
+                      {isThird && (
+                        <div className="flex flex-col items-center relative">
+                          <div className="absolute -top-2 -right-2 text-xl z-10 drop-shadow-md">🥉</div>
+                          <img src={imageUrl} alt={tournamentName} className="w-8 h-8 object-contain opacity-60" />
+                        </div>
+                      )}
+                      
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                        {trophy.name} - {tournamentName}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+            </div>
+          ))
         )}
       </div>
     </div>
