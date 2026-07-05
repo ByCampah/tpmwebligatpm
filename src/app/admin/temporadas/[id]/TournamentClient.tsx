@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { toPng } from 'html-to-image';
+import { SeasonSummaryImage } from "@/components/SeasonSummaryImage";
 
 import BracketBuilder from "./BracketBuilder";
 
@@ -14,7 +16,27 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "AJUSTES">(initialTab);
+  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "AJUSTES" | "RESUMEN">(initialTab);
+  
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  const downloadSummary = useCallback(() => {
+    if (summaryRef.current === null) return;
+    setLoading(true);
+    toPng(summaryRef.current, { cacheBust: true, quality: 1, backgroundColor: '#0a0a0a' })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
+        link.download = `resumen-${tournament.name}.png`;
+        link.href = dataUrl;
+        link.click();
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("No se pudo generar la imagen.");
+        setLoading(false);
+      });
+  }, [summaryRef, tournament.name]);
   
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");
@@ -206,6 +228,12 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             Ajustes
           </button>
         )}
+        <button 
+          onClick={() => setActiveTab("RESUMEN")}
+          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "RESUMEN" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+        >
+          Resumen Imagen
+        </button>
       </div>
 
       {/* TAB CONTENT: EQUIPOS */}
@@ -932,6 +960,32 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 {loading ? 'GUARDANDO CAMBIOS...' : 'GUARDAR CAMBIOS'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: RESUMEN (IMAGEN) */}
+      {activeTab === "RESUMEN" as any && (
+        <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full items-center">
+          <div className="bg-secondary/30 p-6 rounded-xl border border-border w-full flex flex-col items-center text-center gap-4">
+            <h2 className="text-2xl font-black text-primary">Generador de Resumen</h2>
+            <p className="text-muted-foreground max-w-2xl">
+              Aquí puedes generar y descargar una imagen de alta calidad con el resumen final de la temporada. Incluye al campeón, los mejores jugadores y el cuadro/tabla final. Ideal para compartir en redes sociales o Discord.
+            </p>
+            <button 
+              onClick={downloadSummary} 
+              disabled={loading}
+              className="bg-primary text-primary-foreground font-black px-12 py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(var(--primary),0.2)] mt-4 flex items-center gap-2"
+            >
+              {loading ? "Generando Imagen..." : "📸 DESCARGAR IMAGEN"}
+            </button>
+          </div>
+
+          <div className="w-full overflow-x-auto p-4 bg-black/50 border border-border rounded-xl">
+            {/* The hidden/scaled container to capture */}
+            <div style={{ width: "1080px", margin: "0 auto", transform: "scale(0.8)", transformOrigin: "top center" }}>
+              <SeasonSummaryImage ref={summaryRef} tournament={tournament} />
+            </div>
           </div>
         </div>
       )}
