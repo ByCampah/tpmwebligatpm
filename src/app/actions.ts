@@ -795,6 +795,27 @@ export async function removePlayerFromRoster(formData: FormData) {
 // PODIUM ACTIONS
 // ==========================================
 
+export async function saveBracketData(tournamentId: string, bracketData: any) {
+  const session = await auth();
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+    return { success: false, error: "No autorizado" };
+  }
+
+  try {
+    await prisma.tournament.update({
+      where: { id: tournamentId },
+      data: { bracketData }
+    });
+    revalidatePath("/admin/temporadas");
+    revalidatePath("/admin/torneos-extra");
+    revalidatePath("/historial");
+    revalidatePath("/extras");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function assignTournamentPodium(formData: FormData) {
   const session = await auth();
   if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };

@@ -5,14 +5,16 @@ import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, ge
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
+import BracketBuilder from "./BracketBuilder";
+
 export default function TournamentClient({ tournament, allTeams, allPlayers, categories, userRole }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[], userRole: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") as "EQUIPOS" | "PARTIDOS" | "PREMIOS" | "AJUSTES" || (userRole === "MODERATOR" ? "PARTIDOS" : "EQUIPOS");
+  const initialTab = (searchParams.get("tab") as any) || "PARTIDOS";
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "AJUSTES">(initialTab);
+  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "AJUSTES">(initialTab);
   
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");
@@ -180,6 +182,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
         >
           Partidos y Resultados ({tournament.matches.length})
         </button>
+        {userRole === "ADMIN" && (
+          <button 
+            onClick={() => setActiveTab("LLAVES")}
+            className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "LLAVES" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+          >
+            Llaves (Brackets)
+          </button>
+        )}
         {userRole === "ADMIN" && (
           <button 
             onClick={() => setActiveTab("PREMIOS")}
@@ -850,6 +860,20 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 {loading ? 'PROCESANDO...' : 'OTORGAR PREMIOS'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: LLAVES */}
+      {activeTab === "LLAVES" && (
+        <div className="flex flex-col gap-6 w-full">
+          <div className="bg-secondary/30 p-6 rounded-xl border border-border">
+            <h2 className="text-2xl font-black text-primary mb-6">Constructor de Llaves</h2>
+            <BracketBuilder 
+              tournamentId={tournament.id} 
+              enrolledTeamsData={enrolledTeamsData} 
+              initialData={typeof tournament.bracketData === 'string' ? JSON.parse(tournament.bracketData) : tournament.bracketData} 
+            />
           </div>
         </div>
       )}

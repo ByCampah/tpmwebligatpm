@@ -170,7 +170,8 @@ model Tournament {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  bracketImageUrl String? // Imagen para las llaves de las copas
+  bracketImageUrl String? // Imagen estática antigua para las llaves
+  bracketData     Json?   // JSON interactivo con la estructura de las llaves
 
   matches    Match[]
   teams      TournamentTeam[]
