@@ -169,8 +169,8 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
       >
         {/* Decoración de fondo */}
         <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-blue-900/40 to-transparent"></div>
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px]"></div>
-        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-green-600/10 rounded-full blur-[120px]"></div>
+        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-600/30 via-blue-800/10 to-transparent rounded-full"></div>
+        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-600/20 via-green-800/5 to-transparent rounded-full"></div>
 
         {/* HEADER */}
         <div className="flex flex-col items-center mt-16 z-10 w-full px-16">
@@ -193,14 +193,14 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           
           {/* EL CAMPEÓN */}
           {championTeam && (
-            <div className="flex flex-col items-center justify-center p-12 bg-gradient-to-tr from-yellow-900/40 to-amber-600/20 border border-yellow-500/40 rounded-3xl backdrop-blur-md relative overflow-hidden shadow-2xl">
+            <div className="flex flex-col items-center justify-center p-12 bg-gradient-to-tr from-yellow-900/40 to-amber-600/20 border border-yellow-500/40 rounded-3xl relative overflow-hidden shadow-2xl">
               <h3 className="text-3xl font-black text-yellow-500 uppercase tracking-[0.3em] mb-12" style={{ textShadow: "0 0 15px rgba(234,179,8,0.7)" }}>
                 ¡Campeón!
               </h3>
               
               <div className="flex items-center justify-center gap-20 relative">
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full scale-150"></div>
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/40 via-yellow-600/10 to-transparent rounded-full scale-150"></div>
                   <img src={championTeam.logoUrl || "/img/trophy-default.png"} alt={championTeam.name} className="w-56 h-56 object-contain relative z-10" />
                 </div>
 
@@ -216,7 +216,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           )}
 
           {/* TABLA O BRACKET */}
-          <div className="bg-black/60 border border-white/10 p-10 rounded-3xl backdrop-blur-sm shadow-xl mt-4">
+          <div className="bg-black/60 border border-white/10 p-10 rounded-3xl shadow-xl mt-4">
             <h3 className="text-2xl font-bold text-center uppercase tracking-widest text-zinc-300 mb-8 border-b border-white/10 pb-4">
               {isCup ? "Fase Final" : "Tabla de Posiciones Final"}
             </h3>
