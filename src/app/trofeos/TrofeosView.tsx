@@ -105,8 +105,8 @@ export default function TrofeosView({ teams, dictionary, isOfficial = true }: { 
                   #{index + 1}
                 </div>
                 <div className="w-12 h-12 bg-secondary rounded-full p-1 flex items-center justify-center flex-shrink-0">
-                  {(team as any).logo ? (
-                    <img src={(team as any).logo} alt={team.name} className="w-full h-full object-contain" />
+                  {(team as any).logoUrl ? (
+                    <img src={(team as any).logoUrl} alt={team.name} className="w-full h-full object-contain" />
                   ) : (
                     <span className="font-bold text-xs">{team.name.substring(0, 3)}</span>
                   )}
