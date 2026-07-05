@@ -107,10 +107,10 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   });
 
   const playerRecordsArray = Array.from(playerStatsMap.values());
-  const topScorer = playerRecordsArray.sort((a, b) => b.goals - a.goals)[0];
-  const topAssister = playerRecordsArray.sort((a, b) => b.assists - a.assists)[0];
-  const mostAppearances = playerRecordsArray.sort((a, b) => b.appearances - a.appearances)[0];
-  const mostCleanSheets = playerRecordsArray.filter(p => p.cleanSheets > 0).sort((a, b) => b.cleanSheets - a.cleanSheets)[0];
+  const topScorers = [...playerRecordsArray].sort((a, b) => b.goals - a.goals).filter(p => p.goals > 0).slice(0, 3);
+  const topAssisters = [...playerRecordsArray].sort((a, b) => b.assists - a.assists).filter(p => p.assists > 0).slice(0, 3);
+  const topAppearances = [...playerRecordsArray].sort((a, b) => b.appearances - a.appearances).filter(p => p.appearances > 0).slice(0, 3);
+  const topCleanSheets = [...playerRecordsArray].sort((a, b) => b.cleanSheets - a.cleanSheets).filter(p => p.cleanSheets > 0).slice(0, 3);
 
   // Group Trophies
   const officialTrophies = team.trophies.filter(t => t.tournament?.isOfficial !== false);
@@ -311,27 +311,67 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
           </h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
-              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Máximo Goleador</span>
-              {topScorer && topScorer.goals > 0 ? (
-                <div className="flex justify-between items-center"><Link href={`/jugadores/${topScorer.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{topScorer.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{topScorer.goals} ⚽</span></div>
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-2">Máximos Goleadores</span>
+              {topScorers.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  {topScorers.map((p, i) => (
+                    <div key={p.player.id} className="flex justify-between items-center text-sm">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <span className="text-muted-foreground text-[10px] font-bold w-3">{i+1}.</span>
+                        <Link href={`/jugadores/${p.player.id}`} className="font-bold hover:text-primary transition-colors truncate max-w-[90px] md:max-w-[120px]">{p.player.nick}</Link>
+                      </div>
+                      <span className="text-emerald-400 font-black">{p.goals} ⚽</span>
+                    </div>
+                  ))}
+                </div>
               ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
             </div>
             <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
-              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Máximo Asistidor</span>
-              {topAssister && topAssister.assists > 0 ? (
-                <div className="flex justify-between items-center"><Link href={`/jugadores/${topAssister.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{topAssister.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{topAssister.assists} 👟</span></div>
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-2">Máximos Asistidores</span>
+              {topAssisters.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  {topAssisters.map((p, i) => (
+                    <div key={p.player.id} className="flex justify-between items-center text-sm">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <span className="text-muted-foreground text-[10px] font-bold w-3">{i+1}.</span>
+                        <Link href={`/jugadores/${p.player.id}`} className="font-bold hover:text-primary transition-colors truncate max-w-[90px] md:max-w-[120px]">{p.player.nick}</Link>
+                      </div>
+                      <span className="text-emerald-400 font-black">{p.assists} 👟</span>
+                    </div>
+                  ))}
+                </div>
               ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
             </div>
             <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
-              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Más Presencias</span>
-              {mostAppearances && mostAppearances.appearances > 0 ? (
-                <div className="flex justify-between items-center"><Link href={`/jugadores/${mostAppearances.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{mostAppearances.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{mostAppearances.appearances} 🏃</span></div>
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-2">Más Presencias</span>
+              {topAppearances.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  {topAppearances.map((p, i) => (
+                    <div key={p.player.id} className="flex justify-between items-center text-sm">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <span className="text-muted-foreground text-[10px] font-bold w-3">{i+1}.</span>
+                        <Link href={`/jugadores/${p.player.id}`} className="font-bold hover:text-primary transition-colors truncate max-w-[90px] md:max-w-[120px]">{p.player.nick}</Link>
+                      </div>
+                      <span className="text-emerald-400 font-black">{p.appearances} 🏃</span>
+                    </div>
+                  ))}
+                </div>
               ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
             </div>
             <div className="bg-card border border-border rounded-xl p-3 flex flex-col shadow-lg hover:bg-secondary/20 transition-colors">
-              <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Vallas Invictas</span>
-              {mostCleanSheets && mostCleanSheets.cleanSheets > 0 ? (
-                <div className="flex justify-between items-center"><Link href={`/jugadores/${mostCleanSheets.player.id}`} className="font-bold hover:text-primary transition-colors text-sm truncate">{mostCleanSheets.player.nick}</Link><span className="text-emerald-400 font-black text-lg">{mostCleanSheets.cleanSheets} 🧤</span></div>
+              <span className="text-[10px] font-black text-muted-foreground uppercase mb-2">Vallas Invictas</span>
+              {topCleanSheets.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  {topCleanSheets.map((p, i) => (
+                    <div key={p.player.id} className="flex justify-between items-center text-sm">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <span className="text-muted-foreground text-[10px] font-bold w-3">{i+1}.</span>
+                        <Link href={`/jugadores/${p.player.id}`} className="font-bold hover:text-primary transition-colors truncate max-w-[90px] md:max-w-[120px]">{p.player.nick}</Link>
+                      </div>
+                      <span className="text-emerald-400 font-black">{p.cleanSheets} 🧤</span>
+                    </div>
+                  ))}
+                </div>
               ) : (<span className="text-xs text-muted-foreground italic">-</span>)}
             </div>
           </div>
