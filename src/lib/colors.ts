@@ -1,5 +1,8 @@
-export function getTournamentStyles(tournamentName: string, category: string) {
-  const combined = `${tournamentName} ${category}`.toLowerCase();
+export function getTournamentStyles(trophyName: string, tournamentName: string) {
+  const combined = `${trophyName} ${tournamentName}`.toLowerCase();
+  const isCampeon = combined.includes("campeon") || combined.includes("campeón");
+  const isSub = combined.includes("subcampeon") || combined.includes("subcampeón");
+  const isFirstPlace = isCampeon && !isSub;
 
   // Distinciones get special colors regardless of tournament
   if (combined.includes("goleador")) {
@@ -12,6 +15,28 @@ export function getTournamentStyles(tournamentName: string, category: string) {
     return { textClass: "text-teal-400", bgClass: "bg-teal-500/10", borderClass: "border-teal-500/30", icon: "🧤" };
   }
 
+  // Supercopa TPM
+  if (combined.includes("supercopa")) {
+    return {
+      textClass: "text-red-500",
+      bgClass: "bg-red-500/10",
+      borderClass: "border-red-500/30",
+      icon: "🏆",
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/SupercopaTPMNew.png' })
+    };
+  }
+
+  // Copa de Promesas
+  if (combined.includes("promesas")) {
+    return {
+      textClass: "text-emerald-500",
+      bgClass: "bg-emerald-500/10",
+      borderClass: "border-emerald-500/30",
+      icon: "🏆",
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/CopaDePromesasNew.png' })
+    };
+  }
+
   // Copa TPM
   if (combined.includes("copa tpm") || combined.includes("copa")) {
     return {
@@ -19,7 +44,7 @@ export function getTournamentStyles(tournamentName: string, category: string) {
       bgClass: "bg-green-500/10",
       borderClass: "border-green-500/30",
       icon: "🏆",
-      imageSrc: '/img/trofeos/CopaTPM.png'
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/CopaTPMNew.png' })
     };
   }
   
@@ -30,28 +55,29 @@ export function getTournamentStyles(tournamentName: string, category: string) {
       bgClass: "bg-purple-500/10",
       borderClass: "border-purple-500/30",
       icon: "🏆",
-      imageSrc: '/img/trofeos/LigaTPMx8.png'
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/LigaTPMx8.png' })
     };
   }
 
-  // Segunda División
-  if (combined.includes("segunda")) {
+  // Nacional B (Segunda División)
+  if (combined.includes("segunda") || combined.includes("nacional b") || combined.includes("nacional")) {
     return {
       textClass: "text-orange-500",
       bgClass: "bg-orange-500/10",
       borderClass: "border-orange-500/30",
-      icon: "🏆"
+      icon: "🏆",
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/LigaBTPMNew.png' })
     };
   }
 
   // Liga TPM (Primera División)
-  if (combined.includes("liga tpm") || combined.includes("liga")) {
+  if (combined.includes("liga tpm") || combined.includes("liga") || combined.includes("primera")) {
     return {
       textClass: "text-blue-500",
       bgClass: "bg-blue-500/10",
       borderClass: "border-blue-500/30",
       icon: "🏆",
-      imageSrc: '/img/trofeos/LigaTPM.png'
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/LigaTPMNew.png' })
     };
   }
 
@@ -62,6 +88,18 @@ export function getTournamentStyles(tournamentName: string, category: string) {
     borderClass: "border-yellow-500/30",
     icon: "🏅"
   };
+}
+
+export function formatTrophyName(name: string): string {
+  const lower = name.toLowerCase();
+  const isSub = lower.includes("subcampeon") || lower.includes("subcampeón") || lower.includes("2do") || lower.includes("segundo");
+  const isThird = lower.includes("tercer") || lower.includes("3ro") || lower.includes("3er");
+  const isFirst = lower.includes("campeon") || lower.includes("campeón") || lower.includes("1er");
+
+  if (isSub) return "Subcampeón";
+  if (isThird) return "Tercer Puesto";
+  if (isFirst) return "Campeón";
+  return name;
 }
 
 export function getTrophyCategory(trophyName: string): "CAMPEON" | "SUBCAMPEON" | "TERCER" | "DISTINCION" {

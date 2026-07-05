@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { getDictionary } from "@/i18n/getDictionary";
 import HeadToHeadClient from "./HeadToHeadClient";
-import { getTournamentStyles, getTrophyCategory } from "@/lib/colors";
+import { getTournamentStyles, getTrophyCategory, formatTrophyName } from "@/lib/colors";
 import TeamConfetti from "@/components/TeamConfetti";
 
 export const dynamicParams = false;
@@ -137,17 +137,18 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
 
   const renderTrophyCard = (trofeo: any) => {
     const styles = getTournamentStyles(trofeo.name, trofeo.tournament?.name || "");
+    const formattedName = formatTrophyName(trofeo.name);
     return (
       <div key={trofeo.id} className={`bg-card border ${styles.borderClass} rounded-xl p-4 flex items-center gap-4 min-w-[200px] relative overflow-hidden shadow-lg hover:scale-105 transition-transform`}>
         <div className={`w-12 h-12 ${styles.bgClass} ${styles.textClass} rounded-full flex items-center justify-center text-2xl font-black z-10 overflow-hidden`}>
           {styles.imageSrc ? (
-            <img src={styles.imageSrc} alt={trofeo.name} className="w-8 h-8 object-contain" />
+            <img src={styles.imageSrc} alt={formattedName} className="w-8 h-8 object-contain" />
           ) : (
             styles.icon
           )}
         </div>
         <div className="flex flex-col z-10">
-          <span className={`font-black ${styles.textClass} uppercase tracking-wider`}>{trofeo.name}</span>
+          <span className={`font-black ${styles.textClass} uppercase tracking-wider`}>{formattedName}</span>
           <span className="text-xs text-muted-foreground">{trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : 'Histórico'}</span>
         </div>
         <div className="absolute -right-4 -bottom-4 opacity-5 text-8xl z-0 pointer-events-none">

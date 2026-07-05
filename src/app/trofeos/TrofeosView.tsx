@@ -163,11 +163,11 @@ export default function TrofeosView({ teams, dictionary }: { teams: TeamWithTrop
                   const ligas1 = team.trophiesList.filter(t => (t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa")).length;
                   const copas1 = team.trophiesList.filter(t => (t.tournament?.name || "").includes("Copa")).length;
                   
-                  const ligas2 = team.allTrophies.filter(t => t.name === "Subcampeón" && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
-                  const copas2 = team.allTrophies.filter(t => t.name === "Subcampeón" && (t.tournament?.name || "").includes("Copa")).length;
+                  const ligas2 = team.allTrophies.filter(t => t.name.includes("Subcampeón") && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
+                  const copas2 = team.allTrophies.filter(t => t.name.includes("Subcampeón") && (t.tournament?.name || "").includes("Copa")).length;
                   
-                  const ligas3 = team.allTrophies.filter(t => t.name === "3er Puesto" && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
-                  const copas3 = team.allTrophies.filter(t => t.name === "3er Puesto" && (t.tournament?.name || "").includes("Copa")).length;
+                  const ligas3 = team.allTrophies.filter(t => (t.name.includes("3er Puesto") || t.name.includes("Tercer Puesto")) && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
+                  const copas3 = team.allTrophies.filter(t => (t.name.includes("3er Puesto") || t.name.includes("Tercer Puesto")) && (t.tournament?.name || "").includes("Copa")).length;
                   
                   return (
                     <tr key={team.id} className="hover:bg-white/5 transition-colors">

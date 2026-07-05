@@ -168,16 +168,16 @@ export default function TrofeosJugadoresView({ players, dictionary }: { players:
                 {rankedPlayers.map((player, index) => {
                   // Re-calculate Ligas and Copas for the row
                   const teamTrophies = player.allTrophies.filter(t => !t.name.includes("Goleador") && !t.name.includes("Asistidor") && !t.name.includes("Mejor GK") && !t.name.includes("Valla Invicta"));
-                  const firsts = teamTrophies.filter(t => t.name === "Campeón");
+                  const firsts = teamTrophies.filter(t => t.name.includes("Campeón"));
                   
                   const ligas1 = firsts.filter(t => (t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa")).length;
                   const copas1 = firsts.filter(t => (t.tournament?.name || "").includes("Copa")).length;
                   
-                  const ligas2 = teamTrophies.filter(t => t.name === "Subcampeón" && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
-                  const copas2 = teamTrophies.filter(t => t.name === "Subcampeón" && (t.tournament?.name || "").includes("Copa")).length;
+                  const ligas2 = teamTrophies.filter(t => t.name.includes("Subcampeón") && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
+                  const copas2 = teamTrophies.filter(t => t.name.includes("Subcampeón") && (t.tournament?.name || "").includes("Copa")).length;
                   
-                  const ligas3 = teamTrophies.filter(t => t.name === "3er Puesto" && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
-                  const copas3 = teamTrophies.filter(t => t.name === "3er Puesto" && (t.tournament?.name || "").includes("Copa")).length;
+                  const ligas3 = teamTrophies.filter(t => (t.name.includes("3er Puesto") || t.name.includes("Tercer Puesto")) && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
+                  const copas3 = teamTrophies.filter(t => (t.name.includes("3er Puesto") || t.name.includes("Tercer Puesto")) && (t.tournament?.name || "").includes("Copa")).length;
                   
                   return (
                     <tr key={player.id} className="hover:bg-white/5 transition-colors">
