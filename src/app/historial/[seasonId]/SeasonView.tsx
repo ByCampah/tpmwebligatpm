@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getFlagUrl } from "@/lib/flags";
 import { useSearchParams } from "next/navigation";
+import BracketViewer from "@/components/BracketViewer";
 
 interface TournamentData {
   id: string;
