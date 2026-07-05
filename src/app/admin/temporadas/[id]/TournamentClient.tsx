@@ -18,6 +18,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "AJUSTES" | "RESUMEN">(initialTab);
   
+  const [imageLayout, setImageLayout] = useState<"vertical" | "square">("vertical");
   const summaryRef = useRef<HTMLDivElement>(null);
 
   const downloadSummary = useCallback(() => {
@@ -972,19 +973,29 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             <p className="text-muted-foreground max-w-2xl">
               Aquí puedes generar y descargar una imagen de alta calidad con el resumen final de la temporada. Incluye al campeón, los mejores jugadores y el cuadro/tabla final. Ideal para compartir en redes sociales o Discord.
             </p>
-            <button 
-              onClick={downloadSummary} 
-              disabled={loading}
-              className="bg-primary text-primary-foreground font-black px-12 py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(var(--primary),0.2)] mt-4 flex items-center gap-2"
-            >
-              {loading ? "Generando Imagen..." : "📸 DESCARGAR IMAGEN"}
-            </button>
+            
+            <div className="flex items-center gap-4 mt-2">
+              <button 
+                onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
+                className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex items-center gap-2"
+              >
+                {imageLayout === "vertical" ? "🔄 Cambiar a formato Cuadrado" : "🔄 Cambiar a formato Vertical"}
+              </button>
+
+              <button 
+                onClick={downloadSummary} 
+                disabled={loading}
+                className="bg-primary text-primary-foreground font-black px-12 py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(var(--primary),0.2)] flex items-center gap-2"
+              >
+                {loading ? "Generando Imagen..." : "📸 DESCARGAR IMAGEN"}
+              </button>
+            </div>
           </div>
 
           <div className="w-full overflow-x-auto p-4 bg-black/50 border border-border rounded-xl">
             {/* The hidden/scaled container to capture */}
-            <div style={{ width: "1080px", margin: "0 auto", transform: "scale(0.8)", transformOrigin: "top center" }}>
-              <SeasonSummaryImage ref={summaryRef} tournament={tournament} />
+            <div style={{ width: imageLayout === "square" ? "1280px" : "1080px", margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
+              <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} />
             </div>
           </div>
         </div>

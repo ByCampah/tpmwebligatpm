@@ -6,10 +6,11 @@ import BracketViewer from './BracketViewer';
 
 interface SeasonSummaryImageProps {
   tournament: any; // Raw tournament data
+  layout?: "vertical" | "square";
 }
 
 export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageProps>(
-  ({ tournament }, ref) => {
+  ({ tournament, layout = "vertical" }, ref) => {
     // 1. Calcular Goleadores, Asistidores, GK
     const playerStats = new Map<string, any>();
     
@@ -162,7 +163,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
     return (
       <div 
         ref={ref} 
-        className="w-[1080px] min-h-[1600px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-12"
+        className={`${layout === "square" ? "w-[1280px]" : "w-[1080px]"} min-h-[1080px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-12 shadow-2xl`}
         style={{
           backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(30,58,138,0.3) 0%, rgba(10,10,10,1) 80%)'
         }}
@@ -178,7 +179,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
             <div className="flex flex-col items-end text-right">
               <h2 className="text-3xl font-bold tracking-widest text-blue-400 uppercase mb-2">
-                {tournament.season?.name || "Torneo Extra"}
+                {tournament.season?.name || "Torneo de Pretemporada"}
               </h2>
               <h1 className="text-5xl font-black uppercase max-w-2xl text-white" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
                 {tournament.name}
@@ -186,90 +187,89 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             </div>
           </div>
           <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent mt-8 rounded-full"></div>
-        </div>
-
-        {/* CONTENT VERTICAL LAYOUT */}
-        <div className="w-full max-w-5xl px-12 mt-12 flex flex-col gap-10 z-10 flex-1">
+        
+        {/* CONTENT LAYOUT */}
+        <div className={`w-full ${layout === "square" ? "max-w-7xl" : "max-w-5xl"} px-12 mt-12 flex ${layout === "square" ? "flex-row" : "flex-col"} gap-10 z-10 flex-1`}>
           
-          {/* EL CAMPEÓN */}
-          {championTeam && (
-            <div className="flex flex-col items-center justify-center p-12 bg-gradient-to-tr from-yellow-900/40 to-amber-600/20 border border-yellow-500/40 rounded-3xl relative overflow-hidden shadow-2xl">
-              <h3 className="text-3xl font-black text-yellow-500 uppercase tracking-[0.3em] mb-12" style={{ textShadow: "0 0 15px rgba(234,179,8,0.7)" }}>
-                ¡Campeón!
-              </h3>
-              
-              <div className="flex items-center justify-center gap-20 relative">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/40 via-yellow-600/10 to-transparent rounded-full scale-150"></div>
-                  <img src={championTeam.logoUrl || "/img/trophy-default.png"} alt={championTeam.name} className="w-56 h-56 object-contain relative z-10" />
-                </div>
-
-                <div className="relative">
-                  <img src={trophyImageUrl || undefined} alt="Trofeo" className="w-64 h-64 object-contain relative z-10" />
-                </div>
-              </div>
-              
-              <h2 className="text-6xl font-black mt-12 text-center text-white" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
-                {championTeam.name}
-              </h2>
-            </div>
-          )}
-
-          {/* TABLA O BRACKET */}
-          <div className="bg-black/60 border border-white/10 p-10 rounded-3xl shadow-xl mt-4">
-            <h3 className="text-2xl font-bold text-center uppercase tracking-widest text-zinc-300 mb-8 border-b border-white/10 pb-4">
-              {isCup ? "Fase Final" : "Tabla de Posiciones Final"}
-            </h3>
-
-            {isCup ? (
-              <div className="flex justify-center items-center w-full">
-                {tournament.bracketImageUrl ? (
-                  <img src={tournament.bracketImageUrl} alt="Bracket" className="w-full h-auto rounded-xl object-contain shadow-lg" />
-                ) : tournament.bracketData ? (
-                  <div className="w-full scale-90 origin-top bg-black/40 p-6 rounded-2xl border border-white/5 shadow-inner">
-                    <BracketViewer bracketData={typeof tournament.bracketData === 'string' ? JSON.parse(tournament.bracketData) : tournament.bracketData} teams={tournament.teams || []} />
+          <div className={`flex flex-col gap-10 ${layout === "square" ? "flex-1" : "w-full"}`}>
+            {/* EL CAMPEÓN */}
+            {championTeam && (
+              <div className="flex flex-col items-center justify-center p-12 bg-gradient-to-tr from-yellow-900/40 to-amber-600/20 border border-yellow-500/40 rounded-3xl relative overflow-hidden shadow-2xl">
+                <h3 className="text-3xl font-black text-yellow-500 uppercase tracking-[0.3em] mb-12" style={{ textShadow: "0 0 15px rgba(234,179,8,0.7)" }}>
+                  ¡Campeón!
+                </h3>
+                
+                <div className="flex items-center justify-center gap-20 relative">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/40 via-yellow-600/10 to-transparent rounded-full scale-150"></div>
+                    <img src={championTeam.logoUrl || "/img/trophy-default.png"} alt={championTeam.name} className="w-56 h-56 object-contain relative z-10" />
                   </div>
-                ) : (
-                  <div className="text-center text-zinc-500 italic py-12">Cuadro no disponible en imagen o interactivo</div>
-                )}
-              </div>
-            ) : (
-              <div className="overflow-hidden rounded-xl border border-white/5">
-                <table className="w-full text-left border-collapse text-2xl">
-                  <thead>
-                    <tr className="bg-white/5 text-zinc-400 text-lg uppercase tracking-wider">
-                      <th className="p-4 font-bold text-center w-20">Pos</th>
-                      <th className="p-4 font-bold">Equipo</th>
-                      <th className="p-4 font-bold text-center w-20">PJ</th>
-                      <th className="p-4 font-bold text-center w-20">GF</th>
-                      <th className="p-4 font-bold text-center w-20">GC</th>
-                      <th className="p-4 font-bold text-center w-24 text-primary">Pts</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {standings.slice(0, 10).map((team, idx) => (
-                      <tr key={team.id} className={idx === 0 ? "bg-primary/20" : idx < 3 ? "bg-white/10" : ""}>
-                        <td className="p-4 text-center font-black text-zinc-400 text-3xl">
-                          {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : idx + 1}
-                        </td>
-                        <td className="p-4 font-bold flex items-center gap-6">
-                          <img src={team.logo || "/img/trophy-default.png"} className="w-12 h-12 object-contain" />
-                          {team.name}
-                        </td>
-                        <td className="p-4 text-center text-zinc-400">{team.pj}</td>
-                        <td className="p-4 text-center text-zinc-400">{team.gf}</td>
-                        <td className="p-4 text-center text-zinc-400">{team.gc}</td>
-                        <td className="p-4 text-center font-black text-primary text-3xl">{team.pts}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+                  <div className="relative">
+                    <img src={trophyImageUrl || undefined} alt="Trofeo" className="w-64 h-64 object-contain relative z-10" />
+                  </div>
+                </div>
+                
+                <h2 className="text-6xl font-black mt-12 text-center text-white" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
+                  {championTeam.name}
+                </h2>
               </div>
             )}
+
+            {/* TABLA O BRACKET */}
+            <div className="bg-black/60 border border-white/10 p-10 rounded-3xl shadow-xl mt-4">
+              <h3 className="text-2xl font-bold text-center uppercase tracking-widest text-zinc-300 mb-8 border-b border-white/10 pb-4">
+                {isCup ? "Fase Final" : "Tabla de Posiciones Final"}
+              </h3>
+              
+              {isCup ? (
+                <div className="flex justify-center transform scale-90 origin-top">
+                  {tournament.bracketImageUrl ? (
+                    <img src={tournament.bracketImageUrl} alt="Llave Final" className="w-full h-auto object-contain max-h-[800px] rounded-xl" />
+                  ) : tournament.bracketData ? (
+                    <BracketViewer bracketData={typeof tournament.bracketData === 'string' ? JSON.parse(tournament.bracketData) : tournament.bracketData} teams={tournament.teams?.map((t: any) => t.team) || []} />
+                  ) : (
+                    <div className="text-zinc-500 italic py-10 text-xl">Sin datos de llave final</div>
+                  )}
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-xl border border-white/5">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-white/5 text-zinc-400 text-sm uppercase tracking-wider">
+                        <th className="p-4 font-bold">#</th>
+                        <th className="p-4 font-bold">Equipo</th>
+                        <th className="p-4 font-bold text-center">PJ</th>
+                        <th className="p-4 font-bold text-center">PG</th>
+                        <th className="p-4 font-bold text-center">PE</th>
+                        <th className="p-4 font-bold text-center">PP</th>
+                        <th className="p-4 font-bold text-center text-blue-400">PTS</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {standings.map((team, idx) => (
+                        <tr key={team.id} className="hover:bg-white/5 transition-colors">
+                          <td className="p-4 font-bold text-zinc-500">{idx + 1}</td>
+                          <td className="p-4 font-bold flex items-center gap-3">
+                            <img src={team.logo} className="w-8 h-8 object-contain drop-shadow-md" />
+                            <span className="text-lg">{team.name}</span>
+                          </td>
+                          <td className="p-4 text-center text-zinc-400">{team.pj}</td>
+                          <td className="p-4 text-center text-green-400">{team.pg}</td>
+                          <td className="p-4 text-center text-yellow-400">{team.pe}</td>
+                          <td className="p-4 text-center text-red-400">{team.pp}</td>
+                          <td className="p-4 text-center font-black text-xl text-blue-400">{team.pts}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* PREMIOS INDIVIDUALES */}
-          <div className="grid grid-cols-3 gap-8 mt-4">
+          <div className={`${layout === "square" ? "flex flex-col w-[350px] gap-8" : "grid grid-cols-3 gap-8 mt-4"}`}>
             {/* GOLEADOR */}
             <div className="bg-gradient-to-b from-blue-900/30 to-black border border-blue-500/30 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
               <div className="absolute top-4 right-4 text-4xl opacity-50">⚽</div>
