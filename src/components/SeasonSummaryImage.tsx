@@ -22,15 +22,18 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         if (!playerStats.has(pId)) {
           // Encontrar equipo del jugador en este torneo
           let teamLogo = null;
+          let teamName = null;
           const pTeamInfo = stat.player.tournamentTeams?.find((tt: any) => tt.tournamentTeam?.tournamentId === tournament.id);
           if (pTeamInfo) {
             teamLogo = pTeamInfo.tournamentTeam.team.logoUrl;
+            teamName = pTeamInfo.tournamentTeam.team.name;
           }
 
           playerStats.set(pId, {
             id: pId,
             nick: stat.player.nick,
             teamLogo,
+            teamName,
             goals: 0,
             assists: 0,
           });
@@ -49,7 +52,8 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
 
     const goleadorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Goleador"));
     const asistidorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Asistidor"));
-    const gkTrophy = trophies.find((t: any) => t.type === "PLAYER" && (t.name.includes("Mejor GK") || t.name.includes("Valla")));
+    const gkTrophy = trophies.find((t: any) => t.type === "PLAYER" && (t.name.includes("Mejor GK") || t.name.includes("Salvadas")));
+    const vallaTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Valla"));
     
     const isCup = tournament.format === "CUP" || tournament.format === "PLAYOFF";
 
@@ -114,7 +118,8 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
       const pInfo = playerStats.get(player?.id);
       return {
         nick: player?.nick || "N/A",
-        logo: pInfo?.teamLogo || "/img/trophy-default.png"
+        logo: pInfo?.teamLogo || "/img/trophy-default.png",
+        teamName: pInfo?.teamName || ""
       };
     };
 
@@ -232,13 +237,14 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             {/* GOLEADOR */}
             <div className="bg-gradient-to-b from-blue-900/30 to-black border border-blue-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
               <div className="absolute top-4 right-4 text-4xl opacity-50">⚽</div>
-              <h4 className="text-blue-400 font-bold uppercase tracking-wider text-lg mb-6">Máximo Goleador</h4>
+              <h4 className="text-blue-400 font-bold uppercase tracking-wider text-lg mb-6">Goleador</h4>
               {goleadorTrophy?.player ? (
                 <>
-                  <div className="w-28 h-28 bg-black/60 rounded-full border-4 border-blue-500/50 flex items-center justify-center p-3 mb-6 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                  <div className="w-28 h-28 bg-black/60 rounded-full border-4 border-blue-500/50 flex items-center justify-center p-3 mb-4 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                     <img src={getPlayerStatInfo(goleadorTrophy.player).logo} className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-3xl font-black mb-2">{goleadorTrophy.player.nick}</span>
+                  <span className="text-3xl font-black mb-1">{goleadorTrophy.player.nick}</span>
+                  <span className="text-zinc-400 font-bold text-sm mb-4">{getPlayerStatInfo(goleadorTrophy.player).teamName}</span>
                   <span className="text-zinc-300 text-xl font-bold bg-blue-500/20 px-4 py-1 rounded-full">{goleadorTrophy.extraInfo || "-"}</span>
                 </>
               ) : (
@@ -249,13 +255,14 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             {/* ASISTIDOR */}
             <div className="bg-gradient-to-b from-pink-900/30 to-black border border-pink-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
               <div className="absolute top-4 right-4 text-4xl opacity-50">👟</div>
-              <h4 className="text-pink-400 font-bold uppercase tracking-wider text-lg mb-6">Máximo Asistidor</h4>
+              <h4 className="text-pink-400 font-bold uppercase tracking-wider text-lg mb-6">Asistidor</h4>
               {asistidorTrophy?.player ? (
                 <>
-                  <div className="w-28 h-28 bg-black/60 rounded-full border-4 border-pink-500/50 flex items-center justify-center p-3 mb-6 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                  <div className="w-28 h-28 bg-black/60 rounded-full border-4 border-pink-500/50 flex items-center justify-center p-3 mb-4 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
                     <img src={getPlayerStatInfo(asistidorTrophy.player).logo} className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-3xl font-black mb-2">{asistidorTrophy.player.nick}</span>
+                  <span className="text-3xl font-black mb-1">{asistidorTrophy.player.nick}</span>
+                  <span className="text-zinc-400 font-bold text-sm mb-4">{getPlayerStatInfo(asistidorTrophy.player).teamName}</span>
                   <span className="text-zinc-300 text-xl font-bold bg-pink-500/20 px-4 py-1 rounded-full">{asistidorTrophy.extraInfo || "-"}</span>
                 </>
               ) : (
@@ -263,21 +270,46 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
               )}
             </div>
 
-            {/* MEJOR GK */}
-            <div className="bg-gradient-to-b from-teal-900/30 to-black border border-teal-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
+            {/* ARQUEROS (Combined Mejor GK and Valla Invicta) */}
+            <div className="bg-gradient-to-b from-teal-900/30 to-black border border-teal-500/30 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
               <div className="absolute top-4 right-4 text-4xl opacity-50">🧤</div>
-              <h4 className="text-teal-400 font-bold uppercase tracking-wider text-lg mb-6">Mejor Arquero</h4>
-              {gkTrophy?.player ? (
-                <>
-                  <div className="w-28 h-28 bg-black/60 rounded-full border-4 border-teal-500/50 flex items-center justify-center p-3 mb-6 shadow-[0_0_15px_rgba(20,184,166,0.3)]">
-                    <img src={getPlayerStatInfo(gkTrophy.player).logo} className="w-full h-full object-contain" />
+              <h4 className="text-teal-400 font-bold uppercase tracking-wider text-lg mb-4">Arqueros</h4>
+              
+              <div className="flex flex-col w-full justify-around h-full gap-4">
+                {gkTrophy?.player && (
+                  <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+                        <img src={getPlayerStatInfo(gkTrophy.player).logo} className="w-full h-full object-contain" />
+                      </div>
+                      <div className="flex flex-col items-start text-left">
+                        <span className="text-xl font-black">{gkTrophy.player.nick}</span>
+                        <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(gkTrophy.player).teamName}</span>
+                      </div>
+                    </div>
+                    <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Salvadas / Mejor GK: {gkTrophy.extraInfo || "-"}</span>
                   </div>
-                  <span className="text-3xl font-black mb-2">{gkTrophy.player.nick}</span>
-                  <span className="text-zinc-300 text-xl font-bold bg-teal-500/20 px-4 py-1 rounded-full">{gkTrophy.extraInfo || "-"}</span>
-                </>
-              ) : (
-                <div className="py-12 text-zinc-600 italic text-xl">No definido</div>
-              )}
+                )}
+
+                {vallaTrophy?.player && (
+                  <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+                        <img src={getPlayerStatInfo(vallaTrophy.player).logo} className="w-full h-full object-contain" />
+                      </div>
+                      <div className="flex flex-col items-start text-left">
+                        <span className="text-xl font-black">{vallaTrophy.player.nick}</span>
+                        <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(vallaTrophy.player).teamName}</span>
+                      </div>
+                    </div>
+                    <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Valla Invicta: {vallaTrophy.extraInfo || "-"}</span>
+                  </div>
+                )}
+
+                {!gkTrophy?.player && !vallaTrophy?.player && (
+                  <div className="py-12 text-zinc-600 italic text-xl">No definido</div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -286,7 +318,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         {/* FOOTER */}
         <div className="w-full mt-16 py-6 border-t border-white/5 text-center z-10 flex items-center justify-center gap-4">
             <span className="text-zinc-500 font-bold tracking-widest uppercase text-sm">
-                Generado en TPM Sudamerica • ligatpm.com
+                {tournament.name} • By Campah
             </span>
         </div>
       </div>

@@ -16,7 +16,11 @@ export default function TrofeosTabs({ teams, players, dictionary }: { teams: any
   ];
 
   const extraTrophies = [
-    { name: "Copa de Promesas", url: "/img/trofeos/CopaDePromesasNew.png" }
+    { name: "Copa de Promesas", url: "/img/trofeos/CopaDePromesasNew.png" },
+    { name: "Copa de Invierno", url: "/img/trofeos/CopaInviernoNew.png" },
+    { name: "Copa de Otoño", url: "/img/trofeos/CopaOtoñoNew.png" },
+    { name: "Copa de Verano", url: "/img/trofeos/CopaVeranoNew.png" },
+    { name: "Copa de Primavera", url: "/img/trofeos/CopaPrimaveraNew.png" }
   ];
 
   const currentTrophies = typeTab === "oficiales" ? officialTrophies : extraTrophies;
@@ -26,7 +30,7 @@ export default function TrofeosTabs({ teams, players, dictionary }: { teams: any
       {/* Trophies Display */}
       <div className="bg-card border border-border shadow-md rounded-2xl p-6 flex flex-col items-center gap-6">
         <h3 className="text-xl font-black text-muted-foreground uppercase tracking-wider">
-          {typeTab === "oficiales" ? "Trofeos Oficiales" : "Trofeos Extra"}
+          {typeTab === "oficiales" ? "Trofeos Oficiales" : "Trofeos de Pretemporada"}
         </h3>
         <div className="flex flex-wrap justify-center gap-8 md:gap-12">
           {currentTrophies.map(trophy => (
@@ -55,7 +59,7 @@ export default function TrofeosTabs({ teams, players, dictionary }: { teams: any
             onClick={() => setTypeTab("extras")}
             className={`px-6 py-2 rounded-md font-bold transition-all ${typeTab === "extras" ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"}`}
           >
-            Torneos Extras
+            Torneos de Pretemporada
           </button>
         </div>
 
