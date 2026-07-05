@@ -2,6 +2,7 @@
 
 import React, { forwardRef } from 'react';
 import { getTrophyImage } from '@/lib/trophyImages';
+import BracketViewer from './BracketViewer';
 
 interface SeasonSummaryImageProps {
   tournament: any; // Raw tournament data
@@ -52,8 +53,8 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
 
     const goleadorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Goleador"));
     const asistidorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Asistidor"));
-    const gkTrophy = trophies.find((t: any) => t.type === "PLAYER" && (t.name.includes("Mejor GK") || t.name.includes("Salvadas")));
-    const vallaTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Valla"));
+    const gkTrophy = trophies.find((t: any) => t.type === "PLAYER" && (t.name.toLowerCase().includes("arquero") || t.name.toLowerCase().includes("gk") || t.name.toLowerCase().includes("salvadas")));
+    const vallaTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.toLowerCase().includes("valla") && t.id !== gkTrophy?.id);
     
     const isCup = tournament.format === "CUP" || tournament.format === "PLAYOFF";
 
@@ -164,13 +165,11 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                 ¡Campeón!
               </h3>
               
-              <div className="flex items-center justify-center gap-16 relative">
+              <div className="flex items-center justify-center gap-20 relative">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full scale-150"></div>
                   <img src={championTeam.logoUrl || "/img/trophy-default.png"} alt={championTeam.name} className="w-56 h-56 object-contain relative z-10 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" />
                 </div>
-
-                <div className="text-7xl text-yellow-500/40 font-black">+</div>
 
                 <div className="relative">
                   <img src={trophyImageUrl || undefined} alt="Trofeo" className="w-64 h-64 object-contain drop-shadow-[0_0_30px_rgba(234,179,8,0.6)] relative z-10" />
@@ -190,11 +189,15 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             </h3>
 
             {isCup ? (
-              <div className="flex justify-center items-center">
+              <div className="flex justify-center items-center w-full">
                 {tournament.bracketImageUrl ? (
                   <img src={tournament.bracketImageUrl} alt="Bracket" className="w-full h-auto rounded-xl object-contain shadow-lg" />
+                ) : tournament.bracketData ? (
+                  <div className="w-full scale-90 origin-top bg-black/40 p-6 rounded-2xl border border-white/5 shadow-inner">
+                    <BracketViewer bracketData={typeof tournament.bracketData === 'string' ? JSON.parse(tournament.bracketData) : tournament.bracketData} teams={tournament.teams || []} />
+                  </div>
                 ) : (
-                  <div className="text-center text-zinc-500 italic py-12">Cuadro no disponible en imagen</div>
+                  <div className="text-center text-zinc-500 italic py-12">Cuadro no disponible en imagen o interactivo</div>
                 )}
               </div>
             ) : (
