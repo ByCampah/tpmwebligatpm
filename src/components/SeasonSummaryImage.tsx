@@ -117,10 +117,33 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
 
     const getPlayerStatInfo = (player: any) => {
       const pInfo = playerStats.get(player?.id);
+      
+      if (pInfo) {
+        return {
+          nick: player?.nick || "N/A",
+          logo: pInfo.teamLogo || "/img/trophy-default.png",
+          teamName: pInfo.teamName || ""
+        };
+      }
+
+      // Fallback para copas o torneos donde el jugador no sumó estadísticas pero ganó el premio
+      let fallbackLogo = "/img/trophy-default.png";
+      let fallbackTeamName = "";
+
+      if (tournament.teams) {
+        for (const tt of tournament.teams) {
+          if (tt.players?.some((p: any) => p.playerId === player?.id)) {
+            fallbackLogo = tt.team?.logoUrl || fallbackLogo;
+            fallbackTeamName = tt.team?.name || fallbackTeamName;
+            break;
+          }
+        }
+      }
+
       return {
         nick: player?.nick || "N/A",
-        logo: pInfo?.teamLogo || "/img/trophy-default.png",
-        teamName: pInfo?.teamName || ""
+        logo: fallbackLogo,
+        teamName: fallbackTeamName
       };
     };
 
