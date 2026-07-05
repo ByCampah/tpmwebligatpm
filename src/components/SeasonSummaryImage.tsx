@@ -32,29 +32,69 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
 
           playerStats.set(pId, {
             id: pId,
+            player: stat.player,
             nick: stat.player.nick,
             teamLogo,
             teamName,
             goals: 0,
             assists: 0,
+            saves: 0,
+            cleanSheets: 0
           });
         }
         
         const pData = playerStats.get(pId);
         pData.goals += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
         pData.assists += (stat.assists || 0);
+        pData.saves += (stat.savesMade || 0);
+        if (stat.cleanSheet) pData.cleanSheets += 1;
       });
     });
 
     const trophies = tournament.trophies || [];
-    
     const championTrophy = trophies.find((t: any) => t.type === "TEAM" && (t.name.includes("Campeón") || t.name === "Campeon"));
     const championTeam = championTrophy?.team;
 
-    const goleadorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Goleador"));
-    const asistidorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Asistidor"));
-    const gkTrophy = trophies.find((t: any) => t.type === "PLAYER" && (t.name.toLowerCase().includes("arquero") || t.name.toLowerCase().includes("gk") || t.name.toLowerCase().includes("salvadas")));
-    const vallaTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.toLowerCase().includes("valla") && t.id !== gkTrophy?.id);
+    let goleadorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Goleador"));
+    let asistidorTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.includes("Asistidor"));
+    let gkTrophy = trophies.find((t: any) => t.type === "PLAYER" && (t.name.toLowerCase().includes("arquero") || t.name.toLowerCase().includes("gk") || t.name.toLowerCase().includes("salvadas")));
+    let vallaTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.toLowerCase().includes("valla") && t.id !== gkTrophy?.id);
+    
+    // Dynamic Fallback: If no trophies are awarded yet (e.g. mid-season), calculate current leaders
+    if (!goleadorTrophy || !asistidorTrophy || (!gkTrophy && !vallaTrophy)) {
+      const playersArr = Array.from(playerStats.values());
+      
+      if (!goleadorTrophy) {
+        const topScorer = playersArr.reduce((prev, current) => (prev.goals > current.goals) ? prev : current, { goals: 0 } as any);
+        if (topScorer.goals > 0) {
+          goleadorTrophy = { player: topScorer.player, extraInfo: topScorer.goals.toString() };
+        }
+      }
+      
+      if (!asistidorTrophy) {
+        const topAssister = playersArr.reduce((prev, current) => (prev.assists > current.assists) ? prev : current, { assists: 0 } as any);
+        if (topAssister.assists > 0) {
+          asistidorTrophy = { player: topAssister.player, extraInfo: topAssister.assists.toString() };
+        }
+      }
+      
+      if (!gkTrophy && !vallaTrophy) {
+        const topSaves = playersArr.reduce((prev, current) => (prev.saves > current.saves) ? prev : current, { saves: 0 } as any);
+        if (topSaves.saves > 0) {
+          gkTrophy = { player: topSaves.player, extraInfo: topSaves.saves.toString() };
+        }
+        
+        const topCleanSheets = playersArr.reduce((prev, current) => (prev.cleanSheets > current.cleanSheets) ? prev : current, { cleanSheets: 0 } as any);
+        if (topCleanSheets.cleanSheets > 0) {
+          vallaTrophy = { player: topCleanSheets.player, extraInfo: topCleanSheets.cleanSheets.toString() };
+          // Evitar mostrar a la misma persona dos veces si lidera ambas estadísticas, a menos que queramos juntarlo.
+          if (vallaTrophy.player?.id === gkTrophy?.player?.id) {
+            vallaTrophy = undefined; // Ya se muestra en gkTrophy
+            gkTrophy.extraInfo = `${topSaves.saves} Salv. / ${topCleanSheets.cleanSheets} V.I.`;
+          }
+        }
+      }
+    }
     
     const isCup = tournament.format === "CUP" || tournament.format === "PLAYOFF";
 
