@@ -60,42 +60,12 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
     let gkTrophy = trophies.find((t: any) => t.type === "PLAYER" && (t.name.toLowerCase().includes("arquero") || t.name.toLowerCase().includes("gk") || t.name.toLowerCase().includes("salvadas")));
     let vallaTrophy = trophies.find((t: any) => t.type === "PLAYER" && t.name.toLowerCase().includes("valla") && t.id !== gkTrophy?.id);
     
-    // Dynamic Fallback: If no trophies are awarded yet (e.g. mid-season), calculate current leaders
-    if (!goleadorTrophy || !asistidorTrophy || (!gkTrophy && !vallaTrophy)) {
-      const playersArr = Array.from(playerStats.values());
-      
-      if (!goleadorTrophy) {
-        const topScorer = playersArr.reduce((prev, current) => (prev.goals > current.goals) ? prev : current, { goals: 0 } as any);
-        if (topScorer.goals > 0) {
-          goleadorTrophy = { player: topScorer.player, extraInfo: topScorer.goals.toString() };
-        }
-      }
-      
-      if (!asistidorTrophy) {
-        const topAssister = playersArr.reduce((prev, current) => (prev.assists > current.assists) ? prev : current, { assists: 0 } as any);
-        if (topAssister.assists > 0) {
-          asistidorTrophy = { player: topAssister.player, extraInfo: topAssister.assists.toString() };
-        }
-      }
-      
-      if (!gkTrophy && !vallaTrophy) {
-        const topSaves = playersArr.reduce((prev, current) => (prev.saves > current.saves) ? prev : current, { saves: 0 } as any);
-        if (topSaves.saves > 0) {
-          gkTrophy = { player: topSaves.player, extraInfo: topSaves.saves.toString() };
-        }
-        
-        const topCleanSheets = playersArr.reduce((prev, current) => (prev.cleanSheets > current.cleanSheets) ? prev : current, { cleanSheets: 0 } as any);
-        if (topCleanSheets.cleanSheets > 0) {
-          vallaTrophy = { player: topCleanSheets.player, extraInfo: topCleanSheets.cleanSheets.toString() };
-          // Evitar mostrar a la misma persona dos veces si lidera ambas estadísticas, a menos que queramos juntarlo.
-          if (vallaTrophy.player?.id === gkTrophy?.player?.id) {
-            vallaTrophy = undefined; // Ya se muestra en gkTrophy
-            gkTrophy.extraInfo = `${topSaves.saves} Salv. / ${topCleanSheets.cleanSheets} V.I.`;
-          }
-        }
-      }
-    }
-    
+    // Calculate Top 5 for weekly updates
+    const playersArr = Array.from(playerStats.values());
+    const topScorers = [...playersArr].sort((a, b) => b.goals - a.goals).slice(0, 5).filter(p => p.goals > 0);
+    const topAssisters = [...playersArr].sort((a, b) => b.assists - a.assists).slice(0, 5).filter(p => p.assists > 0);
+    const topKeepers = [...playersArr].sort((a, b) => b.saves !== a.saves ? b.saves - a.saves : b.cleanSheets - a.cleanSheets).slice(0, 5).filter(p => p.saves > 0 || p.cleanSheets > 0);
+
     const isCup = tournament.format === "CUP" || tournament.format === "PLAYOFF";
 
     // Calcular tabla de posiciones si es liga
@@ -301,38 +271,64 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           {/* PREMIOS INDIVIDUALES */}
           <div className="grid grid-cols-3 gap-8 mt-4">
             {/* GOLEADOR */}
-            <div className="bg-gradient-to-b from-blue-900/30 to-black border border-blue-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
+            <div className="bg-gradient-to-b from-blue-900/30 to-black border border-blue-500/30 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
               <div className="absolute top-4 right-4 text-4xl opacity-50">⚽</div>
-              <h4 className="text-blue-400 font-bold uppercase tracking-wider text-lg mb-6">Goleador</h4>
+              <h4 className="text-blue-400 font-bold uppercase tracking-wider text-lg mb-4">Goleadores</h4>
               {goleadorTrophy?.player ? (
-                <>
-                  <div className="w-28 h-28 bg-black/60 rounded-full border-4 border-blue-500/50 flex items-center justify-center p-3 mb-4 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                <div className="flex flex-col justify-center items-center h-full">
+                  <div className="w-24 h-24 bg-black/60 rounded-full border-4 border-blue-500/50 flex items-center justify-center p-2 mb-3 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                     <img src={getPlayerStatInfo(goleadorTrophy.player).logo} className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-3xl font-black mb-1">{goleadorTrophy.player.nick}</span>
-                  <span className="text-zinc-400 font-bold text-sm mb-4">{getPlayerStatInfo(goleadorTrophy.player).teamName}</span>
-                  <span className="text-zinc-300 text-xl font-bold bg-blue-500/20 px-4 py-1 rounded-full">{goleadorTrophy.extraInfo || "-"}</span>
-                </>
+                  <span className="text-2xl font-black mb-1">{goleadorTrophy.player.nick}</span>
+                  <span className="text-zinc-400 font-bold text-xs mb-3">{getPlayerStatInfo(goleadorTrophy.player).teamName}</span>
+                  <span className="text-zinc-300 text-lg font-bold bg-blue-500/20 px-3 py-1 rounded-full">{goleadorTrophy.extraInfo || "-"}</span>
+                </div>
+              ) : topScorers.length > 0 ? (
+                <div className="flex flex-col w-full gap-2 mt-2">
+                  {topScorers.map((p, idx) => (
+                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-blue-500/20">
+                      <div className="flex items-center gap-2">
+                         <span className="text-blue-500 font-bold w-4">{idx + 1}</span>
+                         <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
+                         <span className="font-bold text-sm truncate max-w-[100px] text-left">{p.nick}</span>
+                      </div>
+                      <span className="font-black text-blue-400">{p.goals}</span>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <div className="py-12 text-zinc-600 italic text-xl">No definido</div>
+                <div className="py-12 text-zinc-600 italic text-xl h-full flex items-center">No definido</div>
               )}
             </div>
 
             {/* ASISTIDOR */}
-            <div className="bg-gradient-to-b from-pink-900/30 to-black border border-pink-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
+            <div className="bg-gradient-to-b from-pink-900/30 to-black border border-pink-500/30 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
               <div className="absolute top-4 right-4 text-4xl opacity-50">👟</div>
-              <h4 className="text-pink-400 font-bold uppercase tracking-wider text-lg mb-6">Asistidor</h4>
+              <h4 className="text-pink-400 font-bold uppercase tracking-wider text-lg mb-4">Asistencias</h4>
               {asistidorTrophy?.player ? (
-                <>
-                  <div className="w-28 h-28 bg-black/60 rounded-full border-4 border-pink-500/50 flex items-center justify-center p-3 mb-4 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                <div className="flex flex-col justify-center items-center h-full">
+                  <div className="w-24 h-24 bg-black/60 rounded-full border-4 border-pink-500/50 flex items-center justify-center p-2 mb-3 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
                     <img src={getPlayerStatInfo(asistidorTrophy.player).logo} className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-3xl font-black mb-1">{asistidorTrophy.player.nick}</span>
-                  <span className="text-zinc-400 font-bold text-sm mb-4">{getPlayerStatInfo(asistidorTrophy.player).teamName}</span>
-                  <span className="text-zinc-300 text-xl font-bold bg-pink-500/20 px-4 py-1 rounded-full">{asistidorTrophy.extraInfo || "-"}</span>
-                </>
+                  <span className="text-2xl font-black mb-1">{asistidorTrophy.player.nick}</span>
+                  <span className="text-zinc-400 font-bold text-xs mb-3">{getPlayerStatInfo(asistidorTrophy.player).teamName}</span>
+                  <span className="text-zinc-300 text-lg font-bold bg-pink-500/20 px-3 py-1 rounded-full">{asistidorTrophy.extraInfo || "-"}</span>
+                </div>
+              ) : topAssisters.length > 0 ? (
+                <div className="flex flex-col w-full gap-2 mt-2">
+                  {topAssisters.map((p, idx) => (
+                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-pink-500/20">
+                      <div className="flex items-center gap-2">
+                         <span className="text-pink-500 font-bold w-4">{idx + 1}</span>
+                         <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
+                         <span className="font-bold text-sm truncate max-w-[100px] text-left">{p.nick}</span>
+                      </div>
+                      <span className="font-black text-pink-400">{p.assists}</span>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <div className="py-12 text-zinc-600 italic text-xl">No definido</div>
+                <div className="py-12 text-zinc-600 italic text-xl h-full flex items-center">No definido</div>
               )}
             </div>
 
@@ -341,39 +337,62 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
               <div className="absolute top-4 right-4 text-4xl opacity-50">🧤</div>
               <h4 className="text-teal-400 font-bold uppercase tracking-wider text-lg mb-4">Arqueros</h4>
               
-              <div className="flex flex-col w-full justify-around h-full gap-4">
-                {gkTrophy?.player && (
-                  <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
-                    <div className="flex items-center gap-4 mb-2">
-                      <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
-                        <img src={getPlayerStatInfo(gkTrophy.player).logo} className="w-full h-full object-contain" />
+              <div className="flex flex-col w-full h-full gap-2 mt-2">
+                {gkTrophy?.player || vallaTrophy?.player ? (
+                  <div className="flex flex-col justify-around h-full gap-4">
+                    {gkTrophy?.player && (
+                      <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
+                        <div className="flex items-center gap-4 mb-2">
+                          <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+                            <img src={getPlayerStatInfo(gkTrophy.player).logo} className="w-full h-full object-contain" />
+                          </div>
+                          <div className="flex flex-col items-start text-left">
+                            <span className="text-xl font-black">{gkTrophy.player.nick}</span>
+                            <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(gkTrophy.player).teamName}</span>
+                          </div>
+                        </div>
+                        <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Salvadas: {gkTrophy.extraInfo || "-"}</span>
                       </div>
-                      <div className="flex flex-col items-start text-left">
-                        <span className="text-xl font-black">{gkTrophy.player.nick}</span>
-                        <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(gkTrophy.player).teamName}</span>
-                      </div>
-                    </div>
-                    <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Salvadas / Mejor GK: {gkTrophy.extraInfo || "-"}</span>
-                  </div>
-                )}
+                    )}
 
-                {vallaTrophy?.player && (
-                  <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
-                    <div className="flex items-center gap-4 mb-2">
-                      <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
-                        <img src={getPlayerStatInfo(vallaTrophy.player).logo} className="w-full h-full object-contain" />
+                    {vallaTrophy?.player && (
+                      <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
+                        <div className="flex items-center gap-4 mb-2">
+                          <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+                            <img src={getPlayerStatInfo(vallaTrophy.player).logo} className="w-full h-full object-contain" />
+                          </div>
+                          <div className="flex flex-col items-start text-left">
+                            <span className="text-xl font-black">{vallaTrophy.player.nick}</span>
+                            <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(vallaTrophy.player).teamName}</span>
+                          </div>
+                        </div>
+                        <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Valla Invicta: {vallaTrophy.extraInfo || "-"}</span>
                       </div>
-                      <div className="flex flex-col items-start text-left">
-                        <span className="text-xl font-black">{vallaTrophy.player.nick}</span>
-                        <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(vallaTrophy.player).teamName}</span>
-                      </div>
-                    </div>
-                    <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Valla Invicta: {vallaTrophy.extraInfo || "-"}</span>
+                    )}
                   </div>
-                )}
-
-                {!gkTrophy?.player && !vallaTrophy?.player && (
-                  <div className="py-12 text-zinc-600 italic text-xl">No definido</div>
+                ) : topKeepers.length > 0 ? (
+                  <div className="flex flex-col w-full gap-2">
+                    {/* Encabezado */}
+                    <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-teal-500/70 font-bold px-1 mb-1">
+                      <span className="w-6 text-center">Sal.</span>
+                      <span className="w-6 text-center">VI</span>
+                    </div>
+                    {topKeepers.map((p, idx) => (
+                      <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-teal-500/20">
+                        <div className="flex items-center gap-2">
+                           <span className="text-teal-500 font-bold w-4">{idx + 1}</span>
+                           <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
+                           <span className="font-bold text-sm truncate max-w-[70px] text-left">{p.nick}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm font-black">
+                           <span className="text-teal-400 w-6 text-center">{p.saves}</span>
+                           <span className="text-emerald-400 w-6 text-center">{p.cleanSheets}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-zinc-600 italic text-xl h-full flex items-center justify-center">No definido</div>
                 )}
               </div>
             </div>
