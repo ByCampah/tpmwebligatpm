@@ -168,7 +168,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                 <div className="text-7xl text-yellow-500/40 font-black">+</div>
 
                 <div className="relative">
-                  <img src={trophyImageUrl} alt="Trofeo" className="w-64 h-64 object-contain drop-shadow-[0_0_30px_rgba(234,179,8,0.6)] relative z-10" />
+                  <img src={trophyImageUrl || undefined} alt="Trofeo" className="w-64 h-64 object-contain drop-shadow-[0_0_30px_rgba(234,179,8,0.6)] relative z-10" />
                 </div>
               </div>
               
