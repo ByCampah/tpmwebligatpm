@@ -161,8 +161,12 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
             <span className={`font-black text-xl ${styles.textClass} uppercase tracking-widest drop-shadow-md`}>{formattedName}</span>
             <span className="text-sm font-bold text-white/90 uppercase tracking-wider mt-1">
               {trofeo.tournament ? trofeo.tournament.name : 'Histórico'}
-              {trofeo.type === 'TEAM' && trofeo.team ? ` (con ${trofeo.team.name})` : ''}
             </span>
+            {trofeo.type === 'TEAM' && trofeo.team && (
+              <span className="text-xs font-semibold text-muted-foreground/80 mt-0.5 uppercase tracking-wide">
+                {trofeo.team.name}
+              </span>
+            )}
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none z-0"></div>
           <div className="absolute -right-4 -bottom-4 opacity-5 text-9xl z-0 pointer-events-none">
@@ -185,8 +189,12 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
           <span className={`font-black ${styles.textClass} uppercase tracking-wider`}>{formattedName}</span>
           <span className="text-xs text-muted-foreground">
             {trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : 'Histórico'}
-            {trofeo.type === 'TEAM' && trofeo.team ? ` (con ${trofeo.team.name})` : ''}
           </span>
+          {trofeo.type === 'TEAM' && trofeo.team && (
+            <span className="text-[10px] text-muted-foreground/70 uppercase font-semibold mt-0.5 tracking-wide">
+              {trofeo.team.name}
+            </span>
+          )}
         </div>
         <div className="absolute -right-4 -bottom-4 opacity-5 text-8xl z-0 pointer-events-none">
           {trofeo.type === 'TEAM' ? '👥' : styles.icon}
