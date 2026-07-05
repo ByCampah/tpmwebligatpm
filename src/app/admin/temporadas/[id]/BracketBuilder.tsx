@@ -26,7 +26,10 @@ export default function BracketBuilder({ tournamentId, enrolledTeamsData, initia
       },
       {
         name: "Final",
-        matches: [{ id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" }]
+        matches: [
+          { id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" },
+          { id: "3rd", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "", isThirdPlace: true, label: "Tercer Puesto" }
+        ]
       }
     ]
   };
@@ -38,20 +41,29 @@ export default function BracketBuilder({ tournamentId, enrolledTeamsData, initia
     if (size === 4) {
       rounds = [
         { name: "Semifinal", matches: Array(2).fill(null).map((_, i) => ({ id: `s${i+1}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" })) },
-        { name: "Final", matches: [{ id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" }] }
+        { name: "Final", matches: [
+          { id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" },
+          { id: "3rd", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "", isThirdPlace: true, label: "Tercer Puesto" }
+        ] }
       ];
     } else if (size === 8) {
       rounds = [
         { name: "Cuartos de Final", matches: Array(4).fill(null).map((_, i) => ({ id: `q${i+1}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" })) },
         { name: "Semifinal", matches: Array(2).fill(null).map((_, i) => ({ id: `s${i+1}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" })) },
-        { name: "Final", matches: [{ id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" }] }
+        { name: "Final", matches: [
+          { id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" },
+          { id: "3rd", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "", isThirdPlace: true, label: "Tercer Puesto" }
+        ] }
       ];
     } else if (size === 16) {
       rounds = [
         { name: "Octavos de Final", matches: Array(8).fill(null).map((_, i) => ({ id: `o${i+1}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" })) },
         { name: "Cuartos de Final", matches: Array(4).fill(null).map((_, i) => ({ id: `q${i+1}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" })) },
         { name: "Semifinal", matches: Array(2).fill(null).map((_, i) => ({ id: `s${i+1}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" })) },
-        { name: "Final", matches: [{ id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" }] }
+        { name: "Final", matches: [
+          { id: "f1", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "" },
+          { id: "3rd", teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "", isThirdPlace: true, label: "Tercer Puesto" }
+        ] }
       ];
     }
     setBracket({ size, rounds });
@@ -114,6 +126,7 @@ export default function BracketBuilder({ tournamentId, enrolledTeamsData, initia
               <div className="flex flex-col justify-around flex-1 gap-4">
                 {round.matches.map((match: any, mIndex: number) => (
                   <div key={match.id} className="bg-card border border-border rounded-lg p-3 shadow-md flex flex-col gap-2 relative z-10">
+                    {match.label && <div className="text-center text-xs font-bold text-muted-foreground uppercase mb-1">{match.label}</div>}
                     
                     {/* Equipo A */}
                     <div className="flex items-center gap-2">

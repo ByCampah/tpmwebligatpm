@@ -30,10 +30,11 @@ export default function BracketViewer({ bracketData, teams }: BracketViewerProps
                 const winnerB = match.scoreB > match.scoreA || (match.scoreA === match.scoreB && match.penB > match.penA);
 
                 return (
-                  <div key={match.id} className="relative flex flex-col justify-center my-2">
+                  <div key={match.id} className={`relative flex flex-col justify-center my-2 min-w-[200px] sm:min-w-[240px] ${match.isThirdPlace ? 'mt-8' : ''}`}>
+                    {match.label && <div className="text-center text-xs font-bold text-muted-foreground uppercase mb-1">{match.label}</div>}
                     
                     {/* Visual Connector lines for next round */}
-                    {rIndex < bracketData.rounds.length - 1 && (
+                    {rIndex < bracketData.rounds.length - 1 && !match.isThirdPlace && (
                       <>
                         <div className="absolute w-4 border-t-2 border-border/50 right-[-16px] top-1/2"></div>
                         {mIndex % 2 === 0 ? (
@@ -45,43 +46,43 @@ export default function BracketViewer({ bracketData, teams }: BracketViewerProps
                     )}
 
                     {/* The Match Card */}
-                    <div className="bg-card border-2 border-border rounded-lg shadow-lg overflow-hidden flex flex-col z-10 hover:border-primary/50 transition-colors">
+                    <div className={`bg-card border-2 border-border rounded-lg shadow-sm overflow-hidden flex flex-col z-10 hover:border-primary/50 transition-colors ${match.isThirdPlace ? 'border-dashed' : ''}`}>
                       
                       {/* Team A */}
-                      <div className={`flex items-center justify-between p-2 sm:p-3 border-b border-border/50 ${winnerA ? 'bg-primary/5' : ''}`}>
-                        <div className="flex items-center gap-3 overflow-hidden">
-                          {teamA?.logo ? (
-                            <img src={teamA.logo} alt={teamA.name} className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
+                      <div className={`flex items-center justify-between p-2 border-b border-border/50 ${winnerA ? 'bg-primary/5' : ''}`}>
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          {teamA?.logoUrl ? (
+                            <img src={teamA.logoUrl} alt={teamA.name} className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
                           ) : (
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-secondary rounded-full flex-shrink-0"></div>
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-secondary rounded-full flex-shrink-0"></div>
                           )}
-                          <Link href={teamA?.id ? `/equipos/${teamA.id}` : '#'} className={`font-bold text-sm sm:text-base truncate hover:text-primary transition-colors ${winnerA ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          <Link href={teamA?.id ? `/equipos/${teamA.id}` : '#'} className={`font-bold text-xs sm:text-sm truncate hover:text-primary transition-colors ${winnerA ? 'text-foreground' : 'text-muted-foreground'}`}>
                             {teamA?.name || "TBD"}
                           </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                          {hasPenA && <span className="text-[10px] sm:text-xs text-muted-foreground font-bold">({match.penA})</span>}
-                          <span className={`font-black text-lg sm:text-xl w-6 text-center ${winnerA ? 'text-primary' : 'text-muted-foreground'}`}>
+                          {hasPenA && <span className="text-[9px] sm:text-[10px] text-muted-foreground font-bold">({match.penA})</span>}
+                          <span className={`font-black text-sm sm:text-base w-4 text-center ${winnerA ? 'text-primary' : 'text-muted-foreground'}`}>
                             {match.scoreA || "-"}
                           </span>
                         </div>
                       </div>
 
                       {/* Team B */}
-                      <div className={`flex items-center justify-between p-2 sm:p-3 ${winnerB ? 'bg-primary/5' : ''}`}>
-                        <div className="flex items-center gap-3 overflow-hidden">
-                          {teamB?.logo ? (
-                            <img src={teamB.logo} alt={teamB.name} className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
+                      <div className={`flex items-center justify-between p-2 ${winnerB ? 'bg-primary/5' : ''}`}>
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          {teamB?.logoUrl ? (
+                            <img src={teamB.logoUrl} alt={teamB.name} className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
                           ) : (
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-secondary rounded-full flex-shrink-0"></div>
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-secondary rounded-full flex-shrink-0"></div>
                           )}
-                          <Link href={teamB?.id ? `/equipos/${teamB.id}` : '#'} className={`font-bold text-sm sm:text-base truncate hover:text-primary transition-colors ${winnerB ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          <Link href={teamB?.id ? `/equipos/${teamB.id}` : '#'} className={`font-bold text-xs sm:text-sm truncate hover:text-primary transition-colors ${winnerB ? 'text-foreground' : 'text-muted-foreground'}`}>
                             {teamB?.name || "TBD"}
                           </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                          {hasPenB && <span className="text-[10px] sm:text-xs text-muted-foreground font-bold">({match.penB})</span>}
-                          <span className={`font-black text-lg sm:text-xl w-6 text-center ${winnerB ? 'text-primary' : 'text-muted-foreground'}`}>
+                          {hasPenB && <span className="text-[9px] sm:text-[10px] text-muted-foreground font-bold">({match.penB})</span>}
+                          <span className={`font-black text-sm sm:text-base w-4 text-center ${winnerB ? 'text-primary' : 'text-muted-foreground'}`}>
                             {match.scoreB || "-"}
                           </span>
                         </div>
@@ -90,7 +91,7 @@ export default function BracketViewer({ bracketData, teams }: BracketViewerProps
                     </div>
 
                     {/* Connector line from previous round */}
-                    {rIndex > 0 && (
+                    {rIndex > 0 && !match.isThirdPlace && (
                       <div className="absolute w-4 border-t-2 border-border/50 left-[-16px] top-1/2"></div>
                     )}
                   </div>
