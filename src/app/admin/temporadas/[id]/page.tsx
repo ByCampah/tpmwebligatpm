@@ -25,7 +25,13 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
       },
       matches: {
         orderBy: { createdAt: "asc" },
-        include: { homeTeam: true, awayTeam: true, stats: true }
+        include: { homeTeam: true, awayTeam: true, stats: { include: { player: { include: { tournamentTeams: { include: { tournamentTeam: { include: { team: true } } } } } } } } }
+      },
+      trophies: {
+        include: {
+          player: true,
+          team: true
+        }
       }
     }
   });
