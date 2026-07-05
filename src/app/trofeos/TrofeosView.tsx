@@ -19,187 +19,154 @@ type TeamWithTrophies = {
   trophies: TrophyRecord[];
 };
 
-export default function TrofeosView({ teams, dictionary }: { teams: TeamWithTrophies[], dictionary: any }) {
-  // Extract categories dynamically
-  const categoryNamesSet = new Set<string>();
-  teams.forEach(team => {
-    team.trophies.forEach(t => {
-      if (t.tournament && t.tournament.isOfficial === false) {
-        categoryNamesSet.add("Torneos Extras");
-        return;
-      }
-      
-      const catName = t.tournament?.category?.name;
-      if (catName) {
-        categoryNamesSet.add(catName);
-      } else {
-        // Fallback for older data without category: parse from tournament name
-        if ((t.tournament?.name || "").includes("Primera")) categoryNamesSet.add("Primera División");
-        else if ((t.tournament?.name || "").includes("Segunda")) categoryNamesSet.add("Segunda División");
-        else if ((t.tournament?.name || "").includes("x8")) categoryNamesSet.add("Liga 1 x8");
-        else categoryNamesSet.add("General");
-      }
-    });
-  });
-  const categories = Array.from(categoryNamesSet).sort((a, b) => {
-    // Custom sort: Primera first, then Segunda, etc.
-    if (a.includes("Primera") && !b.includes("Primera")) return -1;
-    if (!a.includes("Primera") && b.includes("Primera")) return 1;
-    if (a.includes("Segunda") && !b.includes("Segunda")) return -1;
-    if (!a.includes("Segunda") && b.includes("Segunda")) return 1;
-    if (a === "Torneos Extras") return 1; // Extras at the end
-    if (b === "Torneos Extras") return -1;
-    return a.localeCompare(b);
-  });
-
-  const defaultTab = categories.includes("Primera División") ? "Primera División" : categories[0] || "General";
-  const [activeTab, setActiveTab] = useState<string>(defaultTab);
+export default function TrofeosView({ teams, dictionary, isOfficial = true }: { teams: TeamWithTrophies[], dictionary: any, isOfficial?: boolean }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const getRelevantTrophies = (trophies: TrophyRecord[], cat: string) => {
-    return trophies.filter(t => {
-      if (cat === "Torneos Extras") {
-        return t.tournament?.isOfficial === false;
-      }
-      
-      // If it's looking for official tournaments but this is extra, skip
-      if (t.tournament && t.tournament.isOfficial === false) return false;
-
-      const tCat = t.tournament?.category?.name;
-      if (tCat) return tCat === cat;
-      
-      // Fallback logic for filtering
-      if (cat === "Primera División") return (t.tournament?.name || "").includes("Primera");
-      if (cat === "Segunda División") return (t.tournament?.name || "").includes("Segunda");
-      if (cat === "Liga 1 x8") return (t.tournament?.name || "").includes("x8");
-      if (cat === "General") return !(t.tournament?.name || "").includes("Primera") && !(t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("x8");
-      return false;
-    });
-  };
-
-  // Process data for the active tab
   const getRankedTeams = () => {
     const ranked = teams.filter(t => t.name.toLowerCase().includes(searchTerm.toLowerCase())).map(team => {
-      const relevantTrophies = getRelevantTrophies(team.trophies, activeTab);
-      const firsts = relevantTrophies.filter(t => t.name.includes("Campeón"));
-      const seconds = relevantTrophies.filter(t => t.name.includes("Subcampeón"));
-      const thirds = relevantTrophies.filter(t => t.name.includes("Tercer Puesto") || t.name.includes("3er Puesto"));
+      // Filter trophies based on isOfficial
+      const relevantTrophies = team.trophies.filter(t => {
+        const tIsOfficial = t.tournament?.isOfficial ?? true; // Default true if not specified
+        return tIsOfficial === isOfficial;
+      });
+
+      const firsts = relevantTrophies.filter(t => t.name.includes("Campeón") || t.name === "Campeon");
+      const seconds = relevantTrophies.filter(t => t.name.includes("Subcampeón") || t.name === "Subcampeon");
+      const thirds = relevantTrophies.filter(t => t.name.includes("Tercer") || t.name.includes("3er"));
       
       return {
         ...team,
         count: firsts.length,
         count2nd: seconds.length,
         count3rd: thirds.length,
-        trophiesList: firsts, // Keep just the 1sts for the Ligas/Copas detail
-        allTrophies: relevantTrophies
+        allTrophies: relevantTrophies.sort((a, b) => {
+          // Sort trophies: 1sts first, 2nds, 3rds
+          const getWeight = (name: string) => {
+            if (name.includes("Campeón") || name === "Campeon") return 3;
+            if (name.includes("Subcampeón") || name === "Subcampeon") return 2;
+            if (name.includes("Tercer") || name.includes("3er")) return 1;
+            return 0;
+          };
+          return getWeight(b.name) - getWeight(a.name);
+        })
       };
     }).filter(team => team.count > 0 || team.count2nd > 0 || team.count3rd > 0);
 
     return ranked.sort((a, b) => {
       if (b.count !== a.count) return b.count - a.count;
       if (b.count2nd !== a.count2nd) return b.count2nd - a.count2nd;
-      return b.count3rd - a.count3rd;
+      if (b.count3rd !== a.count3rd) return b.count3rd - a.count3rd;
+      return a.name.localeCompare(b.name);
     });
   };
 
   const rankedTeams = getRankedTeams();
 
+  const getTrophyImage = (tournamentName: string | undefined): string => {
+    if (!tournamentName) return '/img/trophy-default.png';
+    const normalized = tournamentName.toLowerCase();
+    
+    if (normalized.includes('supercopa')) return '/img/trofeos/SupercopaTPMNew.png';
+    if (normalized.includes('promesas')) return '/img/trofeos/CopaDePromesasNew.png';
+    if (normalized.includes('copa tpm') || (normalized.includes('copa') && !normalized.includes('liga'))) return '/img/trofeos/CopaTPMNew.png';
+    if (normalized.includes('liga b')) return '/img/trofeos/LigaBTPMNew.png';
+    if (normalized.includes('liga tpm') || normalized.includes('liga')) return '/img/trofeos/LigaTPMNew.png';
+    
+    return '/img/trophy-default.png';
+  };
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter neon-text">
-          Salón de la Fama
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Ranking histórico de los clubes más ganadores de la comunidad TPM.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-2 justify-center border-b border-border/50 pb-4">
-        {categories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setActiveTab(cat)}
-            className={`px-6 py-2 rounded-full font-bold transition-all duration-300 ${activeTab === cat ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(16,185,129,0.5)]" : "bg-card text-muted-foreground hover:bg-white/5"}`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex justify-center mb-6">
-        <input
-          type="text"
-          placeholder="Buscar equipo..."
+    <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex justify-between items-center bg-card p-4 rounded-xl border border-border shadow-sm">
+        <h2 className="text-2xl font-black text-primary uppercase">
+          {isOfficial ? "Ranking Oficial" : "Ranking Extras"}
+        </h2>
+        <input 
+          type="text" 
+          placeholder="Buscar equipo..." 
+          className="bg-secondary/50 text-foreground border border-border rounded-md px-4 py-2 w-full max-w-xs focus:outline-none focus:border-primary transition-colors"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full md:w-96 bg-card border border-border rounded-lg px-4 py-2 font-mono outline-none focus:border-primary transition-colors text-white"
         />
       </div>
 
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+      <div className="flex flex-col gap-4">
         {rankedTeams.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">
-            No hay campeones registrados en esta categoría aún.
+          <div className="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
+            No hay equipos con trofeos en esta categoría.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-black/40 text-muted-foreground uppercase text-xs tracking-wider">
-                <tr>
-                  <th className="p-4 w-16 text-center font-bold">#</th>
-                  <th className="p-4 font-bold">{dictionary.team}</th>
-                  <th className="p-4 text-center font-black text-primary" title={dictionary.champion}>🏆 {dictionary.total}</th>
-                  <th className="p-4 text-center font-bold text-blue-500 bg-blue-500/5">🥇 Liga</th>
-                  <th className="p-4 text-center font-bold text-blue-400/70 bg-blue-500/5">🥈 2do L</th>
-                  <th className="p-4 text-center font-bold text-blue-300/50 bg-blue-500/5 border-r border-border/50">🥉 3er L</th>
-                  <th className="p-4 text-center font-bold text-green-500 bg-green-500/5">🥇 Copa</th>
-                  <th className="p-4 text-center font-bold text-green-400/70 bg-green-500/5">🥈 2do C</th>
-                  <th className="p-4 text-center font-bold text-green-300/50 bg-green-500/5">🥉 3er C</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/50">
-                {rankedTeams.map((team, index) => {
-                  const ligas1 = team.trophiesList.filter(t => (t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa")).length;
-                  const copas1 = team.trophiesList.filter(t => (t.tournament?.name || "").includes("Copa")).length;
-                  
-                  const ligas2 = team.allTrophies.filter(t => t.name.includes("Subcampeón") && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
-                  const copas2 = team.allTrophies.filter(t => t.name.includes("Subcampeón") && (t.tournament?.name || "").includes("Copa")).length;
-                  
-                  const ligas3 = team.allTrophies.filter(t => (t.name.includes("3er Puesto") || t.name.includes("Tercer Puesto")) && ((t.tournament?.name || "").includes("Liga") || (t.tournament?.name || "").includes("Primera") || (t.tournament?.name || "").includes("Segunda") && !(t.tournament?.name || "").includes("Copa"))).length;
-                  const copas3 = team.allTrophies.filter(t => (t.name.includes("3er Puesto") || t.name.includes("Tercer Puesto")) && (t.tournament?.name || "").includes("Copa")).length;
+          rankedTeams.map((team, index) => (
+            <div key={team.id} className="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row gap-6 items-center shadow-lg hover:border-primary/50 transition-all">
+              
+              {/* Pos & Team Info */}
+              <div className="flex items-center gap-4 min-w-[250px] w-full md:w-auto border-b md:border-b-0 md:border-r border-border pb-4 md:pb-0 md:pr-6">
+                <div className="text-3xl font-black text-muted-foreground/30 w-10 text-center">
+                  #{index + 1}
+                </div>
+                <div className="w-12 h-12 bg-secondary rounded-full p-1 flex items-center justify-center flex-shrink-0">
+                  {(team as any).logo ? (
+                    <img src={(team as any).logo} alt={team.name} className="w-full h-full object-contain" />
+                  ) : (
+                    <span className="font-bold text-xs">{team.name.substring(0, 3)}</span>
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <Link href={`/equipos/${team.id}`} className="font-bold text-lg hover:text-primary transition-colors">
+                    {team.name}
+                  </Link>
+                  <div className="text-sm text-muted-foreground font-semibold">
+                    <span className="text-primary">{team.count}</span> 🏆 • <span className="text-zinc-400">{team.count2nd}</span> 🥈 • <span className="text-amber-700">{team.count3rd}</span> 🥉
+                  </div>
+                </div>
+              </div>
+
+              {/* Trophies Visuals */}
+              <div className="flex flex-wrap items-center gap-4 w-full flex-1">
+                {team.allTrophies.map((trophy) => {
+                  const isFirst = trophy.name.includes("Campeón") || trophy.name === "Campeon";
+                  const isSecond = trophy.name.includes("Subcampeón") || trophy.name === "Subcampeon";
+                  const isThird = trophy.name.includes("Tercer") || trophy.name.includes("3er");
+                  const tournamentName = trophy.tournament?.name || "Torneo Desconocido";
+                  const imageUrl = getTrophyImage(tournamentName);
                   
                   return (
-                    <tr key={team.id} className="hover:bg-white/5 transition-colors">
-                      <td className="p-4 text-center">
-                        {index === 0 ? <span className="text-2xl" title="1er Puesto">🏆</span> : 
-                         index === 1 ? <span className="text-2xl" title="2do Puesto">🥈</span> : 
-                         index === 2 ? <span className="text-2xl" title="3er Puesto">🥉</span> : 
-                         <span className="font-bold text-muted-foreground">{index + 1}</span>}
-                      </td>
-                      <td className="p-4">
-                        <Link href={`/equipos/${team.id}`} className="font-bold text-lg hover:text-primary transition-colors flex items-center gap-2">
-                          {team.name}
-                        </Link>
-                      </td>
-                      <td className="p-4 text-center">
-                        <span className="text-3xl font-black text-primary drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]">
-                          {team.count}
-                        </span>
-                      </td>
-                      <td className="p-4 text-center font-bold text-blue-400 bg-blue-500/5">{ligas1 > 0 ? ligas1 : "-"}</td>
-                      <td className="p-4 text-center font-bold text-blue-400/50 bg-blue-500/5">{ligas2 > 0 ? ligas2 : "-"}</td>
-                      <td className="p-4 text-center font-bold text-blue-300/30 bg-blue-500/5 border-r border-border/50">{ligas3 > 0 ? ligas3 : "-"}</td>
+                    <div 
+                      key={trophy.id} 
+                      className="relative group flex items-end justify-center"
+                      title={`${trophy.name} - ${tournamentName}`}
+                    >
+                      {isFirst && (
+                        <div className="flex flex-col items-center">
+                          <img src={imageUrl} alt={tournamentName} className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                        </div>
+                      )}
                       
-                      <td className="p-4 text-center font-bold text-green-400 bg-green-500/5">{copas1 > 0 ? copas1 : "-"}</td>
-                      <td className="p-4 text-center font-bold text-green-400/50 bg-green-500/5">{copas2 > 0 ? copas2 : "-"}</td>
-                      <td className="p-4 text-center font-bold text-green-300/30 bg-green-500/5">{copas3 > 0 ? copas3 : "-"}</td>
-                    </tr>
+                      {isSecond && (
+                        <div className="flex flex-col items-center relative">
+                          <div className="absolute -top-2 -right-2 text-xl z-10 drop-shadow-md">🥈</div>
+                          <img src={imageUrl} alt={tournamentName} className="w-8 h-8 object-contain opacity-80" />
+                        </div>
+                      )}
+                      
+                      {isThird && (
+                        <div className="flex flex-col items-center relative">
+                          <div className="absolute -top-2 -right-2 text-xl z-10 drop-shadow-md">🥉</div>
+                          <img src={imageUrl} alt={tournamentName} className="w-8 h-8 object-contain opacity-60" />
+                        </div>
+                      )}
+                      
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                        {trophy.name} - {tournamentName}
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </div>
+              
+            </div>
+          ))
         )}
       </div>
     </div>
