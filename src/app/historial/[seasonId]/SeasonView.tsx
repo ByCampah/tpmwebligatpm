@@ -10,6 +10,7 @@ interface TournamentData {
   name: string;
   format: string;
   bracketImageUrl?: string | null;
+  bracketData?: any | null;
   matches: any[];
   teams: any[];
   trophies: any[];
