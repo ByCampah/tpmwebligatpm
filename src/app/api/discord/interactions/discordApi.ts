@@ -51,7 +51,7 @@ export async function removeRoleFromMember(guildId: string, userId: string, role
 }
 
 export async function updateInteractionMessage(interactionToken: string, content: string) {
-  const appId = process.env.DISCORD_APPLICATION_ID;
+  const appId = process.env.DISCORD_APPLICATION_ID || process.env.DISCORD_CLIENT_ID;
   if (!appId) throw new Error('DISCORD_APPLICATION_ID is missing');
 
   const res = await fetch(`${DISCORD_API_URL}/webhooks/${appId}/${interactionToken}/messages/@original`, {
