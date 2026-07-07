@@ -30,7 +30,7 @@ export default async function ProdeSection() {
 
   const tournaments = Array.from(tournamentsMap.values());
 
-  let userPredictions = [];
+  let userPredictions: any[] = [];
   if (session?.user) {
     userPredictions = await prisma.prodePrediction.findMany({
       where: {
