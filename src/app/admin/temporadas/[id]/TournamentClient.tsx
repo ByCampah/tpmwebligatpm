@@ -912,8 +912,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 </p>
                 <div className="flex flex-col gap-1">
                   {prodeLeaderboard.map((l, idx) => (
-                    <div key={l.user?.id} className="flex justify-between items-center bg-black/30 px-3 py-2 rounded">
-                      <span className="font-bold">#{idx + 1} {l.user?.nickName || l.user?.name}</span>
+                    <div key={`plb_${l.user?.id || idx}`} className="flex justify-between items-center bg-black/30 px-3 py-2 rounded">
+                      <span className="font-bold">#{idx + 1} {l.user?.nickName || l.user?.name || "Usuario Desconocido"}</span>
                       <span className="text-yellow-500 font-black">{l.points} pts</span>
                     </div>
                   ))}
