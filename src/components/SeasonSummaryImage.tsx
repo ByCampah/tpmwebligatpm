@@ -40,6 +40,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             goals: 0,
             assists: 0,
             saves: 0,
+            savesTotal: 0,
             cleanSheets: 0,
             goalsConceded: 0
           });
@@ -49,6 +50,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         pData.goals += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
         pData.assists += (stat.assists || 0);
         pData.saves += (stat.savesMade || 0);
+        pData.savesTotal += (stat.savesTotal || 0);
         pData.goalsConceded += Math.max(0, (stat.savesTotal || 0) - (stat.savesMade || 0));
         if (stat.cleanSheet) pData.cleanSheets += 1;
       });
@@ -451,8 +453,11 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                       <span className="w-6 text-center" title="Salvadas">Sal.</span>
                       <span className="w-6 text-center" title="Goles Recibidos">GC</span>
                       <span className="w-6 text-center" title="Vallas Invictas">VI</span>
+                      <span className="w-8 text-center" title="Efectividad (%)">EF</span>
                     </div>
-                    {topKeepers.map((p, idx) => (
+                    {topKeepers.map((p, idx) => {
+                      const perc = p.savesTotal > 0 ? Math.round((p.saves / p.savesTotal) * 100) : 0;
+                      return (
                       <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-teal-500/20">
                         <div className="flex items-center gap-2">
                            <span className="text-teal-500 font-bold w-4">{idx + 1}</span>
@@ -463,9 +468,10 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                            <span className="text-teal-400 w-6 text-center">{p.saves}</span>
                            <span className="text-red-400 w-6 text-center">{p.goalsConceded}</span>
                            <span className="text-emerald-400 w-6 text-center">{p.cleanSheets}</span>
+                           <span className={`w-8 text-center text-xs ${perc >= 70 ? 'text-green-400' : perc >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{perc}%</span>
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 ) : (
                   <div className="py-12 text-zinc-600 italic text-xl h-full flex items-center justify-center">No definido</div>
