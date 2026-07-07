@@ -42,7 +42,8 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             saves: 0,
             savesTotal: 0,
             cleanSheets: 0,
-            goalsConceded: 0
+            goalsConceded: 0,
+            matchesPlayed: 0
           });
         }
         
@@ -53,6 +54,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         pData.savesTotal += (stat.savesTotal || 0);
         pData.goalsConceded += Math.max(0, (stat.savesTotal || 0) - (stat.savesMade || 0));
         if (stat.cleanSheet) pData.cleanSheets += 1;
+        if ((stat.matchTime || 0) > 0) pData.matchesPlayed += 1;
       });
     });
 
@@ -361,14 +363,21 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                 </div>
               ) : topScorers.length > 0 ? (
                 <div className="flex flex-col w-full gap-2 mt-2">
+                  <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-yellow-500/70 font-bold px-1 mb-1">
+                    <span className="w-6 text-center" title="Partidos Jugados">PJ</span>
+                    <span className="w-6 text-center" title="Goles">G</span>
+                  </div>
                   {topScorers.map((p, idx) => (
-                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-blue-500/20">
+                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-yellow-500/20">
                       <div className="flex items-center gap-2">
-                         <span className="text-blue-500 font-bold w-4">{idx + 1}</span>
+                         <span className="text-yellow-500 font-bold w-4">{idx + 1}</span>
                          <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
                          <span className="font-bold text-sm truncate max-w-[100px] text-left">{p.nick}</span>
                       </div>
-                      <span className="font-black text-blue-400">{p.goals}</span>
+                      <div className="flex items-center gap-2 text-sm font-black">
+                         <span className="text-zinc-400 w-6 text-center">{p.matchesPlayed}</span>
+                         <span className="text-yellow-400 w-6 text-center">{p.goals}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -392,6 +401,10 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                 </div>
               ) : topAssisters.length > 0 ? (
                 <div className="flex flex-col w-full gap-2 mt-2">
+                  <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-pink-500/70 font-bold px-1 mb-1">
+                    <span className="w-6 text-center" title="Partidos Jugados">PJ</span>
+                    <span className="w-6 text-center" title="Asistencias">A</span>
+                  </div>
                   {topAssisters.map((p, idx) => (
                     <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-pink-500/20">
                       <div className="flex items-center gap-2">
@@ -399,7 +412,10 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                          <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
                          <span className="font-bold text-sm truncate max-w-[100px] text-left">{p.nick}</span>
                       </div>
-                      <span className="font-black text-pink-400">{p.assists}</span>
+                      <div className="flex items-center gap-2 text-sm font-black">
+                         <span className="text-zinc-400 w-6 text-center">{p.matchesPlayed}</span>
+                         <span className="text-pink-400 w-6 text-center">{p.assists}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -450,6 +466,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                   <div className="flex flex-col w-full gap-2">
                     {/* Encabezado */}
                     <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-teal-500/70 font-bold px-1 mb-1">
+                      <span className="w-6 text-center" title="Partidos Jugados">PJ</span>
                       <span className="w-6 text-center" title="Salvadas">Sal.</span>
                       <span className="w-6 text-center" title="Goles Recibidos">GC</span>
                       <span className="w-6 text-center" title="Vallas Invictas">VI</span>
@@ -459,12 +476,13 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                       const perc = p.savesTotal > 0 ? Math.round((p.saves / p.savesTotal) * 100) : 0;
                       return (
                       <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-teal-500/20">
-                        <div className="flex items-center gap-2">
-                           <span className="text-teal-500 font-bold w-4">{idx + 1}</span>
-                           <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
-                           <span className="font-bold text-sm truncate max-w-[60px] text-left">{p.nick}</span>
+                        <div className="flex items-center gap-1">
+                           <span className="text-teal-500 font-bold w-3">{idx + 1}</span>
+                           <img src={getPlayerStatInfo(p.player).logo} className="w-5 h-5 object-contain" />
+                           <span className="font-bold text-xs truncate max-w-[50px] text-left">{p.nick}</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm font-black">
+                           <span className="text-zinc-400 w-6 text-center">{p.matchesPlayed}</span>
                            <span className="text-teal-400 w-6 text-center">{p.saves}</span>
                            <span className="text-red-400 w-6 text-center">{p.goalsConceded}</span>
                            <span className="text-emerald-400 w-6 text-center">{p.cleanSheets}</span>
