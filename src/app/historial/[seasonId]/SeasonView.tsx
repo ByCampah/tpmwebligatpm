@@ -242,73 +242,11 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
 
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 flex flex-col gap-8">
-              {activeTab === 'standings' && (!isCup ? (
-                <div className="flex flex-col gap-4">
-                  <h3 className="text-2xl font-bold">{dictionary.standings}</h3>
-                  <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="bg-secondary text-secondary-foreground">
-                          <tr>
-                            <th className="px-4 py-3 font-bold w-12 text-center">#</th>
-                            <th className="px-4 py-3 font-bold">{dictionary.team}</th>
-                            <th className="px-4 py-3 font-bold text-center">PTS</th>
-                            <th className="px-4 py-3 font-bold text-center text-muted-foreground">PJ</th>
-                            <th className="px-4 py-3 font-bold text-center text-muted-foreground">PG</th>
-                            <th className="px-4 py-3 font-bold text-center text-muted-foreground">PE</th>
-                            <th className="px-4 py-3 font-bold text-center text-muted-foreground">PP</th>
-                            <th className="px-4 py-3 font-bold text-center text-muted-foreground">GF</th>
-                            <th className="px-4 py-3 font-bold text-center text-muted-foreground">GC</th>
-                            <th className="px-4 py-3 font-bold text-center text-muted-foreground">DG</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border">
-                          {calculateStandings(regularMatches, selectedTournament.teams).map((team: any, index: number) => (
-                            <tr key={team.id} className="hover:bg-white/5 transition-colors">
-                              <td className="px-4 py-3 text-center font-bold text-muted-foreground">{index + 1}</td>
-                              <td className="px-4 py-3 font-bold flex items-center gap-2">
-                                {team.logo ? <img src={team.logo} alt={team.name} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 bg-secondary rounded-full"></div>}
-                                <Link href={`/equipos/${team.id}`} className="hover:text-primary transition-colors">{team.name}</Link>
-                              </td>
-                              <td className="px-4 py-3 text-center font-black text-primary text-base">{team.pts}</td>
-                              <td className="px-4 py-3 text-center text-muted-foreground">{team.pj}</td>
-                              <td className="px-4 py-3 text-center text-muted-foreground">{team.pg}</td>
-                              <td className="px-4 py-3 text-center text-muted-foreground">{team.pe}</td>
-                              <td className="px-4 py-3 text-center text-muted-foreground">{team.pp}</td>
-                              <td className="px-4 py-3 text-center text-muted-foreground">{team.gf}</td>
-                              <td className="px-4 py-3 text-center text-muted-foreground">{team.gc}</td>
-                              <td className="px-4 py-3 text-center text-muted-foreground font-mono">{team.gf - team.gc > 0 ? `+${team.gf - team.gc}` : team.gf - team.gc}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {selectedTournament.bracketData && (
-                    <div className="flex flex-col gap-4 mb-8 w-full">
-                      <h3 className="text-xl font-bold">Llave del Torneo</h3>
-                      <div className="bg-card/50 border border-border rounded-xl shadow-lg overflow-hidden py-4">
-                        <BracketViewer 
-                          bracketData={typeof selectedTournament.bracketData === 'string' ? JSON.parse(selectedTournament.bracketData) : selectedTournament.bracketData} 
-                          teams={selectedTournament.teams} 
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {selectedTournament.bracketImageUrl && !selectedTournament.bracketData && (
-                    <div className="flex flex-col gap-4 mb-8">
-                      <h3 className="text-xl font-bold">Llave del Torneo (Antigua)</h3>
-                      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
-                        <img src={selectedTournament.bracketImageUrl} alt="Llave del torneo" className="w-full h-auto object-contain bg-black/50" />
-                      </div>
-                    </div>
-                  )}
-                  {groupStandings.map((group, idx) => (
-                    <div key={idx} className="flex flex-col gap-4">
-                      <h3 className="text-xl font-bold">{group.name as string}</h3>
+              {activeTab === 'standings' && (
+                <div className="flex flex-col gap-8 w-full">
+                  {!isCup && (
+                    <div className="flex flex-col gap-4">
+                      <h3 className="text-2xl font-bold">{dictionary.standings}</h3>
                       <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
                         <div className="overflow-x-auto">
                           <table className="w-full text-left text-sm whitespace-nowrap">
@@ -318,13 +256,16 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                                 <th className="px-4 py-3 font-bold">{dictionary.team}</th>
                                 <th className="px-4 py-3 font-bold text-center">PTS</th>
                                 <th className="px-4 py-3 font-bold text-center text-muted-foreground">PJ</th>
+                                <th className="px-4 py-3 font-bold text-center text-muted-foreground">PG</th>
+                                <th className="px-4 py-3 font-bold text-center text-muted-foreground">PE</th>
+                                <th className="px-4 py-3 font-bold text-center text-muted-foreground">PP</th>
                                 <th className="px-4 py-3 font-bold text-center text-muted-foreground">GF</th>
                                 <th className="px-4 py-3 font-bold text-center text-muted-foreground">GC</th>
                                 <th className="px-4 py-3 font-bold text-center text-muted-foreground">DG</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
-                              {group.standings.map((team: any, index: number) => (
+                              {calculateStandings(regularMatches, selectedTournament.teams).map((team: any, index: number) => (
                                 <tr key={team.id} className="hover:bg-white/5 transition-colors">
                                   <td className="px-4 py-3 text-center font-bold text-muted-foreground">{index + 1}</td>
                                   <td className="px-4 py-3 font-bold flex items-center gap-2">
@@ -333,6 +274,9 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                                   </td>
                                   <td className="px-4 py-3 text-center font-black text-primary text-base">{team.pts}</td>
                                   <td className="px-4 py-3 text-center text-muted-foreground">{team.pj}</td>
+                                  <td className="px-4 py-3 text-center text-muted-foreground">{team.pg}</td>
+                                  <td className="px-4 py-3 text-center text-muted-foreground">{team.pe}</td>
+                                  <td className="px-4 py-3 text-center text-muted-foreground">{team.pp}</td>
                                   <td className="px-4 py-3 text-center text-muted-foreground">{team.gf}</td>
                                   <td className="px-4 py-3 text-center text-muted-foreground">{team.gc}</td>
                                   <td className="px-4 py-3 text-center text-muted-foreground font-mono">{team.gf - team.gc > 0 ? `+${team.gf - team.gc}` : team.gf - team.gc}</td>
@@ -343,9 +287,71 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                         </div>
                       </div>
                     </div>
-                  ))}
-                </>
-              ))}
+                  )}
+
+                  {isCup && groupStandings.length > 0 && (
+                    <div className="flex flex-col gap-6">
+                      {groupStandings.map((group, idx) => (
+                        <div key={idx} className="flex flex-col gap-4">
+                          <h3 className="text-xl font-bold">{group.name as string}</h3>
+                          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-secondary text-secondary-foreground">
+                                  <tr>
+                                    <th className="px-4 py-3 font-bold w-12 text-center">#</th>
+                                    <th className="px-4 py-3 font-bold">{dictionary.team}</th>
+                                    <th className="px-4 py-3 font-bold text-center">PTS</th>
+                                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">PJ</th>
+                                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">GF</th>
+                                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">GC</th>
+                                    <th className="px-4 py-3 font-bold text-center text-muted-foreground">DG</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                  {group.standings.map((team: any, index: number) => (
+                                    <tr key={team.id} className="hover:bg-white/5 transition-colors">
+                                      <td className="px-4 py-3 text-center font-bold text-muted-foreground">{index + 1}</td>
+                                      <td className="px-4 py-3 font-bold flex items-center gap-2">
+                                        {team.logo ? <img src={team.logo} alt={team.name} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 bg-secondary rounded-full"></div>}
+                                        <Link href={`/equipos/${team.id}`} className="hover:text-primary transition-colors">{team.name}</Link>
+                                      </td>
+                                      <td className="px-4 py-3 text-center font-black text-primary text-base">{team.pts}</td>
+                                      <td className="px-4 py-3 text-center text-muted-foreground">{team.pj}</td>
+                                      <td className="px-4 py-3 text-center text-muted-foreground">{team.gf}</td>
+                                      <td className="px-4 py-3 text-center text-muted-foreground">{team.gc}</td>
+                                      <td className="px-4 py-3 text-center text-muted-foreground font-mono">{team.gf - team.gc > 0 ? `+${team.gf - team.gc}` : team.gf - team.gc}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {(selectedTournament.bracketData || selectedTournament.bracketImageUrl) && (
+                    <div className="flex flex-col gap-4 mb-8 w-full">
+                      <h3 className="text-xl font-bold">Llave Final</h3>
+                      {selectedTournament.bracketData && (
+                        <div className="bg-card/50 border border-border rounded-xl shadow-lg overflow-hidden py-4">
+                          <BracketViewer 
+                            bracketData={typeof selectedTournament.bracketData === 'string' ? JSON.parse(selectedTournament.bracketData) : selectedTournament.bracketData} 
+                            teams={selectedTournament.teams} 
+                          />
+                        </div>
+                      )}
+                      {selectedTournament.bracketImageUrl && !selectedTournament.bracketData && (
+                        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+                          <img src={selectedTournament.bracketImageUrl} alt="Llave del torneo" className="w-full h-auto object-contain bg-black/50" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {activeTab === 'goleadores' && (
                 <div className="flex flex-col gap-3">

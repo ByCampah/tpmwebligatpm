@@ -242,64 +242,8 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                 {isCup ? "Fase Final" : "Tabla de Posiciones Final"}
               </h3>
               
-              {isCup ? (
-                <div className="flex flex-col gap-8">
-                  {groupStandings.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                      {groupStandings.map((group, idx) => (
-                        <div key={idx} className="bg-black/40 border border-white/5 rounded-2xl p-6">
-                          <h4 className="text-xl font-bold text-zinc-300 mb-4">{group.name}</h4>
-                          <div className="overflow-hidden rounded-xl border border-white/5">
-                            <table className="w-full text-left border-collapse text-xs">
-                              <thead>
-                                <tr className="bg-white/5 text-zinc-400 uppercase tracking-wider">
-                                  <th className="p-2 font-bold w-6 text-center">#</th>
-                                  <th className="p-2 font-bold">Equipo</th>
-                                  <th className="p-2 font-bold text-center">PJ</th>
-                                  <th className="p-2 font-bold text-center">PG</th>
-                                  <th className="p-2 font-bold text-center">PE</th>
-                                  <th className="p-2 font-bold text-center">PP</th>
-                                  <th className="p-2 font-bold text-center text-blue-400">PTS</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-white/5">
-                                {group.standings.map((team: any, index: number) => (
-                                  <tr key={team.id} className="hover:bg-white/5">
-                                    <td className="p-2 text-center text-zinc-500">{index + 1}</td>
-                                    <td className="p-2 font-bold flex items-center gap-2">
-                                      {team.logo && <img src={team.logo} className="w-5 h-5 object-contain" />}
-                                      <span className="truncate max-w-[100px]">{team.name}</span>
-                                    </td>
-                                    <td className="p-2 text-center text-zinc-400">{team.pj}</td>
-                                    <td className="p-2 text-center text-zinc-400">{team.pg}</td>
-                                    <td className="p-2 text-center text-zinc-400">{team.pe}</td>
-                                    <td className="p-2 text-center text-zinc-400">{team.pp}</td>
-                                    <td className="p-2 text-center font-black text-blue-400">{team.pts}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-4">
-                    {groupStandings.length > 0 && <h4 className="text-xl font-bold text-center text-zinc-300 border-t border-white/10 pt-8">Llave Final</h4>}
-                    <div className="flex justify-center transform scale-90 origin-top">
-                      {tournament.bracketImageUrl ? (
-                        <img src={tournament.bracketImageUrl} alt="Llave Final" className="w-full h-auto object-contain max-h-[800px] rounded-xl" />
-                      ) : tournament.bracketData ? (
-                        <BracketViewer bracketData={typeof tournament.bracketData === 'string' ? JSON.parse(tournament.bracketData) : tournament.bracketData} teams={tournament.teams?.map((t: any) => t.team) || []} />
-                      ) : (
-                        <div className="text-zinc-500 italic py-10 text-xl">Sin datos de llave final</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="overflow-hidden rounded-xl border border-white/5">
+              {!isCup && (
+                <div className="overflow-hidden rounded-xl border border-white/5 w-full">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-white/5 text-zinc-400 text-sm uppercase tracking-wider">
@@ -329,6 +273,62 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+
+              {isCup && groupStandings.length > 0 && (
+                <div className="flex flex-col gap-8 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                    {groupStandings.map((group, idx) => (
+                      <div key={idx} className="bg-black/40 border border-white/5 rounded-2xl p-6">
+                        <h4 className="text-xl font-bold text-zinc-300 mb-4">{group.name}</h4>
+                        <div className="overflow-hidden rounded-xl border border-white/5">
+                          <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                              <tr className="bg-white/5 text-zinc-400 uppercase tracking-wider">
+                                <th className="p-2 font-bold w-6 text-center">#</th>
+                                <th className="p-2 font-bold">Equipo</th>
+                                <th className="p-2 font-bold text-center">PJ</th>
+                                <th className="p-2 font-bold text-center">PG</th>
+                                <th className="p-2 font-bold text-center">PE</th>
+                                <th className="p-2 font-bold text-center">PP</th>
+                                <th className="p-2 font-bold text-center text-blue-400">PTS</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                              {group.standings.map((team: any, index: number) => (
+                                <tr key={team.id} className="hover:bg-white/5">
+                                  <td className="p-2 text-center text-zinc-500">{index + 1}</td>
+                                  <td className="p-2 font-bold flex items-center gap-2">
+                                    {team.logo && <img src={team.logo} className="w-5 h-5 object-contain" />}
+                                    <span className="truncate max-w-[100px]">{team.name}</span>
+                                  </td>
+                                  <td className="p-2 text-center text-zinc-400">{team.pj}</td>
+                                  <td className="p-2 text-center text-zinc-400">{team.pg}</td>
+                                  <td className="p-2 text-center text-zinc-400">{team.pe}</td>
+                                  <td className="p-2 text-center text-zinc-400">{team.pp}</td>
+                                  <td className="p-2 text-center font-black text-blue-400">{team.pts}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(tournament.bracketData || tournament.bracketImageUrl) && (
+                <div className="flex flex-col gap-4 w-full">
+                  {(!isCup || groupStandings.length > 0) && <h4 className="text-xl font-bold text-center text-zinc-300 border-t border-white/10 pt-8 mt-4">Llave Final</h4>}
+                  <div className="flex justify-center transform scale-90 origin-top">
+                    {tournament.bracketImageUrl ? (
+                      <img src={tournament.bracketImageUrl} alt="Llave Final" className="w-full h-auto object-contain max-h-[800px] rounded-xl" />
+                    ) : tournament.bracketData ? (
+                      <BracketViewer bracketData={typeof tournament.bracketData === 'string' ? JSON.parse(tournament.bracketData) : tournament.bracketData} teams={tournament.teams?.map((t: any) => t.team) || []} />
+                    ) : null}
+                  </div>
                 </div>
               )}
             </div>
