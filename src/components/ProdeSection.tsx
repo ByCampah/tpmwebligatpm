@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { auth } from "@/auth";
 import ProdeClient from "./ProdeClient";
 
 export default async function ProdeSection() {
