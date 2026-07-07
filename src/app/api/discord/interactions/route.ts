@@ -3,15 +3,19 @@ import { verifyKey } from 'discord-interactions';
 import { prisma } from '@/lib/prisma';
 import { getSeasonFromOptions, getStandings, getPlayerStats } from './utils';
 
+import { getGuildRoles, addRoleToMember, removeRoleFromMember } from './discordApi';
+
 // Constantes de tipos de interacciones
 const InteractionType = {
   PING: 1,
   APPLICATION_COMMAND: 2,
+  MESSAGE_COMPONENT: 3,
 };
 
 const InteractionResponseType = {
   PONG: 1,
   CHANNEL_MESSAGE_WITH_SOURCE: 4,
+  UPDATE_MESSAGE: 7,
 };
 
 export async function POST(req: NextRequest) {
@@ -410,6 +414,190 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: { embeds: [embed] },
+        });
+      } else if (name === 'fichar') {
+        const targetUserId = options?.find((opt: any) => opt.name === 'usuario')?.value;
+
+        if (!targetUserId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Debes seleccionar a un usuario.', flags: 64 },
+          });
+        }
+
+        const roles = await getGuildRoles(interaction.guild_id);
+        let teamName = null;
+        const memberRoleIds = interaction.member?.roles || [];
+        
+        for (const roleId of memberRoleIds) {
+          const role = roles.find((r: any) => r.id === roleId);
+          if (role) {
+            const roleName = role.name.toLowerCase();
+            if (roleName.startsWith('capitán ')) {
+              teamName = role.name.substring(8).trim();
+              break;
+            } else if (roleName.startsWith('capitan ')) {
+              teamName = role.name.substring(8).trim();
+              break;
+            }
+          }
+        }
+
+        if (!teamName) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ No tenés ningún rol de "Capitán <Equipo>". Asegurate de tener el rol correcto.', flags: 64 },
+          });
+        }
+
+        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+        
+        if (!teamRole) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Sos capitán de **${teamName}**, pero no existe el rol del equipo "${teamName}" en el servidor.`, flags: 64 },
+          });
+        }
+
+        const customIdAccept = `fichar_accept_${teamRole.id}_${targetUserId}`;
+        const customIdReject = `fichar_reject_${targetUserId}`;
+
+        return NextResponse.json({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `📣 <@${targetUserId}>, el capitán <@${interaction.member.user.id}> te invitó a unirte a **${teamName}**. ¿Aceptas el fichaje?`,
+            components: [
+              {
+                type: 1,
+                components: [
+                  {
+                    type: 2,
+                    label: '✅ Aceptar Fichaje',
+                    style: 3,
+                    custom_id: customIdAccept
+                  },
+                  {
+                    type: 2,
+                    label: '❌ Rechazar',
+                    style: 4,
+                    custom_id: customIdReject
+                  }
+                ]
+              }
+            ]
+          }
+        });
+
+      } else if (name === 'despedir') {
+        const targetUserId = options?.find((opt: any) => opt.name === 'usuario')?.value;
+
+        if (!targetUserId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Debes seleccionar a un usuario.', flags: 64 },
+          });
+        }
+
+        const roles = await getGuildRoles(interaction.guild_id);
+        let teamName = null;
+        const memberRoleIds = interaction.member?.roles || [];
+        
+        for (const roleId of memberRoleIds) {
+          const role = roles.find((r: any) => r.id === roleId);
+          if (role) {
+            const roleName = role.name.toLowerCase();
+            if (roleName.startsWith('capitán ')) {
+              teamName = role.name.substring(8).trim();
+              break;
+            } else if (roleName.startsWith('capitan ')) {
+              teamName = role.name.substring(8).trim();
+              break;
+            }
+          }
+        }
+
+        if (!teamName) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ No tenés ningún rol de "Capitán <Equipo>".', flags: 64 },
+          });
+        }
+
+        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+        
+        if (!teamRole) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ No se encontró el rol del equipo **${teamName}** en el servidor.`, flags: 64 },
+          });
+        }
+
+        try {
+          await removeRoleFromMember(interaction.guild_id, targetUserId, teamRole.id);
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `✅ <@${targetUserId}> ha sido despedido de **${teamName}** y se le removió el rol.` }
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Hubo un error al intentar sacarle el rol: ${e.message}`, flags: 64 }
+          });
+        }
+      }
+    }
+
+    // 3. Manejar interacciones de componentes (Botones)
+    if (interaction.type === InteractionType.MESSAGE_COMPONENT) {
+      const customId = interaction.data.custom_id;
+      const clickerId = interaction.member?.user?.id || interaction.user?.id;
+
+      if (customId.startsWith('fichar_accept_')) {
+        const parts = customId.split('_');
+        const roleId = parts[2];
+        const targetId = parts[3];
+
+        if (clickerId !== targetId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Solo el jugador invitado puede aceptar el fichaje.', flags: 64 }
+          });
+        }
+
+        try {
+          await addRoleToMember(interaction.guild_id, targetId, roleId);
+          return NextResponse.json({
+            type: InteractionResponseType.UPDATE_MESSAGE,
+            data: {
+              content: `✅ ¡Fichaje confirmado! <@${targetId}> ha aceptado la oferta y ya tiene el rol del equipo.`,
+              components: [] // Quita los botones
+            }
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Hubo un error al asignar el rol (¿El rol del bot está por encima del rol del equipo?): ${e.message}`, flags: 64 }
+          });
+        }
+      }
+
+      if (customId.startsWith('fichar_reject_')) {
+        const parts = customId.split('_');
+        const targetId = parts[2];
+
+        if (clickerId !== targetId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Solo el jugador invitado puede rechazar el fichaje.', flags: 64 }
+          });
+        }
+
+        return NextResponse.json({
+          type: InteractionResponseType.UPDATE_MESSAGE,
+          data: {
+            content: `❌ <@${targetId}> ha rechazado la oferta de fichaje.`,
+            components: []
+          }
         });
       }
     }

@@ -65,6 +65,74 @@ const commands = [
         required: true,
       }
     ]
+  },
+  {
+    name: 'equipo',
+    description: 'Ver estadísticas de un equipo en la temporada actual',
+    options: [
+      {
+        name: 'nombre',
+        description: 'Nombre del equipo',
+        type: 3,
+        required: true,
+      }
+    ]
+  },
+  {
+    name: 'seleccion',
+    description: 'Ver estadísticas de una selección nacional',
+    options: [
+      {
+        name: 'nombre',
+        description: 'Nombre de la selección',
+        type: 3,
+        required: true,
+      }
+    ]
+  },
+  {
+    name: 'clasificacion',
+    description: 'Muestra el Top 10 de la liga actual',
+  },
+  {
+    name: 'goleadores',
+    description: 'Muestra el Top 10 de goleadores actuales',
+  },
+  {
+    name: 'asistidores',
+    description: 'Muestra el Top 10 de asistidores actuales',
+  },
+  {
+    name: 'mercado_jugadores',
+    description: 'Ver últimos 15 jugadores buscando equipo',
+  },
+  {
+    name: 'mercado_equipos',
+    description: 'Ver últimos 15 equipos buscando jugadores',
+  },
+  {
+    name: 'fichar',
+    description: 'Invita a un jugador a unirse a tu equipo (Solo para Capitanes)',
+    options: [
+      {
+        name: 'usuario',
+        description: 'El usuario de Discord que quieres fichar',
+        type: 6, // USER type
+        required: true,
+      }
+    ]
+  },
+  {
+    name: 'despedir',
+    description: 'Despide a un jugador de tu equipo y le quita el rol (Solo Capitanes)',
+    options: [
+      {
+        name: 'usuario',
+        description: 'El jugador al que le quieres quitar el rol',
+        type: 6, // USER type
+        required: true,
+      }
+    ]
   }
 ];
 
