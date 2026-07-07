@@ -934,9 +934,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <label className="text-amber-500 font-black mb-2">CAMPEÓN (1er Puesto)</label>
                   <select name="firstId" className="w-full bg-black border border-amber-500/50 rounded p-3 text-center font-bold focus:outline-none focus:border-amber-500">
                     <option value="">-- Seleccionar Equipo --</option>
-                    {enrolledTeamsData.map((t: any) => (
+                    {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
-                    ))}
+                    ) : null)}
                   </select>
                 </div>
 
@@ -945,9 +945,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <label className="text-gray-300 font-black mb-2">SUBCAMPEÓN (2do Puesto)</label>
                   <select name="secondId" className="w-full bg-black border border-gray-400/50 rounded p-3 text-center font-bold focus:outline-none focus:border-gray-400">
                     <option value="">-- Seleccionar Equipo --</option>
-                    {enrolledTeamsData.map((t: any) => (
+                    {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
-                    ))}
+                    ) : null)}
                   </select>
                 </div>
 
@@ -956,9 +956,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <label className="text-orange-500 font-black mb-2">TERCER PUESTO</label>
                   <select name="thirdId" className="w-full bg-black border border-orange-700/50 rounded p-3 text-center font-bold focus:outline-none focus:border-orange-500">
                     <option value="">-- Seleccionar Equipo --</option>
-                    {enrolledTeamsData.map((t: any) => (
+                    {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
-                    ))}
+                    ) : null)}
                   </select>
                 </div>
               </div>
@@ -968,8 +968,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 
                 <div className="bg-purple-900/30 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-purple-400 font-black mb-2 w-full text-center">🔮 Ganador del PRODE</label>
-                  <select name="prodeWinnerId" className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500">
-                    <option value="">-- Seleccionar Usuario --</option>
+                  <select name="prodeWinnerId" multiple className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500 min-h-[120px]">
                     {prodeLeaderboard.map((l: any, idx: number) => (
                       <option key={`prode_${l.user?.id || idx}`} value={l.user?.id}>
                         {l.user?.nickName || l.user?.name || "Usuario Desconocido"} ({l.points} pts)
@@ -977,7 +976,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     ))}
                   </select>
                   <p className="text-xs text-muted-foreground mt-3 text-center w-full">
-                    Este premio se otorgará al usuario en su historial y aparecerá como "Ganador del PRODE".
+                    Puedes seleccionar MÚLTIPLES ganadores manteniendo presionada la tecla <b>CTRL</b> (o CMD en Mac) al hacer clic.
                   </p>
                 </div>
               </div>
@@ -989,13 +988,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <label className="text-blue-400 font-black mb-2 w-full text-center">⚽ Máximo Goleador</label>
                   <select name="topScorerId" className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500">
                     <option value="">-- Seleccionar Jugador --</option>
-                    {enrolledTeamsData.map((t: any) => (
+                    {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ts_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
                           <option key={`tsp_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
-                    ))}
+                    ) : null)}
                   </select>
                 </div>
 
@@ -1003,13 +1002,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <label className="text-green-400 font-black mb-2 w-full text-center">👟 Máximo Asistidor</label>
                   <select name="topAssisterId" className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500">
                     <option value="">-- Seleccionar Jugador --</option>
-                    {enrolledTeamsData.map((t: any) => (
+                    {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ta_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
                           <option key={`tap_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
-                    ))}
+                    ) : null)}
                   </select>
                 </div>
 
@@ -1017,13 +1016,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <label className="text-cyan-400 font-black mb-2 w-full text-center">🧤 Mejor Arquero (Valla Invicta)</label>
                   <select name="bestGkId" className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500">
                     <option value="">-- Seleccionar Jugador --</option>
-                    {enrolledTeamsData.map((t: any) => (
+                    {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`gk_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
                           <option key={`bgk_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
-                    ))}
+                    ) : null)}
                   </select>
                 </div>
 
@@ -1031,13 +1030,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   <label className="text-purple-400 font-black mb-2 w-full text-center">⭐ MVP del Torneo</label>
                   <select name="mvpId" className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500">
                     <option value="">-- Seleccionar Jugador --</option>
-                    {enrolledTeamsData.map((t: any) => (
+                    {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`mvp_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
                           <option key={`mvp_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
-                    ))}
+                    ) : null)}
                   </select>
                 </div>
               </div>
