@@ -584,7 +584,29 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                   {ev.assistName ? <span className="ml-2 text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}
                                 </span>
                                 <span className="text-xs uppercase font-bold text-muted-foreground mr-4">{isHome ? m.homeTeam.name : m.awayTeam.name}</span>
-                                <button type="button" onClick={() => setEditingEvents(prev => prev.filter((_, i) => i !== idx))} className="text-destructive font-black hover:scale-110">×</button>
+                                <button type="button" onClick={() => {
+                                  // RESTAR ESTADÍSTICAS AL BORRAR
+                                  if (ev.type === 'GOAL') {
+                                    const inp = document.querySelector(`input[name="stats[${ev.playerId}][goals]"]`) as HTMLInputElement;
+                                    if (inp) inp.value = Math.max(0, parseInt(inp.value || "0") - 1).toString();
+                                  } else if (ev.type === 'FREE_KICK_GOAL') {
+                                    const inp = document.querySelector(`input[name="stats[${ev.playerId}][freeKickGoals]"]`) as HTMLInputElement;
+                                    if (inp) inp.value = Math.max(0, parseInt(inp.value || "0") - 1).toString();
+                                  } else if (ev.type === 'PENALTY_GOAL') {
+                                    const inp = document.querySelector(`input[name="stats[${ev.playerId}][penaltyGoals]"]`) as HTMLInputElement;
+                                    if (inp) inp.value = Math.max(0, parseInt(inp.value || "0") - 1).toString();
+                                  } else if (ev.type === 'RED') {
+                                    const inp = document.querySelector(`input[name="stats[${ev.playerId}][redCards]"]`) as HTMLInputElement;
+                                    if (inp) inp.value = Math.max(0, parseInt(inp.value || "0") - 1).toString();
+                                  }
+
+                                  if (ev.assistId && (ev.type === 'GOAL' || ev.type === 'FREE_KICK_GOAL' || ev.type === 'PENALTY_GOAL')) {
+                                    const inp = document.querySelector(`input[name="stats[${ev.assistId}][assists]"]`) as HTMLInputElement;
+                                    if (inp) inp.value = Math.max(0, parseInt(inp.value || "0") - 1).toString();
+                                  }
+
+                                  setEditingEvents(prev => prev.filter((_, i) => i !== idx));
+                                }} className="text-destructive font-black hover:scale-110">×</button>
                               </div>
                             )})}
                             {editingEvents.length === 0 && <p className="text-muted-foreground italic text-sm">No hay eventos registrados.</p>}
@@ -647,6 +669,26 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                               // Determine teamId from the optgroup label
                               const optgroupLabel = playerSelect.options[playerSelect.selectedIndex].parentElement?.getAttribute('label');
                               const teamId = optgroupLabel === m.homeTeam.name ? m.homeTeamId : m.awayTeamId;
+
+                              // AUTO-COMPLETAR ESTADÍSTICAS
+                              if (type === 'GOAL') {
+                                const inp = document.querySelector(`input[name="stats[${playerId}][goals]"]`) as HTMLInputElement;
+                                if (inp) inp.value = (parseInt(inp.value || "0") + 1).toString();
+                              } else if (type === 'FREE_KICK_GOAL') {
+                                const inp = document.querySelector(`input[name="stats[${playerId}][freeKickGoals]"]`) as HTMLInputElement;
+                                if (inp) inp.value = (parseInt(inp.value || "0") + 1).toString();
+                              } else if (type === 'PENALTY_GOAL') {
+                                const inp = document.querySelector(`input[name="stats[${playerId}][penaltyGoals]"]`) as HTMLInputElement;
+                                if (inp) inp.value = (parseInt(inp.value || "0") + 1).toString();
+                              } else if (type === 'RED') {
+                                const inp = document.querySelector(`input[name="stats[${playerId}][redCards]"]`) as HTMLInputElement;
+                                if (inp) inp.value = (parseInt(inp.value || "0") + 1).toString();
+                              }
+
+                              if (assistId && (type === 'GOAL' || type === 'FREE_KICK_GOAL' || type === 'PENALTY_GOAL')) {
+                                const inp = document.querySelector(`input[name="stats[${assistId}][assists]"]`) as HTMLInputElement;
+                                if (inp) inp.value = (parseInt(inp.value || "0") + 1).toString();
+                              }
 
                               setEditingEvents([...editingEvents, { 
                                 type, minute: min, 
