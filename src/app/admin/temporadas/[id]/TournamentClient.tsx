@@ -964,6 +964,25 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
               </div>
 
               <div className="flex flex-col gap-4 mt-4">
+                <h3 className="text-xl font-bold border-b border-border pb-2 text-purple-400">Premio PRODE</h3>
+                
+                <div className="bg-purple-900/30 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
+                  <label className="text-purple-400 font-black mb-2 w-full text-center">🔮 Ganador del PRODE</label>
+                  <select name="prodeWinnerId" className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500">
+                    <option value="">-- Seleccionar Usuario --</option>
+                    {prodeLeaderboard.map((l: any, idx: number) => (
+                      <option key={`prode_${l.user?.id || idx}`} value={l.user?.id}>
+                        {l.user?.nickName || l.user?.name || "Usuario Desconocido"} ({l.points} pts)
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-muted-foreground mt-3 text-center w-full">
+                    Este premio se otorgará al usuario en su historial y aparecerá como "Ganador del PRODE".
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4 mt-4">
                 <h3 className="text-xl font-bold border-b border-border pb-2 text-blue-400">Premios Individuales</h3>
                 
                 <div className="bg-blue-500/10 border border-blue-500/50 p-4 rounded-xl flex flex-col items-start text-left">
@@ -973,7 +992,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     {enrolledTeamsData.map((t: any) => (
                       <optgroup key={`ts_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
-                          <option key={`tsp_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                          <option key={`tsp_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
                     ))}
@@ -987,7 +1006,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     {enrolledTeamsData.map((t: any) => (
                       <optgroup key={`ta_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
-                          <option key={`tap_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                          <option key={`tap_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
                     ))}
@@ -1001,7 +1020,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     {enrolledTeamsData.map((t: any) => (
                       <optgroup key={`gk_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
-                          <option key={`gkp_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                          <option key={`bgk_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
                     ))}
@@ -1015,7 +1034,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                     {enrolledTeamsData.map((t: any) => (
                       <optgroup key={`mvp_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
-                          <option key={`mvpp_${p.playerId}`} value={p.playerId}>{p.player.nick}</option>
+                          <option key={`mvp_${p.playerId}`} value={p.playerId}>{p.player?.nick || p.player?.name || "Jugador Desconocido"}</option>
                         ))}
                       </optgroup>
                     ))}

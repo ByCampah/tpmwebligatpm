@@ -856,6 +856,7 @@ export async function assignTournamentPodium(formData: FormData) {
   const topAssisterId = formData.get("topAssisterId") as string | null;
   const bestGkId = formData.get("bestGkId") as string | null;
   const mvpId = formData.get("mvpId") as string | null;
+  const prodeWinnerId = formData.get("prodeWinnerId") as string | null;
 
   try {
     // 1. Delete all old podium and individual trophies for this tournament to allow fixing errors (efecto cascada)
@@ -870,7 +871,8 @@ export async function assignTournamentPodium(formData: FormData) {
             "Máximo Goleador",
             "Máximo Asistidor",
             "Mejor Arquero (Valla Invicta)",
-            "MVP del Torneo"
+            "MVP del Torneo",
+            "Ganador del PRODE"
           ]
         }
       }
@@ -915,6 +917,17 @@ export async function assignTournamentPodium(formData: FormData) {
           type: "PLAYER",
           tournamentId,
           playerId: award.playerId
+        }
+      });
+    }
+
+    if (prodeWinnerId) {
+      await prisma.trophy.create({
+        data: {
+          name: "Ganador del PRODE",
+          type: "USER",
+          tournamentId,
+          userId: prodeWinnerId
         }
       });
     }

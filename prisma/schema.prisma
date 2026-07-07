@@ -40,6 +40,7 @@ model User {
   
   // Prode
   prodePredictions ProdePrediction[]
+  trophies         Trophy[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -292,21 +293,21 @@ model MatchStat {
   @@unique([matchId, playerId])
 }
 
-model Trophy {
-  id           String  @id @default(uuid())
-  name         String  // e.g. "Campeon", "Subcampeon", "Goleador", "Mejor Asistidor"
-  type         String  // "TEAM" or "PLAYER"
-  
-  tournamentId String?
-  tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  
-  teamId       String?
-  team         Team?       @relation(fields: [teamId], references: [id])
-  
-  playerId     String?
-  player       Player?     @relation(fields: [playerId], references: [id])
 
+model Trophy {
+  id           String   @id @default(cuid())
+  name         String
+  type         String
+  tournamentId String?
+  teamId       String?
+  playerId     String?
+  userId       String?
   createdAt    DateTime @default(now())
+
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  team         Team?       @relation(fields: [teamId], references: [id])
+  player       Player?     @relation(fields: [playerId], references: [id])
+  user         User?       @relation(fields: [userId], references: [id])
 }
 
 model News {
