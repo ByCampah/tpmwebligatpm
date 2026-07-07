@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches } from "@/app/actions";
+import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toPng } from 'html-to-image';
@@ -9,7 +9,7 @@ import { SeasonSummaryImage } from "@/components/SeasonSummaryImage";
 
 import BracketBuilder from "./BracketBuilder";
 
-export default function TournamentClient({ tournament, allTeams, allPlayers, categories, userRole }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[], userRole: string }) {
+export default function TournamentClient({ tournament, allTeams, allPlayers, categories, userRole, prodeLeaderboard = [] }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[], userRole: string, prodeLeaderboard?: any[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as any) || "PARTIDOS";
@@ -80,6 +80,17 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   const [editingRosterTeam, setEditingRosterTeam] = useState<any>(null);
   const [editingMatch, setEditingMatch] = useState<any>(null);
   const [editingEvents, setEditingEvents] = useState<any[]>([]);
+
+  const handleToggleProde = async (matchId: string, showInProde: boolean, prodeLocked: boolean) => {
+    setLoading(true);
+    const res = await toggleMatchProde(matchId, showInProde, prodeLocked);
+    setLoading(false);
+    if (res.success) {
+      router.refresh();
+    } else {
+      alert(res.error);
+    }
+  };
 
   const enrolledTeamIds = tournament.teams.map((t: any) => t.teamId);
   
@@ -521,6 +532,25 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       {m.awayTeam.logoUrl && <img src={m.awayTeam.logoUrl} className="h-8 object-contain" alt="" />}
                       <span className="font-bold">{m.awayTeam.name}</span>
                     </div>
+
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        onClick={() => handleToggleProde(m.id, !m.showInProde, m.prodeLocked)}
+                        className={`text-xs font-bold px-3 py-1 rounded transition-colors ${m.showInProde ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}
+                        title="Mostrar en Portada para Prode"
+                      >
+                        {m.showInProde ? 'PRODE ON' : 'PRODE OFF'}
+                      </button>
+                      {m.showInProde && (
+                        <button
+                          onClick={() => handleToggleProde(m.id, m.showInProde, !m.prodeLocked)}
+                          className={`text-xs font-bold px-3 py-1 rounded transition-colors ${m.prodeLocked ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}
+                          title={m.prodeLocked ? 'Prode Bloqueado' : 'Prode Abierto'}
+                        >
+                          {m.prodeLocked ? '🔒 CERRADO' : '🔓 ABIERTO'}
+                        </button>
+                      )}
+                    </div>
                     
                     <button 
                       onClick={() => {
@@ -871,6 +901,28 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             <p className="text-muted-foreground text-sm mb-6 max-w-2xl mx-auto">
               Asigna los lugares del podio y los premios individuales. Los trofeos se entregarán de forma automática.
             </p>
+
+            {prodeLeaderboard.length > 0 && (
+              <div className="bg-purple-900/30 border border-purple-500/50 p-4 rounded-xl max-w-xl mx-auto mb-8 text-left">
+                <h3 className="font-black text-purple-400 flex items-center gap-2 mb-2">
+                  <span className="text-xl">🔮</span> Sugerencia de Ganador del Prode
+                </h3>
+                <p className="text-sm text-purple-200 mb-2">
+                  Basado en los puntos actuales, los usuarios líderes son:
+                </p>
+                <div className="flex flex-col gap-1">
+                  {prodeLeaderboard.map((l, idx) => (
+                    <div key={l.user?.id} className="flex justify-between items-center bg-black/30 px-3 py-2 rounded">
+                      <span className="font-bold">#{idx + 1} {l.user?.nickName || l.user?.name}</span>
+                      <span className="text-yellow-500 font-black">{l.points} pts</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-3 italic">
+                  * Recuerda que el premio de Prode se otorga creando un "Trofeo Manual" en la sección general de Trofeos, o agregándolo como torneo especial.
+                </p>
+              </div>
+            )}
             
             <form onSubmit={handlePodiumSubmit} className="flex flex-col gap-8 max-w-xl mx-auto">
               

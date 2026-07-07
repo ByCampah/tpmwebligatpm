@@ -38,6 +38,9 @@ model User {
   // Admin logs
   adminLogs       AdminLog[]
   
+  // Prode
+  prodePredictions ProdePrediction[]
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -238,6 +241,11 @@ model Match {
   status           String  @default("SCHEDULED") // SCHEDULED, PLAYED
   events           Json?   @default("[]") // Lista de eventos: {type: GOAL|RED, minute: Int, playerId: String, assistId?: String}
   
+  // Prode
+  showInProde      Boolean @default(false)
+  prodeLocked      Boolean @default(false)
+  prodePredictions ProdePrediction[]
+
   stats            MatchStat[]
   
   createdAt        DateTime @default(now())
@@ -322,4 +330,22 @@ model AdminLog {
   action    String
   details   String?
   createdAt DateTime @default(now())
+}
+
+model ProdePrediction {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  matchId      String
+  match        Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  
+  homeScore    Int
+  awayScore    Int
+  pointsEarned Int?     // Se llena al terminar el partido (ej. 6 exacto, 3 ganador)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, matchId])
 }

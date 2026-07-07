@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import ProdeSection from "@/components/ProdeSection";
 
 export default async function Home() {
   const activeSeason = await prisma.season.findFirst({
@@ -63,6 +64,9 @@ export default async function Home() {
           </a>
         </div>
       </section>
+
+      {/* PRODE SECTION */}
+      <ProdeSection />
 
       {/* Main Content */}
       <div className="grid md:grid-cols-3 gap-8">

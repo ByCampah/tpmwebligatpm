@@ -59,9 +59,27 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
     orderBy: { name: "asc" }
   });
 
+  // Calculate Prode Top 3
+  const prodePoints = await prisma.prodePrediction.groupBy({
+    by: ['userId'],
+    where: { match: { tournamentId: tournament.id }, pointsEarned: { not: null } },
+    _sum: { pointsEarned: true },
+    orderBy: { _sum: { pointsEarned: 'desc' } },
+    take: 3
+  });
+  
+  const prodeUsers = await prisma.user.findMany({
+    where: { id: { in: prodePoints.map(p => p.userId) } }
+  });
+
+  const prodeLeaderboard = prodePoints.map(p => ({
+    user: prodeUsers.find(u => u.id === p.userId),
+    points: p._sum.pointsEarned
+  }));
+
   return (
     <React.Suspense fallback={<div>Cargando Torneo...</div>}>
-      <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} categories={categories} userRole={userRole} />
+      <TournamentClient tournament={tournament} allTeams={allTeams} allPlayers={allPlayers} categories={categories} userRole={userRole} prodeLeaderboard={prodeLeaderboard} />
     </React.Suspense>
   );
 }

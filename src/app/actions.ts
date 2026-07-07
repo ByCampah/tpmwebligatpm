@@ -144,6 +144,33 @@ export async function submitMatchStats(formData: any) {
   });
   await createAdminLog("Edición de Partido", `[${match?.homeTeam.name} ${homeScore} - ${awayScore} ${match?.awayTeam.name}](/partidos/${matchId}) - Resultado Cargado`);
 
+  // --- CALCULAR PUNTOS DEL PRODE ---
+  const hScore = parseInt(homeScore);
+  const aScore = parseInt(awayScore);
+
+  const predictions = await prisma.prodePrediction.findMany({
+    where: { matchId }
+  });
+
+  for (const pred of predictions) {
+    let points = 0;
+    if (pred.homeScore === hScore && pred.awayScore === aScore) {
+      points = 6;
+    } else {
+      const predDiff = pred.homeScore - pred.awayScore;
+      const actualDiff = hScore - aScore;
+      if ((predDiff > 0 && actualDiff > 0) || (predDiff < 0 && actualDiff < 0) || (predDiff === 0 && actualDiff === 0)) {
+        points = 3;
+      }
+    }
+    
+    await prisma.prodePrediction.update({
+      where: { id: pred.id },
+      data: { pointsEarned: points }
+    });
+  }
+  // ---------------------------------
+
   // 3. Revalidate cache
   revalidatePath("/liga");
   revalidatePath("/admin/partidos");
@@ -1029,6 +1056,60 @@ export async function generateGroupMatches(tournamentId: string, doubleRoundRobi
   } catch (error: any) {
     console.error(error);
     return { success: false, error: "Error al generar partidos de grupos" };
+  }
+}
+
+// ==============================
+// PRODE ACTIONS
+// ==============================
+
+export async function toggleMatchProde(matchId: string, showInProde: boolean, prodeLocked: boolean) {
+  const session = await auth();
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
+
+  try {
+    await prisma.match.update({
+      where: { id: matchId },
+      data: { showInProde, prodeLocked }
+    });
+    revalidatePath("/admin/temporadas");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al actualizar estado del Prode" };
+  }
+}
+
+export async function submitProdePrediction(matchId: string, homeScore: number, awayScore: number) {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Debes iniciar sesión para participar en el Prode" };
+
+  const match = await prisma.match.findUnique({ where: { id: matchId } });
+  if (!match || match.prodeLocked) return { success: false, error: "El partido ya no acepta pronósticos o no existe" };
+
+  try {
+    await prisma.prodePrediction.upsert({
+      where: {
+        userId_matchId: { userId: session.user.id, matchId }
+      },
+      update: {
+        homeScore,
+        awayScore,
+        pointsEarned: null // Reset in case it was somehow scored
+      },
+      create: {
+        userId: session.user.id,
+        matchId,
+        homeScore,
+        awayScore,
+      }
+    });
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al guardar el pronóstico" };
   }
 }
 
