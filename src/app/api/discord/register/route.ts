@@ -69,7 +69,7 @@ const commands = [
 
 export async function GET(req: Request) {
   const token = process.env.DISCORD_TOKEN || process.env.DISCORD_BOT_TOKEN;
-  const clientId = process.env.DISCORD_CLIENT_ID || process.env.DISCORD_APPLICATION_ID;
+  const clientId = process.env.DISCORD_APPLICATION_ID || process.env.DISCORD_CLIENT_ID;
 
   if (!token || !clientId) {
     return NextResponse.json({ 
