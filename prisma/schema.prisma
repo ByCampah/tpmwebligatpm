@@ -200,6 +200,9 @@ model TournamentTeam {
   manualGoalsFor     Int?
   manualGoalsAgainst Int?
 
+  // Fase de grupos
+  group              String?  // "A", "B", "C", etc.
+
   @@unique([tournamentId, teamId])
 }
 

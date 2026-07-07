@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament } from "@/app/actions";
+import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toPng } from 'html-to-image';
@@ -16,7 +16,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "AJUSTES" | "RESUMEN">(initialTab);
+  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "GRUPOS" | "AJUSTES" | "RESUMEN">(initialTab);
   
   const [imageLayout, setImageLayout] = useState<"vertical" | "square">("vertical");
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -42,6 +42,40 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
+
+  const [groupAssignments, setGroupAssignments] = useState<Record<string, string>>(
+    Object.fromEntries(tournament.teams.map((t: any) => [t.teamId, t.group || ""]))
+  );
+
+  const handleSaveGroups = async () => {
+    setLoading(true);
+    const groupsToSave = Object.entries(groupAssignments).map(([teamId, group]) => ({
+      teamId,
+      group: group === "" ? null : group
+    }));
+    const res = await updateTournamentTeamGroups(tournament.id, groupsToSave);
+    setLoading(false);
+    if(res.success) {
+      alert("Grupos guardados exitosamente");
+      router.refresh();
+    } else {
+      alert(res.error);
+    }
+  };
+
+  const handleGenerateGroupMatches = async (doubleRR: boolean) => {
+    if(!confirm(`¿Generar partidos de grupos ${doubleRR ? "(Ida y Vuelta)" : "(Solo Ida)"}?`)) return;
+    setLoading(true);
+    const res = await generateGroupMatches(tournament.id, doubleRR);
+    setLoading(false);
+    if(res.success) {
+      alert("¡Partidos de grupos generados!");
+      router.refresh();
+      setActiveTab("PARTIDOS");
+    } else {
+      alert(res.error);
+    }
+  };
 
   const [editingRosterTeam, setEditingRosterTeam] = useState<any>(null);
   const [editingMatch, setEditingMatch] = useState<any>(null);
@@ -211,6 +245,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "LLAVES" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
           >
             Llaves (Brackets)
+          </button>
+        )}
+        {userRole === "ADMIN" && (tournament.format === "CUP" || tournament.format === "PLAYOFF") && (
+          <button 
+            onClick={() => setActiveTab("GRUPOS")}
+            className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "GRUPOS" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+          >
+            Grupos
           </button>
         )}
         {userRole === "ADMIN" && (
@@ -889,6 +931,68 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 {loading ? 'PROCESANDO...' : 'OTORGAR PREMIOS'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: GRUPOS */}
+      {activeTab === "GRUPOS" && (
+        <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
+          <div className="bg-secondary/30 p-6 rounded-xl border border-border">
+            <h2 className="text-2xl font-black text-primary mb-2">Fase de Grupos</h2>
+            <p className="text-muted-foreground mb-6">
+              Asigna a cada equipo un grupo (A, B, C, etc.). Los equipos con grupo asignado podrán generar partidos automáticamente.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              {enrolledTeamsData.map((t: any) => (
+                <div key={t.id} className="bg-background border border-border p-4 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <img src={t.team.logoUrl || "/img/trophy-default.png"} className="w-8 h-8 object-contain" />
+                    <span className="font-bold text-sm truncate max-w-[120px]" title={t.team.name}>{t.team.name}</span>
+                  </div>
+                  <input 
+                    type="text" 
+                    maxLength={1}
+                    placeholder="Ej: A"
+                    className="w-12 h-10 bg-secondary border border-border rounded text-center font-black uppercase text-xl text-primary"
+                    value={groupAssignments[t.teamId] || ""}
+                    onChange={(e) => setGroupAssignments(prev => ({...prev, [t.teamId]: e.target.value.toUpperCase()}))}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={handleSaveGroups} 
+              disabled={loading}
+              className="bg-blue-600 text-white font-black py-3 px-6 rounded-xl hover:bg-blue-500 transition-colors w-full sm:w-auto"
+            >
+              {loading ? "Guardando..." : "💾 Guardar Asignación de Grupos"}
+            </button>
+          </div>
+
+          <div className="bg-secondary/30 p-6 rounded-xl border border-border">
+            <h2 className="text-2xl font-black text-primary mb-2">Generar Fixture de Grupos</h2>
+            <p className="text-muted-foreground mb-6">
+              Genera automáticamente los partidos (Todos contra Todos) para los equipos que tienen grupo asignado. Si un grupo tiene número impar, habrá un equipo libre (BYE) por fecha.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => handleGenerateGroupMatches(false)} 
+                disabled={loading}
+                className="bg-primary text-primary-foreground font-black py-3 px-6 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_5px_20px_rgba(var(--primary),0.2)]"
+              >
+                🗓️ Generar Fixture (Ida Sola)
+              </button>
+              <button 
+                onClick={() => handleGenerateGroupMatches(true)} 
+                disabled={loading}
+                className="bg-green-600 text-white font-black py-3 px-6 rounded-xl hover:bg-green-500 transition-transform hover:scale-105 shadow-[0_5px_20px_rgba(34,197,94,0.2)]"
+              >
+                🗓️ Generar Fixture (Ida y Vuelta)
+              </button>
+            </div>
           </div>
         </div>
       )}

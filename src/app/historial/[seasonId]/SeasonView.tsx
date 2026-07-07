@@ -117,17 +117,17 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   const allTournamentMatches = [...groupMatches, ...regularMatches, ...playoffMatches];
   const displayedMatches = selectedRound ? allTournamentMatches.filter((m: any) => m.round === selectedRound) : allTournamentMatches;
 
-  const groups = Array.from(new Set(groupMatches.map((m: any) => m.round)));
-  const groupStandings = groups.map(gName => {
-    const gMatches = groupMatches.filter((m: any) => m.round === gName);
-    const gTeamIds = new Set<string>();
-    gMatches.forEach((m: any) => { gTeamIds.add(m.homeTeamId); gTeamIds.add(m.awayTeamId); });
-    const gTeams = selectedTournament?.teams.filter((tt: any) => gTeamIds.has(tt.teamId)) || [];
+  const cupGroups = Array.from(new Set(selectedTournament?.teams.map((tt: any) => tt.group).filter(Boolean)));
+  const groupStandings = cupGroups.map((gName: any) => {
+    const gTeams = selectedTournament?.teams.filter((tt: any) => tt.group === gName) || [];
+    const gTeamIds = new Set(gTeams.map((tt: any) => tt.teamId));
+    const gMatches = groupMatches.filter((m: any) => gTeamIds.has(m.homeTeamId) && gTeamIds.has(m.awayTeamId));
+    
     return {
-      name: gName,
+      name: `Grupo ${gName}`,
       standings: calculateStandings(gMatches, gTeams)
     };
-  });
+  }).sort((a, b) => a.name.localeCompare(b.name));
 
   const calculatePlayerStats = () => {
     const statsMap = new Map();

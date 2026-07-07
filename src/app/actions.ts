@@ -932,3 +932,103 @@ export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boo
   }
 }
 
+export async function updateTournamentTeamGroups(tournamentId: string, teamGroups: {teamId: string, group: string | null}[]) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") return { success: false, error: "No autorizado" };
+
+  try {
+    await prisma.$transaction(
+      teamGroups.map(tg => prisma.tournamentTeam.update({
+        where: {
+          tournamentId_teamId: { tournamentId, teamId: tg.teamId }
+        },
+        data: {
+          group: tg.group
+        }
+      }))
+    );
+    revalidatePath(`/admin/temporadas/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error(error);
+    return { success: false, error: "Error al actualizar los grupos" };
+  }
+}
+
+export async function generateGroupMatches(tournamentId: string, doubleRoundRobin: boolean) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") return { success: false, error: "No autorizado" };
+
+  try {
+    const tournamentTeams = await prisma.tournamentTeam.findMany({
+      where: { tournamentId, group: { not: null } },
+      include: { team: true }
+    });
+
+    const groups: Record<string, typeof tournamentTeams> = {};
+    for (const tt of tournamentTeams) {
+      if (!groups[tt.group!]) groups[tt.group!] = [];
+      groups[tt.group!].push(tt);
+    }
+
+    const matchesToCreate: any[] = [];
+
+    for (const [groupName, teams] of Object.entries(groups)) {
+       const isOdd = teams.length % 2 !== 0;
+       const t = [...teams];
+       if (isOdd) {
+         t.push({ teamId: "BYE" } as any);
+       }
+       
+       const totalRounds = t.length - 1;
+       const half = t.length / 2;
+       const firstHalfMatches = [];
+       
+       for (let round = 0; round < totalRounds; round++) {
+         for (let i = 0; i < half; i++) {
+           const home = t[i];
+           const away = t[t.length - 1 - i];
+           
+           if (home.teamId !== "BYE" && away.teamId !== "BYE") {
+             const m = {
+               tournamentId,
+               homeTeamId: home.teamId,
+               awayTeamId: away.teamId,
+               round: `Grupo ${groupName} - Fecha ${round + 1}`,
+               status: "SCHEDULED"
+             };
+             matchesToCreate.push(m);
+             firstHalfMatches.push(m);
+           }
+         }
+         t.splice(1, 0, t.pop()!);
+       }
+
+       if (doubleRoundRobin) {
+         for (const m of firstHalfMatches) {
+           const fechaNum = parseInt(m.round.split(" - Fecha ")[1]);
+           matchesToCreate.push({
+             tournamentId,
+             homeTeamId: m.awayTeamId,
+             awayTeamId: m.homeTeamId,
+             round: `Grupo ${groupName} - Fecha ${fechaNum + totalRounds}`,
+             status: "SCHEDULED"
+           });
+         }
+       }
+    }
+
+    if (matchesToCreate.length > 0) {
+      await prisma.match.createMany({
+        data: matchesToCreate
+      });
+    }
+
+    revalidatePath(`/admin/temporadas/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error(error);
+    return { success: false, error: "Error al generar partidos de grupos" };
+  }
+}
+
