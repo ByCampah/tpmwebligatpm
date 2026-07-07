@@ -15,8 +15,6 @@ export default async function ProdeSection() {
     orderBy: { createdAt: "asc" }
   });
 
-  if (prodeMatches.length === 0) return null;
-
   const tournamentsMap = new Map();
   for (const m of prodeMatches) {
     if (!tournamentsMap.has(m.tournamentId)) {

@@ -57,64 +57,78 @@ export default function ProdeClient({ tournaments, userPredictions, leaderboards
               <div className="flex flex-col gap-4">
                 {t.matches.map((m: any) => {
                   const prediction = userPredictions.find((p: any) => p.matchId === m.id);
-                  const isLocked = m.prodeLocked;
-                  const isLoading = loadingId === m.id;
-
-                  return (
-                    <div key={m.id} className="bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 transition hover:border-purple-500/30">
-                      
-                      <div className="flex-1 flex justify-end items-center gap-3">
-                        <span className="font-bold text-sm sm:text-base">{m.homeTeam.name}</span>
-                        {m.homeTeam.logoUrl && <img src={m.homeTeam.logoUrl} className="h-6 object-contain" alt="" />}
-                      </div>
-
-                      <div className="flex flex-col items-center">
-                        <form onSubmit={(e) => handlePredict(e, m.id)} className="flex items-center gap-2">
-                          <input 
-                            type="number" 
-                            name="homeScore" 
-                            min="0" 
-                            defaultValue={prediction?.homeScore ?? ""}
-                            disabled={isLocked || isLoading || !userId}
-                            className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
-                          />
-                          <span className="text-muted-foreground font-bold">-</span>
-                          <input 
-                            type="number" 
-                            name="awayScore" 
-                            min="0" 
-                            defaultValue={prediction?.awayScore ?? ""}
-                            disabled={isLocked || isLoading || !userId}
-                            className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
-                          />
-                          {!isLocked && userId && (
-                            <button 
-                              type="submit" 
-                              disabled={isLoading}
-                              className="ml-2 bg-purple-600 hover:bg-purple-500 text-white font-bold p-2 rounded-lg transition disabled:opacity-50 text-xs"
-                            >
-                              {isLoading ? "..." : "✓"}
-                            </button>
-                          )}
-                        </form>
-                        {isLocked && <span className="text-[10px] text-red-400 font-bold mt-1 uppercase tracking-wider">Cerrado</span>}
-                        {prediction && !isLocked && <span className="text-[10px] text-green-400 font-bold mt-1 uppercase tracking-wider">Guardado</span>}
-                        {prediction?.pointsEarned !== null && prediction?.pointsEarned !== undefined && (
-                           <span className="text-xs text-yellow-500 font-bold mt-1">+{prediction.pointsEarned} pts</span>
-                        )}
-                      </div>
-
-                      <div className="flex-1 flex justify-start items-center gap-3">
-                        {m.awayTeam.logoUrl && <img src={m.awayTeam.logoUrl} className="h-6 object-contain" alt="" />}
-                        <span className="font-bold text-sm sm:text-base">{m.awayTeam.name}</span>
-                      </div>
-
-                    </div>
-                  );
-                })}
-              </div>
+          {tournaments.length === 0 ? (
+            <div className="bg-black/30 border border-white/5 rounded-xl p-8 text-center flex flex-col items-center justify-center">
+              <span className="text-4xl mb-4 opacity-50">⚽</span>
+              <p className="text-muted-foreground font-bold">Por el momento no hay próximos partidos para jugar al PRODE.</p>
+              <p className="text-sm text-muted-foreground/70 mt-2">Los administradores habilitarán los partidos pronto.</p>
             </div>
-          ))}
+          ) : (
+            tournaments.map((t: any) => (
+              <div key={t.tournament.id}>
+                <h3 className="text-xl font-bold mb-4 text-purple-400 border-b border-white/10 pb-2">{t.tournament.name}</h3>
+                <div className="flex flex-col gap-4">
+                  {t.matches.map((m: any) => {
+                    const prediction = userPredictions.find((p: any) => p.matchId === m.id);
+                    const isLocked = m.prodeLocked;
+                    const isLoading = loadingId === m.id;
+
+                    return (
+                      <div key={m.id} className="bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 transition hover:border-purple-500/30">
+                        
+                        <div className="flex-1 flex justify-end items-center gap-3">
+                          <span className="font-bold text-sm sm:text-base">{m.homeTeam.name}</span>
+                          {m.homeTeam.logoUrl && <img src={m.homeTeam.logoUrl} className="h-6 object-contain" alt="" />}
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                          <form onSubmit={(e) => handlePredict(e, m.id)} className="flex items-center gap-2">
+                            <input 
+                              type="number" 
+                              name="homeScore" 
+                              min="0" 
+                              defaultValue={prediction?.homeScore ?? ""}
+                              disabled={isLocked || isLoading || !userId}
+                              className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
+                            />
+                            <span className="text-muted-foreground font-bold">-</span>
+                            <input 
+                              type="number" 
+                              name="awayScore" 
+                              min="0" 
+                              defaultValue={prediction?.awayScore ?? ""}
+                              disabled={isLocked || isLoading || !userId}
+                              className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
+                            />
+                            {!isLocked && userId && (
+                              <button 
+                                type="submit" 
+                                disabled={isLoading}
+                                className="ml-2 bg-purple-600 hover:bg-purple-500 text-white font-bold p-2 rounded-lg transition disabled:opacity-50 text-xs"
+                              >
+                                {isLoading ? "..." : "✓"}
+                              </button>
+                            )}
+                          </form>
+                          {isLocked && <span className="text-[10px] text-red-400 font-bold mt-1 uppercase tracking-wider">Cerrado</span>}
+                          {prediction && !isLocked && <span className="text-[10px] text-green-400 font-bold mt-1 uppercase tracking-wider">Guardado</span>}
+                          {prediction?.pointsEarned !== null && prediction?.pointsEarned !== undefined && (
+                             <span className="text-xs text-yellow-500 font-bold mt-1">+{prediction.pointsEarned} pts</span>
+                          )}
+                        </div>
+
+                        <div className="flex-1 flex justify-start items-center gap-3">
+                          {m.awayTeam.logoUrl && <img src={m.awayTeam.logoUrl} className="h-6 object-contain" alt="" />}
+                          <span className="font-bold text-sm sm:text-base">{m.awayTeam.name}</span>
+                        </div>
+
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* RIGHT COL: LEADERBOARD */}
@@ -136,7 +150,6 @@ export default function ProdeClient({ tournaments, userPredictions, leaderboards
                       <div key={l.user?.id} className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
                         <div className="flex items-center gap-3">
                           <span className="font-black text-muted-foreground w-4">{idx + 1}</span>
-                          <img src={l.user?.customAvatarUrl || l.user?.image || "https://api.dicebear.com/9.x/notionists/svg?seed=" + l.user?.id} className="w-8 h-8 rounded-full border border-white/10" alt="avatar" />
                           <span className="font-bold text-sm">{l.user?.nickName || l.user?.name}</span>
                         </div>
                         <span className="font-black text-yellow-500">{l.points} pts</span>
