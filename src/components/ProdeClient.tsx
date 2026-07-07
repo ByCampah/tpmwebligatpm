@@ -51,12 +51,6 @@ export default function ProdeClient({ tournaments, userPredictions, leaderboards
       <div className="grid md:grid-cols-3 gap-12 relative z-10">
         {/* LEFT COL: MATCHES */}
         <div className="md:col-span-2 flex flex-col gap-12">
-          {tournaments.map((t: any) => (
-            <div key={t.tournament.id}>
-              <h3 className="text-xl font-bold mb-4 text-purple-400 border-b border-white/10 pb-2">{t.tournament.name}</h3>
-              <div className="flex flex-col gap-4">
-                {t.matches.map((m: any) => {
-                  const prediction = userPredictions.find((p: any) => p.matchId === m.id);
           {tournaments.length === 0 ? (
             <div className="bg-black/30 border border-white/5 rounded-xl p-8 text-center flex flex-col items-center justify-center">
               <span className="text-4xl mb-4 opacity-50">⚽</span>
