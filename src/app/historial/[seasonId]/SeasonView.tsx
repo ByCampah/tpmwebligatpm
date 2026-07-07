@@ -110,9 +110,10 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
     });
   };
 
-  const groupMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('grupo')) || [];
-  const playoffMatches = selectedTournament?.matches.filter((m: any) => !m.round?.toLowerCase().includes('grupo') && !m.round?.toLowerCase().includes('fecha') && m.round !== 'Estadísticas Históricas') || [];
-  const regularMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('fecha') && m.round !== 'Estadísticas Históricas') || [];
+  const isPlayoffMatch = (m: any) => /final|cuarto|octavo|dieciseisavo|tercer|playoff|llave|3er|3ro/i.test(m.round || "");
+  const groupMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('grupo') && !isPlayoffMatch(m)) || [];
+  const playoffMatches = selectedTournament?.matches.filter((m: any) => isPlayoffMatch(m) || (!m.round?.toLowerCase().includes('grupo') && !m.round?.toLowerCase().includes('fecha') && m.round !== 'Estadísticas Históricas')) || [];
+  const regularMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('fecha') && !isPlayoffMatch(m) && m.round !== 'Estadísticas Históricas') || [];
   
   const allTournamentMatches = [...groupMatches, ...regularMatches, ...playoffMatches];
   const displayedMatches = selectedRound ? allTournamentMatches.filter((m: any) => m.round === selectedRound) : allTournamentMatches;

@@ -136,7 +136,13 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         groupStandings = cupGroups.map((gName: any) => {
           const gTeams = tournament.teams?.filter((tt: any) => tt.group === gName) || [];
           const gTeamIds = new Set(gTeams.map((tt: any) => tt.teamId));
-          const gMatches = validMatches.filter((m: any) => gTeamIds.has(m.homeTeamId) && gTeamIds.has(m.awayTeamId));
+          const isPlayoffMatch = (m: any) => /final|cuarto|octavo|dieciseisavo|tercer|playoff|llave|3er|3ro/i.test(m.round || "");
+          const gMatches = validMatches.filter((m: any) => 
+            gTeamIds.has(m.homeTeamId) && 
+            gTeamIds.has(m.awayTeamId) && 
+            m.round?.toLowerCase().includes('grupo') &&
+            !isPlayoffMatch(m)
+          );
           return {
             name: `Grupo ${gName}`,
             standings: calculateStandingsForMatches(gMatches, gTeams)

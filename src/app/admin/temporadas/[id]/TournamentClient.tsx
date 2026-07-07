@@ -578,10 +578,11 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                 <span className="font-bold flex-1">
                                   {ev.playerName} 
                                   {ev.type === 'FREE_KICK_GOAL' && <span className="ml-2 text-xs text-yellow-500 uppercase">Tiro Libre</span>}
+                                  {ev.type === 'OWN_GOAL' && <span className="ml-2 text-xs text-red-500 uppercase">En Contra</span>}
                                   {ev.type === 'PENALTY_GOAL' && <span className="ml-2 text-xs text-blue-500 uppercase">Penal</span>}
                                   {ev.type === 'SHOOTOUT_GOAL' && <span className="ml-2 text-xs text-green-500 uppercase">Convirtió (Tanda)</span>}
                                   {ev.type === 'SHOOTOUT_MISS' && <span className="ml-2 text-xs text-red-500 uppercase">Erró (Tanda)</span>}
-                                  {ev.assistName ? <span className="ml-2 text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}
+                                  {ev.assistName && ev.type !== 'OWN_GOAL' ? <span className="ml-2 text-muted-foreground font-normal text-sm">(Asistencia: {ev.assistName})</span> : ''}
                                 </span>
                                 <span className="text-xs uppercase font-bold text-muted-foreground mr-4">{isHome ? m.homeTeam.name : m.awayTeam.name}</span>
                                 <button type="button" onClick={() => {
@@ -615,6 +616,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                           <div className="mt-4 flex flex-col md:flex-row gap-2 bg-secondary/20 p-4 rounded-lg border border-border">
                             <select id={`type_${m.id}`} className="bg-black border border-border rounded p-2 focus:border-primary text-sm">
                               <option value="GOAL">⚽ Gol</option>
+                              <option value="OWN_GOAL">🤦‍♂️ Gol en Contra</option>
                               <option value="FREE_KICK_GOAL">⚽ Tiro Libre</option>
                               <option value="PENALTY_GOAL">⚽ Penal</option>
                               <option value="RED">🟥 Tarjeta Roja</option>
