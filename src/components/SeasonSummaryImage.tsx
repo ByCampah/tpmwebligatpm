@@ -194,7 +194,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
     return (
       <div 
         ref={ref} 
-        className={`${layout === "square" ? "w-[1280px]" : "w-[1080px]"} min-h-[1080px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-12 shadow-2xl`}
+        className={`${layout === "square" ? "w-[1440px]" : "w-[1200px]"} min-h-[1200px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl`}
         style={{
           backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(30,58,138,0.3) 0%, rgba(10,10,10,1) 80%)'
         }}
@@ -209,10 +209,10 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           <div className="flex items-center justify-between w-full">
             <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
             <div className="flex flex-col items-end text-right">
-              <h2 className="text-3xl font-bold tracking-widest text-blue-400 uppercase mb-2">
+              <h2 className="text-4xl font-bold tracking-widest text-blue-400 uppercase mb-3">
                 {tournament.season?.name || "Torneo de Pretemporada"}
               </h2>
-              <h1 className="text-5xl font-black uppercase max-w-2xl text-white" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
+              <h1 className="text-6xl font-black uppercase max-w-3xl text-white leading-tight" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
                 {tournament.name}
               </h1>
             </div>
@@ -221,9 +221,9 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         </div>
         
         {/* CONTENT LAYOUT */}
-        <div className={`w-full ${layout === "square" ? "max-w-7xl" : "max-w-5xl"} px-12 mt-12 flex ${layout === "square" ? "flex-row" : "flex-col"} gap-10 z-10 flex-1`}>
+        <div className={`w-full ${layout === "square" ? "max-w-[1360px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row" : "flex-col"} gap-12 z-10 flex-1`}>
           
-          <div className={`flex flex-col gap-10 ${layout === "square" ? "flex-1" : "w-full"}`}>
+          <div className={`flex flex-col gap-12 ${layout === "square" ? "flex-1" : "w-full"}`}>
             {/* EL CAMPEÓN */}
             {championTeam && (
               <div className="flex flex-col items-center justify-center p-12 bg-gradient-to-tr from-yellow-900/40 to-amber-600/20 border border-yellow-500/40 rounded-3xl relative overflow-hidden shadow-2xl">
@@ -249,38 +249,38 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             )}
 
             {/* TABLA O BRACKET */}
-            <div className="bg-black/60 border border-white/10 p-10 rounded-3xl shadow-xl mt-4">
-              <h3 className="text-2xl font-bold text-center uppercase tracking-widest text-zinc-300 mb-8 border-b border-white/10 pb-4">
+            <div className="bg-black/60 border border-white/10 p-12 rounded-3xl shadow-xl mt-4">
+              <h3 className="text-3xl font-bold text-center uppercase tracking-widest text-zinc-300 mb-10 border-b border-white/10 pb-6">
                 {isCup ? "Fase Final" : "Tabla de Posiciones Final"}
               </h3>
               
               {!isCup && (
-                <div className="overflow-hidden rounded-xl border border-white/5 w-full">
-                  <table className="w-full text-left border-collapse">
+                <div className="overflow-hidden rounded-2xl border border-white/5 w-full">
+                  <table className="w-full text-left border-collapse text-lg">
                     <thead>
-                      <tr className="bg-white/5 text-zinc-400 text-sm uppercase tracking-wider">
-                        <th className="p-4 font-bold">#</th>
-                        <th className="p-4 font-bold">Equipo</th>
-                        <th className="p-4 font-bold text-center">PJ</th>
-                        <th className="p-4 font-bold text-center">PG</th>
-                        <th className="p-4 font-bold text-center">PE</th>
-                        <th className="p-4 font-bold text-center">PP</th>
-                        <th className="p-4 font-bold text-center text-blue-400">PTS</th>
+                      <tr className="bg-white/5 text-zinc-400 text-base uppercase tracking-wider">
+                        <th className="p-5 font-bold">#</th>
+                        <th className="p-5 font-bold">Equipo</th>
+                        <th className="p-5 font-bold text-center">PJ</th>
+                        <th className="p-5 font-bold text-center">PG</th>
+                        <th className="p-5 font-bold text-center">PE</th>
+                        <th className="p-5 font-bold text-center">PP</th>
+                        <th className="p-5 font-bold text-center text-blue-400">PTS</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {standings.map((team, idx) => (
                         <tr key={team.id} className="hover:bg-white/5 transition-colors">
-                          <td className="p-4 font-bold text-zinc-500">{idx + 1}</td>
-                          <td className="p-4 font-bold flex items-center gap-3">
-                            <img src={team.logo} className="w-8 h-8 object-contain drop-shadow-md" />
-                            <span className="text-lg">{team.name}</span>
+                          <td className="p-5 font-bold text-zinc-500 text-xl">{idx + 1}</td>
+                          <td className="p-5 font-bold flex items-center gap-4">
+                            <img src={team.logo} className="w-10 h-10 object-contain drop-shadow-md" />
+                            <span className="text-xl">{team.name}</span>
                           </td>
-                          <td className="p-4 text-center text-zinc-400">{team.pj}</td>
-                          <td className="p-4 text-center text-green-400">{team.pg}</td>
-                          <td className="p-4 text-center text-yellow-400">{team.pe}</td>
-                          <td className="p-4 text-center text-red-400">{team.pp}</td>
-                          <td className="p-4 text-center font-black text-xl text-blue-400">{team.pts}</td>
+                          <td className="p-5 text-center text-zinc-400">{team.pj}</td>
+                          <td className="p-5 text-center text-green-400">{team.pg}</td>
+                          <td className="p-5 text-center text-yellow-400">{team.pe}</td>
+                          <td className="p-5 text-center text-red-400">{team.pp}</td>
+                          <td className="p-5 text-center font-black text-3xl text-blue-400">{team.pts}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -290,36 +290,36 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
 
               {isCup && groupStandings.length > 0 && (
                 <div className="flex flex-col gap-8 w-full">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
                     {groupStandings.map((group, idx) => (
                       <div key={idx} className="bg-black/40 border border-white/5 rounded-2xl p-6">
-                        <h4 className="text-xl font-bold text-zinc-300 mb-4">{group.name}</h4>
-                        <div className="overflow-hidden rounded-xl border border-white/5">
-                          <table className="w-full text-left border-collapse text-xs">
+                        <h4 className="text-2xl font-bold text-zinc-300 mb-4">{group.name}</h4>
+                        <div className="overflow-hidden rounded-xl border border-white/5 w-full mt-4">
+                          <table className="w-full text-left border-collapse text-base">
                             <thead>
-                              <tr className="bg-white/5 text-zinc-400 uppercase tracking-wider">
-                                <th className="p-2 font-bold w-6 text-center">#</th>
-                                <th className="p-2 font-bold">Equipo</th>
-                                <th className="p-2 font-bold text-center">PJ</th>
-                                <th className="p-2 font-bold text-center">PG</th>
-                                <th className="p-2 font-bold text-center">PE</th>
-                                <th className="p-2 font-bold text-center">PP</th>
-                                <th className="p-2 font-bold text-center text-blue-400">PTS</th>
+                              <tr className="bg-white/5 text-zinc-400 uppercase tracking-wider text-sm">
+                                <th className="p-3 font-bold w-8 text-center">#</th>
+                                <th className="p-3 font-bold">Equipo</th>
+                                <th className="p-3 font-bold text-center">PJ</th>
+                                <th className="p-3 font-bold text-center">PG</th>
+                                <th className="p-3 font-bold text-center">PE</th>
+                                <th className="p-3 font-bold text-center">PP</th>
+                                <th className="p-3 font-bold text-center text-blue-400">PTS</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
                               {group.standings.map((team: any, index: number) => (
                                 <tr key={team.id} className="hover:bg-white/5">
-                                  <td className="p-2 text-center text-zinc-500">{index + 1}</td>
-                                  <td className="p-2 font-bold flex items-center gap-2">
-                                    {team.logo && <img src={team.logo} className="w-5 h-5 object-contain" />}
-                                    <span className="truncate max-w-[100px]">{team.name}</span>
+                                  <td className="p-3 text-center text-zinc-500 text-lg">{index + 1}</td>
+                                  <td className="p-3 font-bold flex items-center gap-3">
+                                    {team.logo && <img src={team.logo} className="w-6 h-6 object-contain" />}
+                                    <span className="truncate max-w-[120px] text-lg">{team.name}</span>
                                   </td>
-                                  <td className="p-2 text-center text-zinc-400">{team.pj}</td>
-                                  <td className="p-2 text-center text-zinc-400">{team.pg}</td>
-                                  <td className="p-2 text-center text-zinc-400">{team.pe}</td>
-                                  <td className="p-2 text-center text-zinc-400">{team.pp}</td>
-                                  <td className="p-2 text-center font-black text-blue-400">{team.pts}</td>
+                                  <td className="p-3 text-center text-zinc-400">{team.pj}</td>
+                                  <td className="p-3 text-center text-zinc-400">{team.pg}</td>
+                                  <td className="p-3 text-center text-zinc-400">{team.pe}</td>
+                                  <td className="p-3 text-center text-zinc-400">{team.pp}</td>
+                                  <td className="p-3 text-center font-black text-blue-400 text-xl">{team.pts}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -347,36 +347,36 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           </div>
 
           {/* PREMIOS INDIVIDUALES */}
-          <div className={`${layout === "square" ? "flex flex-col w-[350px] gap-8" : "grid grid-cols-3 gap-8 mt-4"}`}>
+          <div className={`${layout === "square" ? "flex flex-col w-[400px] gap-8" : "grid grid-cols-3 gap-8 mt-4"}`}>
             {/* GOLEADOR */}
-            <div className="bg-gradient-to-b from-blue-900/30 to-black border border-blue-500/30 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
-              <div className="absolute top-4 right-4 text-4xl opacity-50">⚽</div>
-              <h4 className="text-blue-400 font-bold uppercase tracking-wider text-lg mb-4">Goleadores</h4>
+            <div className="bg-gradient-to-b from-blue-900/30 to-black border border-blue-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
+              <div className="absolute top-4 right-4 text-5xl opacity-50">⚽</div>
+              <h4 className="text-blue-400 font-bold uppercase tracking-wider text-xl mb-6">Goleadores</h4>
               {goleadorTrophy?.player ? (
                 <div className="flex flex-col justify-center items-center h-full">
-                  <div className="w-24 h-24 bg-black/60 rounded-full border-4 border-blue-500/50 flex items-center justify-center p-2 mb-3 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                  <div className="w-32 h-32 bg-black/60 rounded-full border-4 border-blue-500/50 flex items-center justify-center p-3 mb-4 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
                     <img src={getPlayerStatInfo(goleadorTrophy.player).logo} className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-2xl font-black mb-1">{goleadorTrophy.player.nick}</span>
-                  <span className="text-zinc-400 font-bold text-xs mb-3">{getPlayerStatInfo(goleadorTrophy.player).teamName}</span>
-                  <span className="text-zinc-300 text-lg font-bold bg-blue-500/20 px-3 py-1 rounded-full">{goleadorTrophy.extraInfo || "-"}</span>
+                  <span className="text-3xl font-black mb-2">{goleadorTrophy.player.nick}</span>
+                  <span className="text-zinc-400 font-bold text-sm mb-4">{getPlayerStatInfo(goleadorTrophy.player).teamName}</span>
+                  <span className="text-zinc-300 text-xl font-bold bg-blue-500/20 px-4 py-2 rounded-full">{goleadorTrophy.extraInfo || "-"}</span>
                 </div>
               ) : topScorers.length > 0 ? (
-                <div className="flex flex-col w-full gap-2 mt-2">
-                  <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-yellow-500/70 font-bold px-1 mb-1">
-                    <span className="w-6 text-center" title="Partidos Jugados">PJ</span>
-                    <span className="w-6 text-center" title="Goles">G</span>
+                <div className="flex flex-col w-full gap-3 mt-2">
+                  <div className="flex items-center justify-end w-full gap-3 text-xs uppercase text-yellow-500/70 font-bold px-2 mb-1">
+                    <span className="w-8 text-center" title="Partidos Jugados">PJ</span>
+                    <span className="w-8 text-center" title="Goles">G</span>
                   </div>
                   {topScorers.map((p, idx) => (
-                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-yellow-500/20">
-                      <div className="flex items-center gap-2">
-                         <span className="text-yellow-500 font-bold w-4">{idx + 1}</span>
-                         <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
-                         <span className="font-bold text-sm truncate max-w-[100px] text-left">{p.nick}</span>
+                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-yellow-500/20">
+                      <div className="flex items-center gap-3">
+                         <span className="text-yellow-500 font-black w-6 text-lg">{idx + 1}</span>
+                         <img src={getPlayerStatInfo(p.player).logo} className="w-8 h-8 object-contain" />
+                         <span className="font-bold text-base truncate max-w-[140px] text-left">{p.nick}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm font-black">
-                         <span className="text-zinc-400 w-6 text-center">{p.matchesPlayed}</span>
-                         <span className="text-yellow-400 w-6 text-center">{p.goals}</span>
+                      <div className="flex items-center gap-3 text-base font-black">
+                         <span className="text-zinc-400 w-8 text-center">{p.matchesPlayed}</span>
+                         <span className="text-yellow-400 w-8 text-center text-lg">{p.goals}</span>
                       </div>
                     </div>
                   ))}
@@ -387,34 +387,34 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             </div>
 
             {/* ASISTIDOR */}
-            <div className="bg-gradient-to-b from-pink-900/30 to-black border border-pink-500/30 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
-              <div className="absolute top-4 right-4 text-4xl opacity-50">👟</div>
-              <h4 className="text-pink-400 font-bold uppercase tracking-wider text-lg mb-4">Asistencias</h4>
+            <div className="bg-gradient-to-b from-pink-900/30 to-black border border-pink-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
+              <div className="absolute top-4 right-4 text-5xl opacity-50">👟</div>
+              <h4 className="text-pink-400 font-bold uppercase tracking-wider text-xl mb-6">Asistencias</h4>
               {asistidorTrophy?.player ? (
                 <div className="flex flex-col justify-center items-center h-full">
-                  <div className="w-24 h-24 bg-black/60 rounded-full border-4 border-pink-500/50 flex items-center justify-center p-2 mb-3 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                  <div className="w-32 h-32 bg-black/60 rounded-full border-4 border-pink-500/50 flex items-center justify-center p-3 mb-4 shadow-[0_0_20px_rgba(236,72,153,0.3)]">
                     <img src={getPlayerStatInfo(asistidorTrophy.player).logo} className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-2xl font-black mb-1">{asistidorTrophy.player.nick}</span>
-                  <span className="text-zinc-400 font-bold text-xs mb-3">{getPlayerStatInfo(asistidorTrophy.player).teamName}</span>
-                  <span className="text-zinc-300 text-lg font-bold bg-pink-500/20 px-3 py-1 rounded-full">{asistidorTrophy.extraInfo || "-"}</span>
+                  <span className="text-3xl font-black mb-2">{asistidorTrophy.player.nick}</span>
+                  <span className="text-zinc-400 font-bold text-sm mb-4">{getPlayerStatInfo(asistidorTrophy.player).teamName}</span>
+                  <span className="text-zinc-300 text-xl font-bold bg-pink-500/20 px-4 py-2 rounded-full">{asistidorTrophy.extraInfo || "-"}</span>
                 </div>
               ) : topAssisters.length > 0 ? (
-                <div className="flex flex-col w-full gap-2 mt-2">
-                  <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-pink-500/70 font-bold px-1 mb-1">
-                    <span className="w-6 text-center" title="Partidos Jugados">PJ</span>
-                    <span className="w-6 text-center" title="Asistencias">A</span>
+                <div className="flex flex-col w-full gap-3 mt-2">
+                  <div className="flex items-center justify-end w-full gap-3 text-xs uppercase text-pink-500/70 font-bold px-2 mb-1">
+                    <span className="w-8 text-center" title="Partidos Jugados">PJ</span>
+                    <span className="w-8 text-center" title="Asistencias">A</span>
                   </div>
                   {topAssisters.map((p, idx) => (
-                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-pink-500/20">
-                      <div className="flex items-center gap-2">
-                         <span className="text-pink-500 font-bold w-4">{idx + 1}</span>
-                         <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
-                         <span className="font-bold text-sm truncate max-w-[100px] text-left">{p.nick}</span>
+                    <div key={p.id} className="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-pink-500/20">
+                      <div className="flex items-center gap-3">
+                         <span className="text-pink-500 font-black w-6 text-lg">{idx + 1}</span>
+                         <img src={getPlayerStatInfo(p.player).logo} className="w-8 h-8 object-contain" />
+                         <span className="font-bold text-base truncate max-w-[140px] text-left">{p.nick}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm font-black">
-                         <span className="text-zinc-400 w-6 text-center">{p.matchesPlayed}</span>
-                         <span className="text-pink-400 w-6 text-center">{p.assists}</span>
+                      <div className="flex items-center gap-3 text-base font-black">
+                         <span className="text-zinc-400 w-8 text-center">{p.matchesPlayed}</span>
+                         <span className="text-pink-400 w-8 text-center text-lg">{p.assists}</span>
                       </div>
                     </div>
                   ))}
@@ -425,68 +425,68 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             </div>
 
             {/* ARQUEROS (Combined Mejor GK and Valla Invicta) */}
-            <div className="bg-gradient-to-b from-teal-900/30 to-black border border-teal-500/30 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
-              <div className="absolute top-4 right-4 text-4xl opacity-50">🧤</div>
-              <h4 className="text-teal-400 font-bold uppercase tracking-wider text-lg mb-4">Arqueros</h4>
+            <div className="bg-gradient-to-b from-teal-900/30 to-black border border-teal-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
+              <div className="absolute top-4 right-4 text-5xl opacity-50">🧤</div>
+              <h4 className="text-teal-400 font-bold uppercase tracking-wider text-xl mb-6">Arqueros</h4>
               
-              <div className="flex flex-col w-full h-full gap-2 mt-2">
+              <div className="flex flex-col w-full h-full gap-3 mt-2">
                 {gkTrophy?.player || vallaTrophy?.player ? (
-                  <div className="flex flex-col justify-around h-full gap-4">
+                  <div className="flex flex-col justify-around h-full gap-6">
                     {gkTrophy?.player && (
-                      <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
-                        <div className="flex items-center gap-4 mb-2">
-                          <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+                      <div className="flex flex-col items-center bg-black/40 p-4 rounded-2xl border border-teal-500/20">
+                        <div className="flex items-center gap-5 mb-3">
+                          <div className="w-20 h-20 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-3 shadow-[0_0_15px_rgba(20,184,166,0.3)]">
                             <img src={getPlayerStatInfo(gkTrophy.player).logo} className="w-full h-full object-contain" />
                           </div>
                           <div className="flex flex-col items-start text-left">
-                            <span className="text-xl font-black">{gkTrophy.player.nick}</span>
-                            <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(gkTrophy.player).teamName}</span>
+                            <span className="text-2xl font-black">{gkTrophy.player.nick}</span>
+                            <span className="text-zinc-400 font-bold text-sm">{getPlayerStatInfo(gkTrophy.player).teamName}</span>
                           </div>
                         </div>
-                        <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Salvadas: {gkTrophy.extraInfo || "-"}</span>
+                        <span className="text-zinc-300 text-base font-bold bg-teal-500/20 px-4 py-2 rounded-full w-full">Salvadas: {gkTrophy.extraInfo || "-"}</span>
                       </div>
                     )}
 
                     {vallaTrophy?.player && (
-                      <div className="flex flex-col items-center bg-black/40 p-3 rounded-2xl border border-teal-500/20">
-                        <div className="flex items-center gap-4 mb-2">
-                          <div className="w-16 h-16 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-2 shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+                      <div className="flex flex-col items-center bg-black/40 p-4 rounded-2xl border border-teal-500/20">
+                        <div className="flex items-center gap-5 mb-3">
+                          <div className="w-20 h-20 bg-black/60 rounded-full border-2 border-teal-500/50 flex items-center justify-center p-3 shadow-[0_0_15px_rgba(20,184,166,0.3)]">
                             <img src={getPlayerStatInfo(vallaTrophy.player).logo} className="w-full h-full object-contain" />
                           </div>
                           <div className="flex flex-col items-start text-left">
-                            <span className="text-xl font-black">{vallaTrophy.player.nick}</span>
-                            <span className="text-zinc-400 font-bold text-xs">{getPlayerStatInfo(vallaTrophy.player).teamName}</span>
+                            <span className="text-2xl font-black">{vallaTrophy.player.nick}</span>
+                            <span className="text-zinc-400 font-bold text-sm">{getPlayerStatInfo(vallaTrophy.player).teamName}</span>
                           </div>
                         </div>
-                        <span className="text-zinc-300 text-sm font-bold bg-teal-500/20 px-3 py-1 rounded-full w-full">Valla Invicta: {vallaTrophy.extraInfo || "-"}</span>
+                        <span className="text-zinc-300 text-base font-bold bg-teal-500/20 px-4 py-2 rounded-full w-full">Valla Invicta: {vallaTrophy.extraInfo || "-"}</span>
                       </div>
                     )}
                   </div>
                 ) : topKeepers.length > 0 ? (
-                  <div className="flex flex-col w-full gap-2">
+                  <div className="flex flex-col w-full gap-3">
                     {/* Encabezado */}
-                    <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-teal-500/70 font-bold px-1 mb-1">
-                      <span className="w-6 text-center" title="Partidos Jugados">PJ</span>
-                      <span className="w-6 text-center" title="Salvadas">Sal.</span>
-                      <span className="w-6 text-center" title="Goles Recibidos">GC</span>
-                      <span className="w-6 text-center" title="Vallas Invictas">VI</span>
-                      <span className="w-8 text-center" title="Efectividad (%)">EF</span>
+                    <div className="flex items-center justify-end w-full gap-2 text-[11px] uppercase text-teal-500/70 font-bold px-2 mb-1">
+                      <span className="w-7 text-center" title="Partidos Jugados">PJ</span>
+                      <span className="w-7 text-center" title="Salvadas">Sal.</span>
+                      <span className="w-7 text-center" title="Goles Recibidos">GC</span>
+                      <span className="w-7 text-center" title="Vallas Invictas">VI</span>
+                      <span className="w-10 text-center" title="Efectividad (%)">EF</span>
                     </div>
                     {topKeepers.map((p, idx) => {
                       const perc = p.savesTotal > 0 ? Math.round((p.saves / p.savesTotal) * 100) : 0;
                       return (
-                      <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-teal-500/20">
-                        <div className="flex items-center gap-1">
-                           <span className="text-teal-500 font-bold w-3">{idx + 1}</span>
-                           <img src={getPlayerStatInfo(p.player).logo} className="w-5 h-5 object-contain" />
-                           <span className="font-bold text-xs truncate max-w-[50px] text-left">{p.nick}</span>
+                      <div key={p.id} className="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-teal-500/20">
+                        <div className="flex items-center gap-2">
+                           <span className="text-teal-500 font-black w-4 text-base">{idx + 1}</span>
+                           <img src={getPlayerStatInfo(p.player).logo} className="w-7 h-7 object-contain" />
+                           <span className="font-bold text-sm truncate max-w-[80px] text-left">{p.nick}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm font-black">
-                           <span className="text-zinc-400 w-6 text-center">{p.matchesPlayed}</span>
-                           <span className="text-teal-400 w-6 text-center">{p.saves}</span>
-                           <span className="text-red-400 w-6 text-center">{p.goalsConceded}</span>
-                           <span className="text-emerald-400 w-6 text-center">{p.cleanSheets}</span>
-                           <span className={`w-8 text-center text-xs ${perc >= 70 ? 'text-green-400' : perc >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{perc}%</span>
+                        <div className="flex items-center gap-2 text-base font-black">
+                           <span className="text-zinc-400 w-7 text-center">{p.matchesPlayed}</span>
+                           <span className="text-teal-400 w-7 text-center">{p.saves}</span>
+                           <span className="text-red-400 w-7 text-center">{p.goalsConceded}</span>
+                           <span className="text-emerald-400 w-7 text-center">{p.cleanSheets}</span>
+                           <span className={`w-10 text-center text-sm ${perc >= 70 ? 'text-green-400' : perc >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{perc}%</span>
                         </div>
                       </div>
                     )})}
