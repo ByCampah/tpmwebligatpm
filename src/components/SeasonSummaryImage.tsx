@@ -194,7 +194,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
     return (
       <div 
         ref={ref} 
-        className={`${layout === "square" ? "w-[1440px]" : "w-[1200px]"} min-h-[1200px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl`}
+        className={`${layout === "square" ? "w-[1920px] aspect-square justify-center" : "w-[1200px] min-h-[1200px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl`}
         style={{
           backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(30,58,138,0.3) 0%, rgba(10,10,10,1) 80%)'
         }}
@@ -221,7 +221,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         </div>
         
         {/* CONTENT LAYOUT */}
-        <div className={`w-full ${layout === "square" ? "max-w-[1360px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row" : "flex-col"} gap-12 z-10 flex-1`}>
+        <div className={`w-full ${layout === "square" ? "max-w-[1800px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row items-center justify-center" : "flex-col"} gap-12 z-10 ${layout === "square" ? "" : "flex-1"}`}>
           
           <div className={`flex flex-col gap-12 ${layout === "square" ? "flex-1" : "w-full"}`}>
             {/* EL CAMPEÓN */}
@@ -290,7 +290,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
 
               {isCup && groupStandings.length > 0 && (
                 <div className="flex flex-col gap-8 w-full">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                  <div className="grid grid-cols-2 gap-8 w-full">
                     {groupStandings.map((group, idx) => (
                       <div key={idx} className="bg-black/40 border border-white/5 rounded-2xl p-6">
                         <h4 className="text-2xl font-bold text-zinc-300 mb-4">{group.name}</h4>
@@ -347,7 +347,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           </div>
 
           {/* PREMIOS INDIVIDUALES */}
-          <div className={`${layout === "square" ? "flex flex-col w-[400px] gap-8" : "grid grid-cols-3 gap-8 mt-4"}`}>
+          <div className={`${layout === "square" ? "flex flex-col w-[500px] gap-8" : "grid grid-cols-3 gap-8 mt-4"}`}>
             {/* GOLEADOR */}
             <div className="bg-gradient-to-b from-blue-900/30 to-black border border-blue-500/30 rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden shadow-xl">
               <div className="absolute top-4 right-4 text-5xl opacity-50">⚽</div>
