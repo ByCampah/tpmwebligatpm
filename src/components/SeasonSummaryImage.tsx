@@ -40,7 +40,8 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             goals: 0,
             assists: 0,
             saves: 0,
-            cleanSheets: 0
+            cleanSheets: 0,
+            goalsConceded: 0
           });
         }
         
@@ -48,6 +49,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         pData.goals += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
         pData.assists += (stat.assists || 0);
         pData.saves += (stat.savesMade || 0);
+        pData.goalsConceded += Math.max(0, (stat.savesTotal || 0) - (stat.savesMade || 0));
         if (stat.cleanSheet) pData.cleanSheets += 1;
       });
     });
@@ -446,18 +448,20 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
                   <div className="flex flex-col w-full gap-2">
                     {/* Encabezado */}
                     <div className="flex items-center justify-end w-full gap-2 text-[10px] uppercase text-teal-500/70 font-bold px-1 mb-1">
-                      <span className="w-6 text-center">Sal.</span>
-                      <span className="w-6 text-center">VI</span>
+                      <span className="w-6 text-center" title="Salvadas">Sal.</span>
+                      <span className="w-6 text-center" title="Goles Recibidos">GC</span>
+                      <span className="w-6 text-center" title="Vallas Invictas">VI</span>
                     </div>
                     {topKeepers.map((p, idx) => (
                       <div key={p.id} className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-teal-500/20">
                         <div className="flex items-center gap-2">
                            <span className="text-teal-500 font-bold w-4">{idx + 1}</span>
                            <img src={getPlayerStatInfo(p.player).logo} className="w-6 h-6 object-contain" />
-                           <span className="font-bold text-sm truncate max-w-[70px] text-left">{p.nick}</span>
+                           <span className="font-bold text-sm truncate max-w-[60px] text-left">{p.nick}</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm font-black">
                            <span className="text-teal-400 w-6 text-center">{p.saves}</span>
+                           <span className="text-red-400 w-6 text-center">{p.goalsConceded}</span>
                            <span className="text-emerald-400 w-6 text-center">{p.cleanSheets}</span>
                         </div>
                       </div>

@@ -464,10 +464,13 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
                       return (
                       <div key={p.id} className="flex justify-between items-center p-3 hover:bg-white/5 rounded-lg transition-colors border-b border-border/30 last:border-0">
                         <div className="flex items-center gap-4">
-                          <span className="font-black text-cyan-400 bg-cyan-900/20 px-3 py-1 rounded min-w-[4rem] text-center whitespace-nowrap">
+                          <span className="font-black text-cyan-400 bg-cyan-900/20 px-3 py-1 rounded min-w-[4rem] text-center whitespace-nowrap" title="Atajadas / Tiros Recibidos">
                             {p.savesMade} <span className="text-xs text-muted-foreground font-normal">/ {p.savesTotal}</span>
                           </span>
-                          <span className={`text-xs font-bold w-12 text-center rounded px-1 ${perc >= 70 ? 'text-green-400 bg-green-400/10' : perc >= 50 ? 'text-yellow-400 bg-yellow-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                          <span className="font-black text-red-400 bg-red-900/20 px-2 py-1 rounded min-w-[2.5rem] text-center text-xs" title="Goles Recibidos">
+                            {Math.max(0, p.savesTotal - p.savesMade)} GC
+                          </span>
+                          <span className={`text-xs font-bold w-12 text-center rounded px-1 ${perc >= 70 ? 'text-green-400 bg-green-400/10' : perc >= 50 ? 'text-yellow-400 bg-yellow-400/10' : 'text-red-400 bg-red-400/10'}`} title="Porcentaje de Atajadas">
                             {perc}%
                           </span>
                           <div className="flex items-center gap-2 ml-2">
