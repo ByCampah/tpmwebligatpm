@@ -928,11 +928,15 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
               
               <div className="flex flex-col gap-4">
                 <h3 className="text-xl font-bold border-b border-border pb-2">Premios de Equipo</h3>
+                {/* DEBUG ONLY */}
+                <div className="text-xs text-muted-foreground break-all mb-4 bg-black/50 p-2 rounded">
+                  DEBUG Trophies: {JSON.stringify(tournament.trophies?.map((t:any) => t.name))}
+                </div>
                 
                 <div className="bg-amber-500/10 border border-amber-500/50 p-4 rounded-xl flex flex-col items-center">
                   <span className="text-4xl mb-2">🏆</span>
                   <label className="text-amber-500 font-black mb-2">CAMPEÓN (1er Puesto)</label>
-                  <select name="firstId" className="w-full bg-black border border-amber-500/50 rounded p-3 text-center font-bold focus:outline-none focus:border-amber-500">
+                  <select name="firstId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Campe"))?.teamId || ""} className="w-full bg-black border border-amber-500/50 rounded p-3 text-center font-bold focus:outline-none focus:border-amber-500">
                     <option value="">-- Seleccionar Equipo --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
@@ -943,7 +947,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 <div className="bg-gray-400/10 border border-gray-400/50 p-4 rounded-xl flex flex-col items-center">
                   <span className="text-4xl mb-2">🥈</span>
                   <label className="text-gray-300 font-black mb-2">SUBCAMPEÓN (2do Puesto)</label>
-                  <select name="secondId" className="w-full bg-black border border-gray-400/50 rounded p-3 text-center font-bold focus:outline-none focus:border-gray-400">
+                  <select name="secondId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Subcampe"))?.teamId || ""} className="w-full bg-black border border-gray-400/50 rounded p-3 text-center font-bold focus:outline-none focus:border-gray-400">
                     <option value="">-- Seleccionar Equipo --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
@@ -954,7 +958,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 <div className="bg-orange-700/10 border border-orange-700/50 p-4 rounded-xl flex flex-col items-center">
                   <span className="text-4xl mb-2">🥉</span>
                   <label className="text-orange-500 font-black mb-2">TERCER PUESTO</label>
-                  <select name="thirdId" className="w-full bg-black border border-orange-700/50 rounded p-3 text-center font-bold focus:outline-none focus:border-orange-500">
+                  <select name="thirdId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Tercer"))?.teamId || ""} className="w-full bg-black border border-orange-700/50 rounded p-3 text-center font-bold focus:outline-none focus:border-orange-500">
                     <option value="">-- Seleccionar Equipo --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
@@ -968,7 +972,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 
                 <div className="bg-purple-900/30 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-purple-400 font-black mb-2 w-full text-center">🔮 Ganador del PRODE</label>
-                  <select name="prodeWinnerId" multiple className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500 min-h-[120px]">
+                  <select name="prodeWinnerId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("PRODE")).map((t:any) => t.userId) || []} className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500 min-h-[120px]">
                     {prodeLeaderboard.map((l: any, idx: number) => (
                       <option key={`prode_${l.user?.id || idx}`} value={l.user?.id}>
                         {l.user?.nickName || l.user?.name || "Usuario Desconocido"} ({l.points} pts)
@@ -986,7 +990,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 
                 <div className="bg-blue-500/10 border border-blue-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-blue-400 font-black mb-2 w-full text-center">⚽ Máximo Goleador</label>
-                  <select name="topScorerId" className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500">
+                  <select name="topScorerId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Goleador"))?.playerId || ""} className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500">
                     <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ts_${t.team.id}`} label={t.team.name}>
@@ -1000,7 +1004,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
                 <div className="bg-green-500/10 border border-green-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-green-400 font-black mb-2 w-full text-center">👟 Máximo Asistidor</label>
-                  <select name="topAssisterId" className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500">
+                  <select name="topAssisterId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Asistidor"))?.playerId || ""} className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500">
                     <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ta_${t.team.id}`} label={t.team.name}>
@@ -1014,7 +1018,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
                 <div className="bg-cyan-500/10 border border-cyan-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-cyan-400 font-black mb-2 w-full text-center">🧤 Mejor Arquero (Valla Invicta)</label>
-                  <select name="bestGkId" className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500">
+                  <select name="bestGkId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Invicta") || t.name?.includes("Arquero"))?.playerId || ""} className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500">
                     <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`gk_${t.team.id}`} label={t.team.name}>
@@ -1028,7 +1032,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
                 <div className="bg-purple-500/10 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-purple-400 font-black mb-2 w-full text-center">⭐ MVP del Torneo</label>
-                  <select name="mvpId" className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500">
+                  <select name="mvpId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("MVP"))?.playerId || ""} className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500">
                     <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`mvp_${t.team.id}`} label={t.team.name}>

@@ -865,13 +865,13 @@ export async function assignTournamentPodium(formData: FormData) {
         tournamentId,
         name: {
           in: [
-            "Campeón (1er Puesto)", 
-            "Subcampeón (2do Puesto)", 
-            "Tercer Puesto (3ro)",
+            "Campeón", 
+            "Subcampeón", 
+            "Tercer Puesto",
             "Máximo Goleador",
             "Máximo Asistidor",
-            "Mejor Arquero (Valla Invicta)",
-            "MVP del Torneo",
+            "Valla Invicta",
+            "MVP",
             "Ganador del PRODE"
           ]
         }
@@ -880,9 +880,9 @@ export async function assignTournamentPodium(formData: FormData) {
 
     // 2. Team placements
     const placements = [
-      { teamId: firstId, name: "Campeón (1er Puesto)" },
-      { teamId: secondId, name: "Subcampeón (2do Puesto)" },
-      { teamId: thirdId, name: "Tercer Puesto (3ro)" }
+      { teamId: firstId, name: "Campeón" },
+      { teamId: secondId, name: "Subcampeón" },
+      { teamId: thirdId, name: "Tercer Puesto" }
     ];
 
     for (const place of placements) {
@@ -903,8 +903,8 @@ export async function assignTournamentPodium(formData: FormData) {
     const individualAwards = [
       { playerId: topScorerId, name: "Máximo Goleador" },
       { playerId: topAssisterId, name: "Máximo Asistidor" },
-      { playerId: bestGkId, name: "Mejor Arquero (Valla Invicta)" },
-      { playerId: mvpId, name: "MVP del Torneo" }
+      { playerId: bestGkId, name: "Valla Invicta" },
+      { playerId: mvpId, name: "MVP" }
     ];
 
     for (const award of individualAwards) {
