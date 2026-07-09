@@ -32,7 +32,7 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
 
       const isMajorTrophy = (t: any) => {
         const name = t.tournament?.name?.toLowerCase() || "";
-        return !name.includes("nacional b") && !name.includes("segunda") && !name.includes("promesas");
+        return !name.includes("nacional b") && !name.includes("segunda");
       };
 
       const firsts = relevantTrophies.filter(t => (t.name.includes("Campeón") || t.name === "Campeon") && isMajorTrophy(t));
