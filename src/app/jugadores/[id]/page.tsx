@@ -35,7 +35,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
         include: { tournamentTeam: { include: { team: true, tournament: { include: { season: true, category: true } } } } }
       },
       trophies: {
-        include: { tournament: true, team: true },
+        include: { tournament: { include: { season: true } }, team: true },
         orderBy: { createdAt: "desc" }
       }
     }
@@ -66,7 +66,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
       type: "TEAM",
       OR: rosterData.length > 0 ? rosterData : [{ id: "none" }]
     },
-    include: { tournament: true, team: true },
+    include: { tournament: { include: { season: true } }, team: true },
     orderBy: { createdAt: "desc" }
   });
 
@@ -114,6 +114,12 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const clubStatsObj = officialStatsObj.filter(s => !getIsNationalStat(s));
   const natStatsObj = officialStatsObj.filter(s => getIsNationalStat(s));
 
+  const topClubStatsObj = validStatsObj.filter(s => {
+    if (getIsNationalStat(s)) return false;
+    const catName = s.match.tournament.category?.name || s.match.tournament.name;
+    return ["Liga TPM", "Primera División", "Copa TPM", "Supercopa"].includes(catName);
+  });
+
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
       let sumPj = ((stat.matchTime ?? 0) > 0 || (stat.gkTime ?? 0) > 0) ? 1 : 0;
@@ -140,7 +146,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
     });
   };
 
-  const totalClubStats = aggregateStats(clubStatsObj);
+  const totalClubStats = aggregateStats(topClubStatsObj);
   const totalNatStats = aggregateStats(natStatsObj);
 
   const paseExito = totalClubStats.pasesT > 0 ? Math.round((totalClubStats.pasesM / totalClubStats.pasesT) * 100) : 0;
