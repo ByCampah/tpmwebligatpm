@@ -101,8 +101,12 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
     return tTeam?.tournamentTeam.team.isNationalTeam || false;
   };
 
-  // Filtrar partidos donde no jugó (minutos y gkTime en 0)
-  const validStatsObj = jugador.matchStats.filter(s => (s.matchTime || 0) > 0 || (s.gkTime || 0) > 0);
+  // Filtrar partidos donde no jugó (minutos y gkTime en 0) a menos que sea histórico
+  const validStatsObj = jugador.matchStats.filter(s => 
+    (s.matchTime ?? 0) > 0 || 
+    (s.gkTime ?? 0) > 0 || 
+    s.match.round === "Estadísticas Históricas"
+  );
 
   const officialStatsObj = validStatsObj.filter(s => s.match.tournament.isOfficial !== false);
   const extraStatsObj = validStatsObj.filter(s => s.match.tournament.isOfficial === false);
@@ -112,7 +116,8 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
-      acc.pj += (stat.match.round === "Estadísticas Históricas" ? (stat.matchTime || 1) : 1);
+      let sumPj = ((stat.matchTime ?? 0) > 0 || (stat.gkTime ?? 0) > 0) ? 1 : 0;
+      acc.pj += sumPj;
       acc.goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
       acc.asistencias += stat.assists;
       acc.rojas += stat.redCards || 0;
@@ -553,7 +558,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {validStatsObj.map((stat: any) => {
+                  {validStatsObj.slice(0, 5).map((stat: any) => {
                     const isHistorico = stat.match.round === "Estadísticas Históricas";
                     return (
                     <tr key={stat.id} className={`transition-colors ${isHistorico ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-white/5'}`}>
@@ -581,6 +586,13 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                     <tr>
                       <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                         No hay estadísticas registradas para este jugador.
+                      </td>
+                    </tr>
+                  )}
+                  {validStatsObj.length > 5 && (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-3 text-center">
+                        <span className="text-xs text-muted-foreground font-bold">Mostrando los últimos 5 partidos.</span>
                       </td>
                     </tr>
                   )}
