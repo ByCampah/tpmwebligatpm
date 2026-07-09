@@ -115,10 +115,13 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
     (m.round?.toLowerCase().includes('grupo') || m.round?.toLowerCase().includes('fecha')) && !isPlayoffMatch(m) && m.round !== 'Estadísticas Históricas'
   ) || [];
   const playoffMatches = selectedTournament?.matches.filter((m: any) => isPlayoffMatch(m) || (!m.round?.toLowerCase().includes('grupo') && !m.round?.toLowerCase().includes('fecha') && m.round !== 'Estadísticas Históricas')) || [];
-  const regularMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('fecha') && !isPlayoffMatch(m) && m.round !== 'Estadísticas Históricas') || [];
+  const regularMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('fecha') && !m.round?.toLowerCase().includes('grupo') && !isPlayoffMatch(m) && m.round !== 'Estadísticas Históricas') || [];
   
   const allTournamentMatches = [...groupMatches, ...regularMatches, ...playoffMatches];
-  const displayedMatches = selectedRound ? allTournamentMatches.filter((m: any) => m.round === selectedRound) : allTournamentMatches;
+  
+  // Deduplicate matches just in case
+  const uniqueTournamentMatches = Array.from(new Map(allTournamentMatches.map(m => [m.id, m])).values());
+  const displayedMatches = selectedRound ? uniqueTournamentMatches.filter((m: any) => m.round === selectedRound) : uniqueTournamentMatches;
 
   const cupGroups = Array.from(new Set(selectedTournament?.teams.map((tt: any) => tt.group).filter(Boolean)));
   const groupStandings = cupGroups.map((gName: any) => {
@@ -205,7 +208,10 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
         {tournaments.map(t => (
           <button
             key={t.id}
-            onClick={() => setSelectedTournamentId(t.id)}
+            onClick={() => {
+              setSelectedTournamentId(t.id);
+              setSelectedRound(null);
+            }}
             className={`px-6 py-3 rounded-t-lg font-bold transition-all duration-300 ${
               selectedTournamentId === t.id 
                 ? 'bg-primary text-primary-foreground shadow-[0_-4px_12px_rgba(16,185,129,0.2)]' 
@@ -505,14 +511,14 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
             <div className="flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h3 className="text-2xl font-bold">{dictionary.matches}</h3>
-                {allTournamentMatches.length > 0 && (
+                {uniqueTournamentMatches.length > 0 && (
                   <select 
                     className="bg-card border border-border rounded-lg px-4 py-2 font-bold text-sm outline-none focus:border-primary transition-colors cursor-pointer"
                     value={selectedRound || "ALL"}
                     onChange={(e) => setSelectedRound(e.target.value === "ALL" ? null : e.target.value)}
                   >
                     <option value="ALL">{dictionary.allRounds}</option>
-                    {Array.from(new Set(allTournamentMatches.map((m: any) => m.round))).map(round => (
+                    {Array.from(new Set(uniqueTournamentMatches.map((m: any) => m.round))).map(round => (
                       <option key={round as string} value={round as string}>{round}</option>
                     ))}
                   </select>
