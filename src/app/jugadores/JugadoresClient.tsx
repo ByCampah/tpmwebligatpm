@@ -21,13 +21,13 @@ interface JugadoresClientProps {
 
 export default function JugadoresClient({ jugadores, dictionary }: JugadoresClientProps) {
   const [search, setSearch] = useState("");
-  const [competition, setCompetition] = useState("Global");
+  const [competition, setCompetition] = useState("Global Oficial");
   const [nationalityFilter, setNationalityFilter] = useState("Todas");
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' }>({ key: "goles", direction: "desc" });
 
   // Extract all available competitions
   const allComps = useMemo(() => {
-    const comps = new Set(["Global"]);
+    const comps = new Set(["Global Oficial", "Global Total", "Global Pretemporada"]);
     jugadores.forEach(j => Object.keys(j.stats).forEach(c => comps.add(c)));
     return Array.from(comps);
   }, [jugadores]);
@@ -108,7 +108,7 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
           className="w-full sm:w-1/3 bg-secondary/50 border border-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
         >
           {allComps.map(comp => (
-            <option key={comp} value={comp}>{comp === "Global" ? dictionary.allCompetitions : comp}</option>
+            <option key={comp} value={comp}>{comp}</option>
           ))}
         </select>
       </div>
@@ -142,7 +142,7 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
             <tbody className="divide-y divide-border">
               {filteredAndSorted.map((jugador, index) => {
                 const stats = jugador.stats[competition] || { pj: 0, goles: 0, asistencias: 0 };
-                if (competition !== "Global" && stats.pj === 0) return null;
+                if (!competition.startsWith("Global") && stats.pj === 0) return null;
 
                 return (
                   <tr key={jugador.id} className="hover:bg-primary/5 transition-colors border-b border-border/50">

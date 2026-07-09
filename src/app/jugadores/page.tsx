@@ -40,8 +40,9 @@ export default async function JugadoresPage() {
 
   const jugadoresStats = jugadores.map(p => {
     const compStats: Record<string, { pj: number, goles: number, asistencias: number }> = {
-      "Global": { pj: 0, goles: 0, asistencias: 0 },
-      "Pretemporada": { pj: 0, goles: 0, asistencias: 0 }
+      "Global Oficial": { pj: 0, goles: 0, asistencias: 0 },
+      "Global Pretemporada": { pj: 0, goles: 0, asistencias: 0 },
+      "Global Total": { pj: 0, goles: 0, asistencias: 0 }
     };
 
     p.matchStats.forEach(stat => {
@@ -51,11 +52,16 @@ export default async function JugadoresPage() {
       
       const isOfficial = stat.match.tournament.isOfficial;
 
+      // Sum to Global Total always
+      compStats["Global Total"].pj += matchPj;
+      compStats["Global Total"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+      compStats["Global Total"].asistencias += stat.assists;
+
       if (isOfficial) {
-        // Global stats
-        compStats["Global"].pj += matchPj;
-        compStats["Global"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
-        compStats["Global"].asistencias += stat.assists;
+        // Global Oficial stats
+        compStats["Global Oficial"].pj += matchPj;
+        compStats["Global Oficial"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+        compStats["Global Oficial"].asistencias += stat.assists;
 
         // Extract base competition name from the database schema field directly!
         const comp = stat.match.tournament.category?.name || "General";
@@ -67,9 +73,18 @@ export default async function JugadoresPage() {
         compStats[comp].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
         compStats[comp].asistencias += stat.assists;
       } else {
-        compStats["Pretemporada"].pj += matchPj;
-        compStats["Pretemporada"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
-        compStats["Pretemporada"].asistencias += stat.assists;
+        // Global Pretemporada stats
+        compStats["Global Pretemporada"].pj += matchPj;
+        compStats["Global Pretemporada"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+        compStats["Global Pretemporada"].asistencias += stat.assists;
+
+        const comp = stat.match.tournament.category?.name || "Pretemporada";
+        if (!compStats[comp]) {
+          compStats[comp] = { pj: 0, goles: 0, asistencias: 0 };
+        }
+        compStats[comp].pj += matchPj;
+        compStats[comp].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+        compStats[comp].asistencias += stat.assists;
       }
     });
     

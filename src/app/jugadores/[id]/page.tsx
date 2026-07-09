@@ -122,7 +122,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const topClubStatsObj = validStatsObj.filter(s => {
     if (getIsNationalStat(s)) return false;
     const catName = s.match.tournament.category?.name || s.match.tournament.name;
-    return ["Liga TPM", "Primera División", "Copa TPM", "Supercopa"].includes(catName);
+    return ["Liga TPM", "Primera División"].includes(catName);
   });
 
   const aggregateStats = (stats: any[]) => {
