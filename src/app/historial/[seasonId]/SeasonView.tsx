@@ -112,10 +112,10 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
 
   const isPlayoffMatch = (m: any) => /final|cuarto|octavo|dieciseisavo|tercer|playoff|llave|3er|3ro/i.test(m.round || "");
   const groupMatches = selectedTournament?.matches.filter((m: any) => 
-    (m.round?.toLowerCase().includes('grupo') || m.round?.toLowerCase().includes('fecha')) && !isPlayoffMatch(m) && m.round !== 'Estadísticas Históricas'
+    (m.round?.toLowerCase().includes('grupo') || m.round?.toLowerCase().includes('fecha')) && !isPlayoffMatch(m)
   ) || [];
-  const playoffMatches = selectedTournament?.matches.filter((m: any) => isPlayoffMatch(m) || (!m.round?.toLowerCase().includes('grupo') && !m.round?.toLowerCase().includes('fecha') && m.round !== 'Estadísticas Históricas')) || [];
-  const regularMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('fecha') && !m.round?.toLowerCase().includes('grupo') && !isPlayoffMatch(m) && m.round !== 'Estadísticas Históricas') || [];
+  const playoffMatches = selectedTournament?.matches.filter((m: any) => isPlayoffMatch(m) || (!m.round?.toLowerCase().includes('grupo') && !m.round?.toLowerCase().includes('fecha'))) || [];
+  const regularMatches = selectedTournament?.matches.filter((m: any) => m.round?.toLowerCase().includes('fecha') && !m.round?.toLowerCase().includes('grupo') && !isPlayoffMatch(m)) || [];
   
   const allTournamentMatches = [...groupMatches, ...regularMatches, ...playoffMatches];
   
@@ -138,7 +138,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   const calculatePlayerStats = () => {
     const statsMap = new Map();
     selectedTournament?.matches.forEach((m: any) => {
-      if (m.round === 'Estadísticas Históricas' || m.status === 'PLAYED') {
+      if (m.status === 'PLAYED' || m.round === 'Estadísticas Históricas') {
         m.stats?.forEach((s: any) => {
           if (!statsMap.has(s.playerId)) {
             const pTeamData = s.player.tournamentTeams?.find((t: any) => t.tournamentTeam.tournamentId === selectedTournament.id);

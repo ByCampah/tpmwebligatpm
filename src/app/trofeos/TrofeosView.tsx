@@ -30,27 +30,42 @@ export default function TrofeosView({ teams, dictionary, isOfficial = true }: { 
         return tIsOfficial === isOfficial;
       });
 
-      const firsts = relevantTrophies.filter(t => t.name.includes("Campeón") || t.name === "Campeon");
-      const seconds = relevantTrophies.filter(t => t.name.includes("Subcampeón") || t.name === "Subcampeon");
-      const thirds = relevantTrophies.filter(t => t.name.includes("Tercer") || t.name.includes("3er"));
+      const isMajorTrophy = (t: any) => {
+        const name = t.tournament?.name?.toLowerCase() || "";
+        return !name.includes("nacional b") && !name.includes("segunda") && !name.includes("promesas");
+      };
+
+      const firsts = relevantTrophies.filter(t => (t.name.includes("Campeón") || t.name === "Campeon") && isMajorTrophy(t));
+      const seconds = relevantTrophies.filter(t => (t.name.includes("Subcampeón") || t.name === "Subcampeon") && isMajorTrophy(t));
+      const thirds = relevantTrophies.filter(t => (t.name.includes("Tercer") || t.name.includes("3er")) && isMajorTrophy(t));
       
+      // Calculate total count just for existence checking
+      const anyFirsts = relevantTrophies.filter(t => t.name.includes("Campeón") || t.name === "Campeon").length;
+      const anySeconds = relevantTrophies.filter(t => t.name.includes("Subcampeón") || t.name === "Subcampeon").length;
+      const anyThirds = relevantTrophies.filter(t => t.name.includes("Tercer") || t.name.includes("3er")).length;
+
       return {
         ...team,
         count: firsts.length,
         count2nd: seconds.length,
         count3rd: thirds.length,
+        hasAny: anyFirsts > 0 || anySeconds > 0 || anyThirds > 0,
         allTrophies: relevantTrophies.sort((a, b) => {
           // Sort trophies: 1sts first, 2nds, 3rds
-          const getWeight = (name: string) => {
-            if (name.includes("Campeón") || name === "Campeon") return 3;
-            if (name.includes("Subcampeón") || name === "Subcampeon") return 2;
-            if (name.includes("Tercer") || name.includes("3er")) return 1;
-            return 0;
+          const getWeight = (name: string, t: any) => {
+            let weight = 0;
+            if (name.includes("Campeón") || name === "Campeon") weight = 3;
+            else if (name.includes("Subcampeón") || name === "Subcampeon") weight = 2;
+            else if (name.includes("Tercer") || name.includes("3er")) weight = 1;
+            
+            // Major trophies rank above minor trophies
+            if (!isMajorTrophy(t)) weight -= 10;
+            return weight;
           };
-          return getWeight(b.name) - getWeight(a.name);
+          return getWeight(b.name, b) - getWeight(a.name, a);
         })
       };
-    }).filter(team => team.count > 0 || team.count2nd > 0 || team.count3rd > 0);
+    }).filter(team => team.hasAny);
 
     return ranked.sort((a, b) => {
       if (b.count !== a.count) return b.count - a.count;
@@ -68,8 +83,10 @@ export default function TrofeosView({ teams, dictionary, isOfficial = true }: { 
     
     if (normalized.includes('supercopa')) return '/img/trofeos/SupercopaTPMNew.png';
     if (normalized.includes('promesas')) return '/img/trofeos/CopaDePromesasNew.png';
-    if (normalized.includes('copa tpm') || (normalized.includes('copa') && !normalized.includes('liga'))) return '/img/trofeos/CopaTPMNew.png';
-    if (normalized.includes('liga b')) return '/img/trofeos/LigaBTPMNew.png';
+    if (normalized.includes('copa tpm')) return '/img/trofeos/CopaTPMNew.png';
+    if (normalized.includes('copa nacional b') || normalized.includes('copa b')) return '/img/trofeos/CopaDePromesasNew.png'; // Temporal image
+    if (normalized.includes('copa') && !normalized.includes('liga')) return '/img/trofeos/CopaTPMNew.png';
+    if (normalized.includes('liga b') || normalized.includes('nacional b') || normalized.includes('segunda')) return '/img/trofeos/LigaBTPMNew.png';
     if (normalized.includes('liga tpm') || normalized.includes('liga')) return '/img/trofeos/LigaTPMNew.png';
     
     return '/img/trophy-default.png';

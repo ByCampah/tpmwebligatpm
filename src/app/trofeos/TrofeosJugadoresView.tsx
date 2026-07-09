@@ -30,18 +30,29 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
         return tIsOfficial === isOfficial;
       });
 
-      const firsts = relevantTrophies.filter(t => t.name.includes("Campeón") || t.name === "Campeon");
-      const seconds = relevantTrophies.filter(t => t.name.includes("Subcampeón") || t.name === "Subcampeon");
-      const thirds = relevantTrophies.filter(t => t.name.includes("Tercer") || t.name.includes("3er"));
+      const isMajorTrophy = (t: any) => {
+        const name = t.tournament?.name?.toLowerCase() || "";
+        return !name.includes("nacional b") && !name.includes("segunda") && !name.includes("promesas");
+      };
+
+      const firsts = relevantTrophies.filter(t => (t.name.includes("Campeón") || t.name === "Campeon") && isMajorTrophy(t));
+      const seconds = relevantTrophies.filter(t => (t.name.includes("Subcampeón") || t.name === "Subcampeon") && isMajorTrophy(t));
+      const thirds = relevantTrophies.filter(t => (t.name.includes("Tercer") || t.name.includes("3er")) && isMajorTrophy(t));
       
-      const goleador = relevantTrophies.filter(t => t.name.includes("Goleador"));
-      const asistidor = relevantTrophies.filter(t => t.name.includes("Asistidor"));
-      const mejorGk = relevantTrophies.filter(t => t.name.includes("Mejor GK") || t.name.includes("Valla Invicta"));
-      const mvp = relevantTrophies.filter(t => t.name.includes("MVP") || t.name.includes("Mejor Jugador"));
+      const goleador = relevantTrophies.filter(t => t.name.includes("Goleador") && isMajorTrophy(t));
+      const asistidor = relevantTrophies.filter(t => t.name.includes("Asistidor") && isMajorTrophy(t));
+      const mejorGk = relevantTrophies.filter(t => (t.name.includes("Mejor GK") || t.name.includes("Valla Invicta")) && isMajorTrophy(t));
+      const mvp = relevantTrophies.filter(t => (t.name.includes("MVP") || t.name.includes("Mejor Jugador")) && isMajorTrophy(t));
       
       // Calculate total 1st place equivalents
       const totalFirsts = firsts.length;
       const totalInd = goleador.length + asistidor.length + mejorGk.length + mvp.length;
+
+      // Calculate total count just for existence checking
+      const anyFirsts = relevantTrophies.filter(t => t.name.includes("Campeón") || t.name === "Campeon").length;
+      const anySeconds = relevantTrophies.filter(t => t.name.includes("Subcampeón") || t.name === "Subcampeon").length;
+      const anyThirds = relevantTrophies.filter(t => t.name.includes("Tercer") || t.name.includes("3er")).length;
+      const anyInd = relevantTrophies.filter(t => t.name.includes("Goleador") || t.name.includes("Asistidor") || t.name.includes("Mejor GK") || t.name.includes("Valla Invicta") || t.name.includes("MVP") || t.name.includes("Mejor Jugador")).length;
 
       return {
         ...player,
@@ -49,21 +60,26 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
         count2nd: seconds.length,
         count3rd: thirds.length,
         countInd: totalInd,
+        hasAny: anyFirsts > 0 || anySeconds > 0 || anyThirds > 0 || anyInd > 0,
         allTrophies: relevantTrophies.sort((a, b) => {
           // Sort trophies: 1sts/Individual first, 2nds, 3rds
-          const getWeight = (name: string) => {
+          const getWeight = (name: string, t: any) => {
+            let weight = 0;
             if (name.includes("Campeón") || name === "Campeon" || 
                 name.includes("Goleador") || name.includes("Asistidor") || 
                 name.includes("Mejor GK") || name.includes("Valla Invicta") ||
-                name.includes("MVP") || name.includes("Mejor Jugador")) return 3;
-            if (name.includes("Subcampeón") || name === "Subcampeon") return 2;
-            if (name.includes("Tercer") || name.includes("3er")) return 1;
-            return 0;
+                name.includes("MVP") || name.includes("Mejor Jugador")) weight = 3;
+            else if (name.includes("Subcampeón") || name === "Subcampeon") weight = 2;
+            else if (name.includes("Tercer") || name.includes("3er")) weight = 1;
+            
+            // Major trophies rank above minor trophies
+            if (!isMajorTrophy(t)) weight -= 10;
+            return weight;
           };
-          return getWeight(b.name) - getWeight(a.name);
+          return getWeight(b.name, b) - getWeight(a.name, a);
         })
       };
-    }).filter(player => player.count > 0 || player.count2nd > 0 || player.count3rd > 0 || player.countInd > 0);
+    }).filter(player => player.hasAny);
 
     return ranked.sort((a, b) => {
       if (b.count !== a.count) return b.count - a.count;
