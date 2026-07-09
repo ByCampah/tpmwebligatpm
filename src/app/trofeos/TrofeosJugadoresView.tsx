@@ -40,13 +40,15 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
       const mvp = relevantTrophies.filter(t => t.name.includes("MVP") || t.name.includes("Mejor Jugador"));
       
       // Calculate total 1st place equivalents
-      const totalFirsts = firsts.length + goleador.length + asistidor.length + mejorGk.length + mvp.length;
+      const totalFirsts = firsts.length;
+      const totalInd = goleador.length + asistidor.length + mejorGk.length + mvp.length;
 
       return {
         ...player,
         count: totalFirsts,
         count2nd: seconds.length,
         count3rd: thirds.length,
+        countInd: totalInd,
         allTrophies: relevantTrophies.sort((a, b) => {
           // Sort trophies: 1sts/Individual first, 2nds, 3rds
           const getWeight = (name: string) => {
@@ -61,12 +63,13 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
           return getWeight(b.name) - getWeight(a.name);
         })
       };
-    }).filter(player => player.count > 0 || player.count2nd > 0 || player.count3rd > 0);
+    }).filter(player => player.count > 0 || player.count2nd > 0 || player.count3rd > 0 || player.countInd > 0);
 
     return ranked.sort((a, b) => {
       if (b.count !== a.count) return b.count - a.count;
       if (b.count2nd !== a.count2nd) return b.count2nd - a.count2nd;
       if (b.count3rd !== a.count3rd) return b.count3rd - a.count3rd;
+      if (b.countInd !== a.countInd) return b.countInd - a.countInd;
       return a.nick.localeCompare(b.nick);
     });
   };
@@ -131,7 +134,7 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
                     {player.nick}
                   </Link>
                   <div className="text-sm text-muted-foreground font-semibold">
-                    <span className="text-primary">{player.count}</span> 🥇 • <span className="text-zinc-400">{player.count2nd}</span> 🥈 • <span className="text-amber-700">{player.count3rd}</span> 🥉
+                    <span className="text-primary">{player.count}</span> 🥇 • <span className="text-zinc-400">{player.count2nd}</span> 🥈 • <span className="text-amber-700">{player.count3rd}</span> 🥉 {player.countInd > 0 && <><span className="ml-1">•</span> <span className="text-blue-400 ml-1">{player.countInd}</span> 🏅</>}
                   </div>
                 </div>
               </div>
