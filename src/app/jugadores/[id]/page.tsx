@@ -73,9 +73,14 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   // Merge trophies
   const allTrophies = [...jugador.trophies, ...collectiveTrophies];
 
-  // Group Trophies
-  const officialTrophies = allTrophies.filter(t => t.tournament?.isOfficial !== false);
-  const extraTrophies = allTrophies.filter(t => t.tournament?.isOfficial === false);
+  // Group Trophies (Excluir Nacional B del palmares)
+  const validTrophies = allTrophies.filter(t => {
+    const catName = t.tournament?.category?.name || t.tournament?.name || "";
+    return !catName.toLowerCase().includes("nacional b");
+  });
+
+  const officialTrophies = validTrophies.filter(t => t.tournament?.isOfficial !== false);
+  const extraTrophies = validTrophies.filter(t => t.tournament?.isOfficial === false);
 
   const getTrophiesByCategory = (trophies: any[], category: string) => 
     trophies.filter(t => getTrophyCategory(t.name) === category);

@@ -41,7 +41,7 @@ export default async function JugadoresPage() {
   const jugadoresStats = jugadores.map(p => {
     const compStats: Record<string, { pj: number, goles: number, asistencias: number }> = {
       "Global": { pj: 0, goles: 0, asistencias: 0 },
-      "Torneos Extra (No Oficial)": { pj: 0, goles: 0, asistencias: 0 }
+      "Pretemporada": { pj: 0, goles: 0, asistencias: 0 }
     };
 
     p.matchStats.forEach(stat => {
@@ -67,9 +67,9 @@ export default async function JugadoresPage() {
         compStats[comp].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
         compStats[comp].asistencias += stat.assists;
       } else {
-        compStats["Torneos Extra (No Oficial)"].pj += matchPj;
-        compStats["Torneos Extra (No Oficial)"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
-        compStats["Torneos Extra (No Oficial)"].asistencias += stat.assists;
+        compStats["Pretemporada"].pj += matchPj;
+        compStats["Pretemporada"].goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+        compStats["Pretemporada"].asistencias += stat.assists;
       }
     });
     
