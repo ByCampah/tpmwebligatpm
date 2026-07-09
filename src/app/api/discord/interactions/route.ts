@@ -3,7 +3,7 @@ import { verifyKey } from 'discord-interactions';
 import { prisma } from '@/lib/prisma';
 import { getSeasonFromOptions, getStandings, getPlayerStats } from './utils';
 
-import { getGuildRoles, addRoleToMember, removeRoleFromMember } from './discordApi';
+import { getGuildRoles, addRoleToMember, removeRoleFromMember, sendDirectMessage, sendDirectMessageWithComponents } from './discordApi';
 
 // Constantes de tipos de interacciones
 const InteractionType = {
@@ -459,34 +459,40 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        const customIdAccept = `fichar_accept_${teamRole.id}_${targetUserId}`;
-        const customIdReject = `fichar_reject_${targetUserId}`;
+        const customIdAccept = `fichar_accept_${interaction.guild_id}_${teamRole.id}_${targetUserId}`;
+        const customIdReject = `fichar_reject_${interaction.guild_id}_${targetUserId}`;
 
-        return NextResponse.json({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `📣 <@${targetUserId}>, el capitán <@${interaction.member.user.id}> te invitó a unirte a **${teamName}**. ¿Aceptas el fichaje?`,
-            components: [
-              {
-                type: 1,
-                components: [
-                  {
-                    type: 2,
-                    label: '✅ Aceptar Fichaje',
-                    style: 3,
-                    custom_id: customIdAccept
-                  },
-                  {
-                    type: 2,
-                    label: '❌ Rechazar',
-                    style: 4,
-                    custom_id: customIdReject
-                  }
-                ]
-              }
-            ]
-          }
-        });
+        try {
+          await sendDirectMessageWithComponents(targetUserId, `📣 ¡Hola! El capitán <@${interaction.member.user.id}> te invitó a unirte a **${teamName}** en Liga TPM Sudamérica. ¿Aceptas el fichaje?`, [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  label: '✅ Aceptar Fichaje',
+                  style: 3,
+                  custom_id: customIdAccept
+                },
+                {
+                  type: 2,
+                  label: '❌ Rechazar',
+                  style: 4,
+                  custom_id: customIdReject
+                }
+              ]
+            }
+          ]);
+
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `✅ Le he enviado un mensaje privado a <@${targetUserId}> con la oferta de fichaje.`, flags: 64 },
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Error al enviar MD a <@${targetUserId}>. Es posible que el usuario tenga los mensajes privados desactivados para este servidor.`, flags: 64 },
+          });
+        }
 
       } else if (name === 'despedir') {
         const targetUserId = options?.find((opt: any) => opt.name === 'usuario')?.value;
@@ -534,9 +540,16 @@ export async function POST(req: NextRequest) {
 
         try {
           await removeRoleFromMember(interaction.guild_id, targetUserId, teamRole.id);
+          
+          try {
+            await sendDirectMessage(targetUserId, `ℹ️ Has sido despedido de **${teamName}** por el capitán <@${interaction.member.user.id}> y ya no formas parte del plantel.`);
+          } catch (dmErr) {
+            console.error("No se pudo enviar MD de despido:", dmErr);
+          }
+
           return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: { content: `✅ <@${targetUserId}> ha sido despedido de **${teamName}** y se le removió el rol.` }
+            data: { content: `✅ <@${targetUserId}> ha sido despedido de **${teamName}** y se le notificó por mensaje privado.`, flags: 64 }
           });
         } catch (e: any) {
           return NextResponse.json({
@@ -554,8 +567,9 @@ export async function POST(req: NextRequest) {
 
       if (customId.startsWith('fichar_accept_')) {
         const parts = customId.split('_');
-        const roleId = parts[2];
-        const targetId = parts[3];
+        const guildId = parts[2];
+        const roleId = parts[3];
+        const targetId = parts[4];
 
         if (clickerId !== targetId) {
           return NextResponse.json({
@@ -565,7 +579,7 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-          await addRoleToMember(interaction.guild_id, targetId, roleId);
+          await addRoleToMember(guildId, targetId, roleId);
           return NextResponse.json({
             type: InteractionResponseType.UPDATE_MESSAGE,
             data: {
@@ -583,7 +597,8 @@ export async function POST(req: NextRequest) {
 
       if (customId.startsWith('fichar_reject_')) {
         const parts = customId.split('_');
-        const targetId = parts[2];
+        const guildId = parts[2];
+        const targetId = parts[3];
 
         if (clickerId !== targetId) {
           return NextResponse.json({

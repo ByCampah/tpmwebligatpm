@@ -69,3 +69,73 @@ export async function updateInteractionMessage(interactionToken: string, content
     console.error("Failed to update interaction message", await res.text());
   }
 }
+
+export async function sendDirectMessage(userId: string, content: string) {
+  const token = process.env.DISCORD_TOKEN;
+  if (!token) throw new Error('DISCORD_TOKEN is missing');
+
+  // 1. Create DM channel
+  const dmRes = await fetch(`${DISCORD_API_URL}/users/@me/channels`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bot ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ recipient_id: userId }),
+  });
+
+  if (!dmRes.ok) {
+    throw new Error(`Failed to create DM channel: ${await dmRes.text()}`);
+  }
+
+  const dmChannel = await dmRes.json();
+
+  // 2. Send message
+  const msgRes = await fetch(`${DISCORD_API_URL}/channels/${dmChannel.id}/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bot ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content }),
+  });
+
+  if (!msgRes.ok) {
+    throw new Error(`Failed to send DM: ${await msgRes.text()}`);
+  }
+}
+
+export async function sendDirectMessageWithComponents(userId: string, content: string, components: any[]) {
+  const token = process.env.DISCORD_TOKEN;
+  if (!token) throw new Error('DISCORD_TOKEN is missing');
+
+  // 1. Create DM channel
+  const dmRes = await fetch(`${DISCORD_API_URL}/users/@me/channels`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bot ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ recipient_id: userId }),
+  });
+
+  if (!dmRes.ok) {
+    throw new Error(`Failed to create DM channel: ${await dmRes.text()}`);
+  }
+
+  const dmChannel = await dmRes.json();
+
+  // 2. Send message
+  const msgRes = await fetch(`${DISCORD_API_URL}/channels/${dmChannel.id}/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bot ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content, components }),
+  });
+
+  if (!msgRes.ok) {
+    throw new Error(`Failed to send DM: ${await msgRes.text()}`);
+  }
+}
