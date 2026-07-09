@@ -35,7 +35,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
         include: { tournamentTeam: { include: { team: true, tournament: { include: { season: true, category: true } } } } }
       },
       trophies: {
-        include: { tournament: { include: { season: true } }, team: true },
+        include: { tournament: { include: { season: true, category: true } }, team: true },
         orderBy: { createdAt: "desc" }
       }
     }
@@ -66,7 +66,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
       type: "TEAM",
       OR: rosterData.length > 0 ? rosterData : [{ id: "none" }]
     },
-    include: { tournament: { include: { season: true } }, team: true },
+    include: { tournament: { include: { season: true, category: true } }, team: true },
     orderBy: { createdAt: "desc" }
   });
 
