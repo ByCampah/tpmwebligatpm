@@ -329,26 +329,31 @@ Platense 2 - 1 Formandos`;
           data: [
             {
               name: "🏆 1° Puesto",
+              type: "TEAM",
               tournamentId: tournament.id,
               teamId: teamsMap.get("Almagro").id
             },
             {
               name: "🥈 2° Puesto",
+              type: "TEAM",
               tournamentId: tournament.id,
               teamId: teamsMap.get("Formandos").id
             },
             {
               name: "🥉 3° Puesto",
+              type: "TEAM",
               tournamentId: tournament.id,
               teamId: teamsMap.get("Juventus").id
             },
             {
               name: "⚽ Botín de Oro",
+              type: "PLAYER",
               tournamentId: tournament.id,
               playerId: playersMap.get("JulianWeigl").id
             },
             {
               name: "👟 Máximo Asistidor",
+              type: "PLAYER",
               tournamentId: tournament.id,
               playerId: playersMap.get("Imperador").id
             }
