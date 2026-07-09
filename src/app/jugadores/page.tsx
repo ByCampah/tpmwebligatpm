@@ -45,7 +45,11 @@ export default async function JugadoresPage() {
     };
 
     p.matchStats.forEach(stat => {
-      const matchPj = stat.match.round === "Estadísticas Históricas" ? (stat.matchTime || 1) : 1;
+      const isHistoric = stat.match.round === "Estadísticas Históricas";
+      const isCopa = stat.match.tournament.name.toLowerCase().includes("copa") || 
+                     stat.match.tournament.category?.name.toLowerCase().includes("copa");
+      
+      const matchPj = (isHistoric || isCopa) ? 0 : 1;
       
       const isOfficial = stat.match.tournament.isOfficial;
 
