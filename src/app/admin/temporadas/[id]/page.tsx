@@ -30,7 +30,8 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
       trophies: {
         include: {
           player: true,
-          team: true
+          team: true,
+          excludedPlayers: true
         }
       }
     }

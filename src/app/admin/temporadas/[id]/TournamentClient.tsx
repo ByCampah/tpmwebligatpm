@@ -47,13 +47,19 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     Object.fromEntries(tournament.teams.map((t: any) => [t.teamId, t.group || ""]))
   );
 
-  const [firstTeamId, setFirstTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Campe"))?.teamId || "");
-  const [secondTeamId, setSecondTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Subcampe"))?.teamId || "");
+  const [firstTeamId, setFirstTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Campeón"))?.teamId || "");
+  const [secondTeamId, setSecondTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Subcampeón"))?.teamId || "");
   const [thirdTeamId, setThirdTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Tercer"))?.teamId || "");
   
-  const [firstExcluded, setFirstExcluded] = useState<string[]>([]);
-  const [secondExcluded, setSecondExcluded] = useState<string[]>([]);
-  const [thirdExcluded, setThirdExcluded] = useState<string[]>([]);
+  const [firstExcluded, setFirstExcluded] = useState<string[]>(
+    tournament.trophies?.find((t:any) => t.name?.includes("Campeón (1er Puesto)"))?.excludedPlayers?.map((p:any) => p.id) || []
+  );
+  const [secondExcluded, setSecondExcluded] = useState<string[]>(
+    tournament.trophies?.find((t:any) => t.name?.includes("Subcampeón (2do Puesto)"))?.excludedPlayers?.map((p:any) => p.id) || []
+  );
+  const [thirdExcluded, setThirdExcluded] = useState<string[]>(
+    tournament.trophies?.find((t:any) => t.name?.includes("Tercer Puesto (3ro)"))?.excludedPlayers?.map((p:any) => p.id) || []
+  );
 
   const handleSaveGroups = async () => {
     setLoading(true);
