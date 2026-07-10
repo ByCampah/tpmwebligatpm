@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createSeason, createTournament, setActiveSeason, deleteSeason, deleteTournament } from "@/app/actions";
+import { createSeason, createTournament, setActiveSeason, deleteSeason, deleteTournament, renameSeason } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
 export default function SeasonsClient({ seasons, categories, userRole }: { seasons: any[], categories: any[], userRole: string }) {
@@ -121,23 +121,42 @@ export default function SeasonsClient({ seasons, categories, userRole }: { seaso
                     )
                   )}
                   {userRole === "ADMIN" && (
-                    <button 
-                      onClick={async () => {
-                        if (confirm("¿Estás seguro de eliminar esta temporada? SE BORRARÁN TODOS LOS TORNEOS, PARTIDOS Y ESTADÍSTICAS ASOCIADAS.")) {
-                          setLoading(true);
-                          const res = await deleteSeason(season.id);
-                          if (!res.success) alert(res.error || "Error al eliminar");
-                          else router.refresh();
-                          setLoading(false);
-                        }
-                      }}
-                      className="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white text-xs px-3 py-1 rounded font-bold transition-colors ml-2"
-                      disabled={loading}
-                    >
-                      ELIMINAR
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={async () => {
+                          const newName = window.prompt("Ingresa el nuevo nombre para la temporada:", season.name);
+                          if (newName && newName.trim() !== "" && newName !== season.name) {
+                            setLoading(true);
+                            const res = await renameSeason(season.id, newName.trim());
+                            if (!res.success) alert(res.error || "Error al renombrar");
+                            else router.refresh();
+                            setLoading(false);
+                          }
+                        }}
+                        className="bg-blue-500/20 hover:bg-blue-500 text-blue-500 hover:text-white text-xs px-3 py-1 rounded font-bold transition-colors ml-2"
+                        disabled={loading}
+                      >
+                        EDITAR
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          if (confirm("¿Estás seguro de eliminar esta temporada? SE BORRARÁN TODOS LOS TORNEOS, PARTIDOS Y ESTADÍSTICAS ASOCIADAS.")) {
+                            setLoading(true);
+                            const res = await deleteSeason(season.id);
+                            if (!res.success) alert(res.error || "Error al eliminar");
+                            else router.refresh();
+                            setLoading(false);
+                          }
+                        }}
+                        className="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white text-xs px-3 py-1 rounded font-bold transition-colors"
+                        disabled={loading}
+                      >
+                        ELIMINAR
+                      </button>
+                    </div>
                   )}
                 </h3>
+
               </div>
               
               <div className="pl-4 border-l-2 border-secondary flex flex-col gap-2">

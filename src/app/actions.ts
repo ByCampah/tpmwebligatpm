@@ -1146,3 +1146,19 @@ export async function submitProdePrediction(matchId: string, homeScore: number, 
   }
 }
 
+export async function renameSeason(id: string, newName: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") return { success: false, error: "No autorizado" };
+
+  try {
+    await prisma.season.update({
+      where: { id },
+      data: { name: newName }
+    });
+    revalidatePath("/admin/temporadas");
+    return { success: true };
+  } catch (error: any) {
+    console.error(error);
+    return { success: false, error: "Error al renombrar temporada" };
+  }
+}
