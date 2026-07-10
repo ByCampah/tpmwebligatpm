@@ -1065,8 +1065,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 
                 <div className="bg-blue-500/10 border border-blue-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-blue-400 font-black mb-2 w-full text-center">⚽ Máximo Goleador</label>
-                  <select name="topScorerId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Goleador"))?.playerId || ""} className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500">
-                    <option value="">-- Seleccionar Jugador --</option>
+                  <select name="topScorerId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("Goleador")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500 min-h-[120px]">
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ts_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1075,12 +1074,12 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
+                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
                 </div>
 
                 <div className="bg-green-500/10 border border-green-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-green-400 font-black mb-2 w-full text-center">👟 Máximo Asistidor</label>
-                  <select name="topAssisterId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Asistidor"))?.playerId || ""} className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500">
-                    <option value="">-- Seleccionar Jugador --</option>
+                  <select name="topAssisterId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("Asistidor")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500 min-h-[120px]">
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ta_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1089,12 +1088,12 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
+                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
                 </div>
 
                 <div className="bg-cyan-500/10 border border-cyan-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-cyan-400 font-black mb-2 w-full text-center">🧤 Mejor Arquero (Valla Invicta)</label>
-                  <select name="bestGkId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Invicta") || t.name?.includes("Arquero"))?.playerId || ""} className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500">
-                    <option value="">-- Seleccionar Jugador --</option>
+                  <select name="bestGkId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("Invicta") || t.name?.includes("Arquero")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500 min-h-[120px]">
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`gk_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1103,12 +1102,12 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
+                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
                 </div>
 
                 <div className="bg-purple-500/10 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-purple-400 font-black mb-2 w-full text-center">⭐ MVP del Torneo</label>
-                  <select name="mvpId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("MVP"))?.playerId || ""} className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500">
-                    <option value="">-- Seleccionar Jugador --</option>
+                  <select name="mvpId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("MVP")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500 min-h-[120px]">
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`mvp_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1117,6 +1116,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
+                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
                 </div>
               </div>
 

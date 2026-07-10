@@ -30,8 +30,7 @@ export default async function Home() {
       tournaments: {
         include: {
           trophies: {
-            where: { type: "TEAM" },
-            include: { team: true }
+            include: { team: true, player: true }
           }
         }
       }
@@ -46,10 +45,10 @@ export default async function Home() {
     });
 
     const tournamentsData = await Promise.all(sortedTournaments.map(async (tournament) => {
-      let topScorer = null;
-      let topAssister = null;
+      let topScorers = tournament.trophies.filter((t:any) => t.name.includes("Goleador")).map((t:any) => ({ player: t.player, count: 0 })); // count is unknown from Trophy, just showing name
+      let topAssisters = tournament.trophies.filter((t:any) => t.name.includes("Asistidor")).map((t:any) => ({ player: t.player, count: 0 }));
 
-      if (tournament.name.toLowerCase().includes("liga tpm")) {
+      if (topScorers.length === 0 && tournament.name.toLowerCase().includes("liga tpm")) {
         const scorerStats = await prisma.matchStat.groupBy({
           by: ['playerId'],
           where: { match: { tournamentId: tournament.id } },
@@ -60,9 +59,11 @@ export default async function Home() {
         
         if (scorerStats.length > 0 && scorerStats[0]._sum.goals) {
           const p = await prisma.player.findUnique({ where: { id: scorerStats[0].playerId } });
-          topScorer = { player: p, count: (scorerStats[0]._sum.goals || 0) + (scorerStats[0]._sum.freeKickGoals || 0) + (scorerStats[0]._sum.penaltyGoals || 0) };
+          topScorers = [{ player: p, count: (scorerStats[0]._sum.goals || 0) + (scorerStats[0]._sum.freeKickGoals || 0) + (scorerStats[0]._sum.penaltyGoals || 0) }];
         }
+      }
 
+      if (topAssisters.length === 0 && tournament.name.toLowerCase().includes("liga tpm")) {
         const assistStats = await prisma.matchStat.groupBy({
           by: ['playerId'],
           where: { match: { tournamentId: tournament.id } },
@@ -73,14 +74,14 @@ export default async function Home() {
         
         if (assistStats.length > 0 && assistStats[0]._sum.assists) {
           const p = await prisma.player.findUnique({ where: { id: assistStats[0].playerId } });
-          topAssister = { player: p, count: assistStats[0]._sum.assists };
+          topAssisters = [{ player: p, count: assistStats[0]._sum.assists || 0 }];
         }
       }
 
       return {
         ...tournament,
-        topScorer,
-        topAssister
+        topScorers,
+        topAssisters
       };
     }));
 
@@ -176,11 +177,11 @@ export default async function Home() {
                   </summary>
                   <div className="p-6 flex flex-col gap-6">
                     {season.tournaments.map((tournament: any) => {
-                      const campeon = tournament.trophies.find((t: any) => t.name.includes('Campeón') && !t.name.includes('Sub'));
-                      const subcampeon = tournament.trophies.find((t: any) => t.name.includes('Subcampeón') || t.name.includes('2do'));
-                      const tercero = tournament.trophies.find((t: any) => t.name.includes('Tercer') || t.name.includes('3ro'));
+                      const campeones = tournament.trophies.filter((t: any) => t.name.includes('Campeón') && !t.name.includes('Sub'));
+                      const subcampeones = tournament.trophies.filter((t: any) => t.name.includes('Subcampeón') || t.name.includes('2do'));
+                      const terceros = tournament.trophies.filter((t: any) => t.name.includes('Tercer') || t.name.includes('3ro'));
 
-                      if (!campeon && !subcampeon && !tercero && !tournament.topScorer && !tournament.topAssister) {
+                      if (campeones.length === 0 && subcampeones.length === 0 && terceros.length === 0 && (!tournament.topScorers || tournament.topScorers.length === 0) && (!tournament.topAssisters || tournament.topAssisters.length === 0)) {
                         return null;
                       }
 
@@ -190,50 +191,54 @@ export default async function Home() {
                             <span className="text-3xl drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">🏆</span> {tournament.name}
                           </h4>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {campeon && (
-                              <div className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#FFD700]/50 shadow-[0_0_15px_rgba(255,215,0,0.15)] transform transition-transform hover:scale-105">
+                          <div className="flex flex-wrap justify-start gap-6">
+                            {campeones.map((c: any, idx: number) => (
+                              <div key={`c_${idx}`} className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#FFD700]/50 shadow-[0_0_15px_rgba(255,215,0,0.15)] transform transition-transform hover:scale-105 min-w-[140px]">
                                 <span className="text-4xl drop-shadow-md">🥇</span>
-                                {campeon.team?.logoUrl ? <img src={campeon.team.logoUrl} alt={campeon.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
-                                <span className="font-black text-lg text-center">{campeon.team?.name}</span>
+                                {c.team?.logoUrl ? <img src={c.team.logoUrl} alt={c.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
+                                <span className="font-black text-lg text-center">{c.team?.name}</span>
                               </div>
-                            )}
-                            {subcampeon && (
-                              <div className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#C0C0C0]/50 transform transition-transform hover:scale-105">
+                            ))}
+                            {subcampeones.map((s: any, idx: number) => (
+                              <div key={`s_${idx}`} className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#C0C0C0]/50 transform transition-transform hover:scale-105 min-w-[140px]">
                                 <span className="text-4xl drop-shadow-md">🥈</span>
-                                {subcampeon.team?.logoUrl ? <img src={subcampeon.team.logoUrl} alt={subcampeon.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
-                                <span className="font-bold text-lg text-center text-muted-foreground">{subcampeon.team?.name}</span>
+                                {s.team?.logoUrl ? <img src={s.team.logoUrl} alt={s.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
+                                <span className="font-bold text-lg text-center text-muted-foreground">{s.team?.name}</span>
                               </div>
-                            )}
-                            {tercero && (
-                              <div className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#CD7F32]/50 transform transition-transform hover:scale-105">
+                            ))}
+                            {terceros.map((t: any, idx: number) => (
+                              <div key={`t_${idx}`} className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#CD7F32]/50 transform transition-transform hover:scale-105 min-w-[140px]">
                                 <span className="text-4xl drop-shadow-md">🥉</span>
-                                {tercero.team?.logoUrl ? <img src={tercero.team.logoUrl} alt={tercero.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
-                                <span className="font-bold text-lg text-center text-muted-foreground">{tercero.team?.name}</span>
+                                {t.team?.logoUrl ? <img src={t.team.logoUrl} alt={t.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
+                                <span className="font-bold text-lg text-center text-muted-foreground">{t.team?.name}</span>
                               </div>
-                            )}
+                            ))}
                           </div>
 
-                          {(tournament.topScorer || tournament.topAssister) && (
+                          {(tournament.topScorers?.length > 0 || tournament.topAssisters?.length > 0) && (
                             <div className="flex flex-wrap gap-6 mt-4 pt-4 border-t border-border/30">
-                              {tournament.topScorer && (
-                                <div className="flex items-center gap-3 text-lg bg-primary/5 px-4 py-2 rounded-lg border border-primary/20">
+                              {tournament.topScorers?.map((ts: any, idx: number) => (
+                                <div key={`ts_${idx}`} className="flex items-center gap-3 text-lg bg-primary/5 px-4 py-2 rounded-lg border border-primary/20">
                                   <span title="Goleador" className="text-2xl drop-shadow-md">⚽</span>
-                                  <span className="font-bold">{tournament.topScorer.player?.nick}</span>
-                                  <span className="text-primary font-black bg-primary/20 px-3 py-1 rounded-md shadow-inner text-xl">
-                                    {tournament.topScorer.count}
-                                  </span>
+                                  <span className="font-bold">{ts.player?.nick || ts.player?.name}</span>
+                                  {ts.count > 0 && (
+                                    <span className="text-primary font-black bg-primary/20 px-3 py-1 rounded-md shadow-inner text-xl">
+                                      {ts.count}
+                                    </span>
+                                  )}
                                 </div>
-                              )}
-                              {tournament.topAssister && (
-                                <div className="flex items-center gap-3 text-lg bg-primary/5 px-4 py-2 rounded-lg border border-primary/20">
+                              ))}
+                              {tournament.topAssisters?.map((ta: any, idx: number) => (
+                                <div key={`ta_${idx}`} className="flex items-center gap-3 text-lg bg-primary/5 px-4 py-2 rounded-lg border border-primary/20">
                                   <span title="Asistidor" className="text-2xl drop-shadow-md">👟</span>
-                                  <span className="font-bold">{tournament.topAssister.player?.nick}</span>
-                                  <span className="text-primary font-black bg-primary/20 px-3 py-1 rounded-md shadow-inner text-xl">
-                                    {tournament.topAssister.count}
-                                  </span>
+                                  <span className="font-bold">{ta.player?.nick || ta.player?.name}</span>
+                                  {ta.count > 0 && (
+                                    <span className="text-primary font-black bg-primary/20 px-3 py-1 rounded-md shadow-inner text-xl">
+                                      {ta.count}
+                                    </span>
+                                  )}
                                 </div>
-                              )}
+                              ))}
                             </div>
                           )}
                         </div>

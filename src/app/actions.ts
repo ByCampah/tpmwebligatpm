@@ -853,14 +853,14 @@ export async function assignTournamentPodium(formData: FormData) {
   if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return { success: false, error: "No autorizado" };
 
   const tournamentId = formData.get("tournamentId") as string;
-  const firstId = formData.get("firstId") as string | null;
-  const secondId = formData.get("secondId") as string | null;
-  const thirdId = formData.get("thirdId") as string | null;
+  const firstIds = formData.getAll("firstId") as string[];
+  const secondIds = formData.getAll("secondId") as string[];
+  const thirdIds = formData.getAll("thirdId") as string[];
 
-  const topScorerId = formData.get("topScorerId") as string | null;
-  const topAssisterId = formData.get("topAssisterId") as string | null;
-  const bestGkId = formData.get("bestGkId") as string | null;
-  const mvpId = formData.get("mvpId") as string | null;
+  const topScorerIds = formData.getAll("topScorerId") as string[];
+  const topAssisterIds = formData.getAll("topAssisterId") as string[];
+  const bestGkIds = formData.getAll("bestGkId") as string[];
+  const mvpIds = formData.getAll("mvpId") as string[];
   const prodeWinnerIds = formData.getAll("prodeWinnerId") as string[];
 
   const firstExcludedIds = formData.getAll("firstExcludedIds") as string[];
@@ -892,50 +892,54 @@ export async function assignTournamentPodium(formData: FormData) {
 
     // 2. Team placements
     const placements = [
-      { teamId: firstId, name: "Campeón (1er Puesto)", excludedIds: firstExcludedIds },
-      { teamId: secondId, name: "Subcampeón (2do Puesto)", excludedIds: secondExcludedIds },
-      { teamId: thirdId, name: "Tercer Puesto (3ro)", excludedIds: thirdExcludedIds }
+      { teamIds: firstIds, name: "Campeón (1er Puesto)", excludedIds: firstExcludedIds },
+      { teamIds: secondIds, name: "Subcampeón (2do Puesto)", excludedIds: secondExcludedIds },
+      { teamIds: thirdIds, name: "Tercer Puesto (3ro)", excludedIds: thirdExcludedIds }
     ];
 
     for (const place of placements) {
-      if (!place.teamId) continue;
+      if (!place.teamIds || place.teamIds.length === 0) continue;
 
-      // Give collective trophy to the team
-      await prisma.trophy.create({
-        data: {
-          name: place.name,
-          type: "TEAM",
-          tournamentId,
-          teamId: place.teamId,
-          ...(place.excludedIds && place.excludedIds.length > 0 ? {
-            excludedPlayers: {
-              connect: place.excludedIds.map((id: string) => ({ id }))
-            }
-          } : {})
-        }
-      });
+      for (const teamId of place.teamIds) {
+        if (!teamId) continue;
+        await prisma.trophy.create({
+          data: {
+            name: place.name,
+            type: "TEAM",
+            tournamentId,
+            teamId: teamId,
+            ...(place.excludedIds && place.excludedIds.length > 0 ? {
+              excludedPlayers: {
+                connect: place.excludedIds.map((id: string) => ({ id }))
+              }
+            } : {})
+          }
+        });
+      }
     }
 
     // 3. Individual Awards
     const individualAwards = [
-      { playerId: topScorerId, name: "Máximo Goleador" },
-      { playerId: topAssisterId, name: "Máximo Asistidor" },
-      { playerId: bestGkId, name: "Valla Invicta" },
-      { playerId: mvpId, name: "MVP" }
+      { playerIds: topScorerIds, name: "Máximo Goleador" },
+      { playerIds: topAssisterIds, name: "Máximo Asistidor" },
+      { playerIds: bestGkIds, name: "Valla Invicta" },
+      { playerIds: mvpIds, name: "MVP" }
     ];
 
     for (const award of individualAwards) {
-      if (!award.playerId) continue;
-
-      // Give individual trophy to the player
-      await prisma.trophy.create({
-        data: {
-          name: award.name,
-          type: "PLAYER",
-          tournamentId,
-          playerId: award.playerId
-        }
-      });
+      if (!award.playerIds || award.playerIds.length === 0) continue;
+      
+      for (const playerId of award.playerIds) {
+        if (!playerId) continue;
+        await prisma.trophy.create({
+          data: {
+            name: award.name,
+            type: "PLAYER",
+            tournamentId,
+            playerId: playerId
+          }
+        });
+      }
     }
 
     if (prodeWinnerIds && prodeWinnerIds.length > 0) {
