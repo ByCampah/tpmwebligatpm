@@ -167,67 +167,68 @@ export default async function Home() {
               <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
               Historial de Campeones
             </h2>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-8">
               {historyData.map((season) => (
-                <details key={season.id} className="group bg-card border border-border rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden">
-                  <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-colors font-bold text-lg">
+                <div key={season.id} className="group bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+                  <div className="flex items-center justify-between p-4 bg-secondary/50 border-b border-border font-black text-2xl text-primary">
                     <span>{season.name}</span>
-                    <span className="text-primary transition duration-300 group-open:-rotate-180">
-                      ▼
-                    </span>
-                  </summary>
-                  <div className="p-4 pt-0 flex flex-col gap-6 border-t border-border/50 mt-2">
+                  </div>
+                  <div className="p-6 flex flex-col gap-6">
                     {season.tournaments.map((tournament: any) => {
-                      const campeon = tournament.trophies.find((t: any) => t.name === 'Campeón');
-                      const subcampeon = tournament.trophies.find((t: any) => t.name === 'Subcampeón');
-                      const tercero = tournament.trophies.find((t: any) => t.name === 'Tercer Puesto');
+                      const campeon = tournament.trophies.find((t: any) => t.name.includes('Campeón') && !t.name.includes('Sub'));
+                      const subcampeon = tournament.trophies.find((t: any) => t.name.includes('Subcampeón') || t.name.includes('2do'));
+                      const tercero = tournament.trophies.find((t: any) => t.name.includes('Tercer') || t.name.includes('3ro'));
+
+                      if (!campeon && !subcampeon && !tercero && !tournament.topScorer && !tournament.topAssister) {
+                        return null;
+                      }
 
                       return (
-                        <div key={tournament.id} className="flex flex-col gap-3 bg-secondary/20 p-4 rounded-lg border border-border/30">
-                          <h4 className="font-bold text-primary flex items-center gap-2">
-                            🏆 {tournament.name}
+                        <div key={tournament.id} className="flex flex-col gap-4 bg-black/20 p-5 rounded-lg border border-border/30 shadow-inner">
+                          <h4 className="font-black text-2xl text-primary flex items-center gap-3">
+                            <span className="text-3xl drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">🏆</span> {tournament.name}
                           </h4>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {campeon && (
-                              <div className="flex items-center gap-2 bg-card p-2 rounded border border-[#FFD700]/30 shadow-[0_0_10px_rgba(255,215,0,0.1)]">
-                                <span className="text-xl">🥇</span>
-                                {campeon.team?.logoUrl ? <img src={campeon.team.logoUrl} alt={campeon.team.name} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 rounded-full bg-secondary"></div>}
-                                <span className="font-bold text-sm truncate">{campeon.team?.name}</span>
+                              <div className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#FFD700]/50 shadow-[0_0_15px_rgba(255,215,0,0.15)] transform transition-transform hover:scale-105">
+                                <span className="text-4xl drop-shadow-md">🥇</span>
+                                {campeon.team?.logoUrl ? <img src={campeon.team.logoUrl} alt={campeon.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
+                                <span className="font-black text-lg text-center">{campeon.team?.name}</span>
                               </div>
                             )}
                             {subcampeon && (
-                              <div className="flex items-center gap-2 bg-card p-2 rounded border border-[#C0C0C0]/30">
-                                <span className="text-xl">🥈</span>
-                                {subcampeon.team?.logoUrl ? <img src={subcampeon.team.logoUrl} alt={subcampeon.team.name} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 rounded-full bg-secondary"></div>}
-                                <span className="font-bold text-sm truncate">{subcampeon.team?.name}</span>
+                              <div className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#C0C0C0]/50 transform transition-transform hover:scale-105">
+                                <span className="text-4xl drop-shadow-md">🥈</span>
+                                {subcampeon.team?.logoUrl ? <img src={subcampeon.team.logoUrl} alt={subcampeon.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
+                                <span className="font-bold text-lg text-center text-muted-foreground">{subcampeon.team?.name}</span>
                               </div>
                             )}
                             {tercero && (
-                              <div className="flex items-center gap-2 bg-card p-2 rounded border border-[#CD7F32]/30">
-                                <span className="text-xl">🥉</span>
-                                {tercero.team?.logoUrl ? <img src={tercero.team.logoUrl} alt={tercero.team.name} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 rounded-full bg-secondary"></div>}
-                                <span className="font-bold text-sm truncate">{tercero.team?.name}</span>
+                              <div className="flex flex-col items-center gap-3 bg-card p-4 rounded-xl border-2 border-[#CD7F32]/50 transform transition-transform hover:scale-105">
+                                <span className="text-4xl drop-shadow-md">🥉</span>
+                                {tercero.team?.logoUrl ? <img src={tercero.team.logoUrl} alt={tercero.team.name} className="w-16 h-16 object-contain drop-shadow-lg" /> : <div className="w-16 h-16 rounded-full bg-secondary"></div>}
+                                <span className="font-bold text-lg text-center text-muted-foreground">{tercero.team?.name}</span>
                               </div>
                             )}
                           </div>
 
                           {(tournament.topScorer || tournament.topAssister) && (
-                            <div className="flex gap-4 mt-2 pt-2 border-t border-border/30">
+                            <div className="flex flex-wrap gap-6 mt-4 pt-4 border-t border-border/30">
                               {tournament.topScorer && (
-                                <div className="flex items-center gap-2 text-sm">
-                                  <span title="Goleador">⚽</span>
+                                <div className="flex items-center gap-3 text-lg bg-primary/5 px-4 py-2 rounded-lg border border-primary/20">
+                                  <span title="Goleador" className="text-2xl drop-shadow-md">⚽</span>
                                   <span className="font-bold">{tournament.topScorer.player?.nick}</span>
-                                  <span className="text-primary font-black bg-primary/10 px-2 rounded">
+                                  <span className="text-primary font-black bg-primary/20 px-3 py-1 rounded-md shadow-inner text-xl">
                                     {tournament.topScorer.count}
                                   </span>
                                 </div>
                               )}
                               {tournament.topAssister && (
-                                <div className="flex items-center gap-2 text-sm">
-                                  <span title="Asistidor">👟</span>
+                                <div className="flex items-center gap-3 text-lg bg-primary/5 px-4 py-2 rounded-lg border border-primary/20">
+                                  <span title="Asistidor" className="text-2xl drop-shadow-md">👟</span>
                                   <span className="font-bold">{tournament.topAssister.player?.nick}</span>
-                                  <span className="text-primary font-black bg-primary/10 px-2 rounded">
+                                  <span className="text-primary font-black bg-primary/20 px-3 py-1 rounded-md shadow-inner text-xl">
                                     {tournament.topAssister.count}
                                   </span>
                                 </div>
@@ -241,7 +242,7 @@ export default async function Home() {
                       <p className="text-sm text-muted-foreground">No hay torneos registrados.</p>
                     )}
                   </div>
-                </details>
+                </div>
               ))}
               {historyData.length === 0 && (
                 <div className="p-8 text-center text-muted-foreground border border-border rounded-xl">
