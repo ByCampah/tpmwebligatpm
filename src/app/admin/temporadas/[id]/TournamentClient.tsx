@@ -61,6 +61,22 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     tournament.trophies?.find((t:any) => t.name?.includes("Tercer Puesto (3ro)"))?.excludedPlayers?.map((p:any) => p.id) || []
   );
 
+  const [topScorerIds, setTopScorerIds] = useState<string[]>(
+    tournament.trophies?.filter((t:any) => t.name?.includes("Goleador")).map((t:any) => t.playerId) || []
+  );
+  const [topAssisterIds, setTopAssisterIds] = useState<string[]>(
+    tournament.trophies?.filter((t:any) => t.name?.includes("Asistidor")).map((t:any) => t.playerId) || []
+  );
+  const [bestGkIds, setBestGkIds] = useState<string[]>(
+    tournament.trophies?.filter((t:any) => t.name?.includes("Invicta") || t.name?.includes("Arquero")).map((t:any) => t.playerId) || []
+  );
+  const [mvpIds, setMvpIds] = useState<string[]>(
+    tournament.trophies?.filter((t:any) => t.name?.includes("MVP")).map((t:any) => t.playerId) || []
+  );
+  const [prodeIds, setProdeIds] = useState<string[]>(
+    tournament.trophies?.filter((t:any) => t.name?.includes("PRODE")).map((t:any) => t.userId) || []
+  );
+
   const handleSaveGroups = async () => {
     setLoading(true);
     const groupsToSave = Object.entries(groupAssignments).map(([teamId, group]) => ({
@@ -225,6 +241,12 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     secondExcluded.forEach(id => formData.append("secondExcludedIds", id));
     thirdExcluded.forEach(id => formData.append("thirdExcludedIds", id));
 
+    topScorerIds.forEach(id => formData.append("topScorerId", id));
+    topAssisterIds.forEach(id => formData.append("topAssisterId", id));
+    bestGkIds.forEach(id => formData.append("bestGkId", id));
+    mvpIds.forEach(id => formData.append("mvpId", id));
+    prodeIds.forEach(id => formData.append("prodeWinnerId", id));
+
     const res = await assignTournamentPodium(formData);
     setLoading(false);
 
@@ -234,6 +256,16 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     } else {
       setError(res.error || "Error al asignar podio");
     }
+  };
+
+  const getPlayerNick = (id: string) => {
+    const p = tournament.teams?.flatMap((t:any) => t.players).find((p:any) => p.playerId === id);
+    return p?.player?.nick || p?.player?.name || "Jugador Desconocido";
+  };
+
+  const getUserNick = (id: string) => {
+    const u = prodeLeaderboard?.find((l:any) => l.user?.id === id);
+    return u?.user?.nickName || u?.user?.name || "Usuario Desconocido";
   };
 
   return (
@@ -1047,16 +1079,32 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 
                 <div className="bg-purple-900/30 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-purple-400 font-black mb-2 w-full text-center">🔮 Ganador del PRODE</label>
-                  <select name="prodeWinnerId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("PRODE")).map((t:any) => t.userId) || []} className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500 min-h-[120px]">
+                  <select 
+                    value="" 
+                    onChange={e => {
+                      if (e.target.value && !prodeIds.includes(e.target.value)) {
+                        setProdeIds(prev => [...prev, e.target.value]);
+                      }
+                    }}
+                    className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">-- Seleccionar Ganador --</option>
                     {prodeLeaderboard.map((l: any, idx: number) => (
                       <option key={`prode_${l.user?.id || idx}`} value={l.user?.id}>
                         {l.user?.nickName || l.user?.name || "Usuario Desconocido"} ({l.points} pts)
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-muted-foreground mt-3 text-center w-full">
-                    Puedes seleccionar MÚLTIPLES ganadores manteniendo presionada la tecla <b>CTRL</b> (o CMD en Mac) al hacer clic.
-                  </p>
+                  {prodeIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 w-full">
+                      {prodeIds.map(id => (
+                        <span key={id} className="bg-purple-500/20 border border-purple-500 text-purple-100 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                          {getUserNick(id)}
+                          <button type="button" onClick={() => setProdeIds(prev => prev.filter(pId => pId !== id))} className="text-purple-400 hover:text-white font-bold ml-1">&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1065,7 +1113,16 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 
                 <div className="bg-blue-500/10 border border-blue-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-blue-400 font-black mb-2 w-full text-center">⚽ Máximo Goleador</label>
-                  <select name="topScorerId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("Goleador")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500 min-h-[120px]">
+                  <select 
+                    value="" 
+                    onChange={e => {
+                      if (e.target.value && !topScorerIds.includes(e.target.value)) {
+                        setTopScorerIds(prev => [...prev, e.target.value]);
+                      }
+                    }}
+                    className="w-full bg-black border border-blue-500/50 rounded p-3 font-bold focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ts_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1074,12 +1131,30 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
-                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
+                  {topScorerIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 w-full">
+                      {topScorerIds.map(id => (
+                        <span key={id} className="bg-blue-500/20 border border-blue-500 text-blue-100 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                          {getPlayerNick(id)}
+                          <button type="button" onClick={() => setTopScorerIds(prev => prev.filter(pId => pId !== id))} className="text-blue-400 hover:text-white font-bold ml-1">&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-green-500/10 border border-green-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-green-400 font-black mb-2 w-full text-center">👟 Máximo Asistidor</label>
-                  <select name="topAssisterId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("Asistidor")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500 min-h-[120px]">
+                  <select 
+                    value="" 
+                    onChange={e => {
+                      if (e.target.value && !topAssisterIds.includes(e.target.value)) {
+                        setTopAssisterIds(prev => [...prev, e.target.value]);
+                      }
+                    }}
+                    className="w-full bg-black border border-green-500/50 rounded p-3 font-bold focus:outline-none focus:border-green-500"
+                  >
+                    <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`ta_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1088,12 +1163,30 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
-                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
+                  {topAssisterIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 w-full">
+                      {topAssisterIds.map(id => (
+                        <span key={id} className="bg-green-500/20 border border-green-500 text-green-100 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                          {getPlayerNick(id)}
+                          <button type="button" onClick={() => setTopAssisterIds(prev => prev.filter(pId => pId !== id))} className="text-green-400 hover:text-white font-bold ml-1">&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-cyan-500/10 border border-cyan-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-cyan-400 font-black mb-2 w-full text-center">🧤 Mejor Arquero (Valla Invicta)</label>
-                  <select name="bestGkId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("Invicta") || t.name?.includes("Arquero")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500 min-h-[120px]">
+                  <select 
+                    value="" 
+                    onChange={e => {
+                      if (e.target.value && !bestGkIds.includes(e.target.value)) {
+                        setBestGkIds(prev => [...prev, e.target.value]);
+                      }
+                    }}
+                    className="w-full bg-black border border-cyan-500/50 rounded p-3 font-bold focus:outline-none focus:border-cyan-500"
+                  >
+                    <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`gk_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1102,12 +1195,30 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
-                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
+                  {bestGkIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 w-full">
+                      {bestGkIds.map(id => (
+                        <span key={id} className="bg-cyan-500/20 border border-cyan-500 text-cyan-100 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                          {getPlayerNick(id)}
+                          <button type="button" onClick={() => setBestGkIds(prev => prev.filter(pId => pId !== id))} className="text-cyan-400 hover:text-white font-bold ml-1">&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-purple-500/10 border border-purple-500/50 p-4 rounded-xl flex flex-col items-start text-left">
                   <label className="text-purple-400 font-black mb-2 w-full text-center">⭐ MVP del Torneo</label>
-                  <select name="mvpId" multiple defaultValue={tournament.trophies?.filter((t:any) => t.name?.includes("MVP")).map((t:any) => t.playerId) || []} className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500 min-h-[120px]">
+                  <select 
+                    value="" 
+                    onChange={e => {
+                      if (e.target.value && !mvpIds.includes(e.target.value)) {
+                        setMvpIds(prev => [...prev, e.target.value]);
+                      }
+                    }}
+                    className="w-full bg-black border border-purple-500/50 rounded p-3 font-bold focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">-- Seleccionar Jugador --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <optgroup key={`mvp_${t.team.id}`} label={t.team.name}>
                         {t.players?.map((p: any) => (
@@ -1116,7 +1227,16 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </optgroup>
                     ) : null)}
                   </select>
-                  <p className="text-xs text-muted-foreground mt-2 text-center w-full">Mantén CTRL para seleccionar varios.</p>
+                  {mvpIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 w-full">
+                      {mvpIds.map(id => (
+                        <span key={id} className="bg-purple-500/20 border border-purple-500 text-purple-100 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                          {getPlayerNick(id)}
+                          <button type="button" onClick={() => setMvpIds(prev => prev.filter(pId => pId !== id))} className="text-purple-400 hover:text-white font-bold ml-1">&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
