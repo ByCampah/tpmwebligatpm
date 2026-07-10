@@ -47,6 +47,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     Object.fromEntries(tournament.teams.map((t: any) => [t.teamId, t.group || ""]))
   );
 
+  const [firstTeamId, setFirstTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Campe"))?.teamId || "");
+  const [secondTeamId, setSecondTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Subcampe"))?.teamId || "");
+  const [thirdTeamId, setThirdTeamId] = useState(tournament.trophies?.find((t:any) => t.name?.includes("Tercer"))?.teamId || "");
+  
+  const [firstExcluded, setFirstExcluded] = useState<string[]>([]);
+  const [secondExcluded, setSecondExcluded] = useState<string[]>([]);
+  const [thirdExcluded, setThirdExcluded] = useState<string[]>([]);
+
   const handleSaveGroups = async () => {
     setLoading(true);
     const groupsToSave = Object.entries(groupAssignments).map(([teamId, group]) => ({
@@ -206,6 +214,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
     const formData = new FormData(e.currentTarget);
     formData.append("tournamentId", tournament.id);
+
+    firstExcluded.forEach(id => formData.append("firstExcludedIds", id));
+    secondExcluded.forEach(id => formData.append("secondExcludedIds", id));
+    thirdExcluded.forEach(id => formData.append("thirdExcludedIds", id));
 
     const res = await assignTournamentPodium(formData);
     setLoading(false);
@@ -933,37 +945,94 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                   DEBUG Trophies: {JSON.stringify(tournament.trophies?.map((t:any) => t.name))}
                 </div>
                 
-                <div className="bg-amber-500/10 border border-amber-500/50 p-4 rounded-xl flex flex-col items-center">
+                <div className="bg-amber-500/10 border border-amber-500/50 p-4 rounded-xl flex flex-col items-center w-full">
                   <span className="text-4xl mb-2">🏆</span>
                   <label className="text-amber-500 font-black mb-2">CAMPEÓN (1er Puesto)</label>
-                  <select name="firstId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Campe"))?.teamId || ""} className="w-full bg-black border border-amber-500/50 rounded p-3 text-center font-bold focus:outline-none focus:border-amber-500">
+                  <select name="firstId" value={firstTeamId} onChange={e => { setFirstTeamId(e.target.value); setFirstExcluded([]); }} className="w-full bg-black border border-amber-500/50 rounded p-3 text-center font-bold focus:outline-none focus:border-amber-500">
                     <option value="">-- Seleccionar Equipo --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
                     ) : null)}
                   </select>
+                  {firstTeamId && (
+                    <div className="w-full mt-4 bg-black/50 p-3 rounded border border-amber-500/30">
+                      <p className="text-xs text-muted-foreground mb-2 text-center">Desmarca a los jugadores que NO recibirán el trofeo.</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {enrolledTeamsData.find((t: any) => t.teamId === firstTeamId)?.players?.map((p: any) => {
+                           const isExcluded = firstExcluded.includes(p.playerId);
+                           return (
+                             <label key={p.playerId} className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs cursor-pointer border transition-colors ${!isExcluded ? 'bg-amber-500/20 border-amber-500 text-amber-100' : 'bg-gray-800 border-gray-600 text-gray-400'}`}>
+                               <input type="checkbox" className="hidden" checked={!isExcluded} onChange={() => {
+                                 if(isExcluded) setFirstExcluded(prev => prev.filter(id => id !== p.playerId));
+                                 else setFirstExcluded(prev => [...prev, p.playerId]);
+                               }} />
+                               {p.player?.nick}
+                             </label>
+                           );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="bg-gray-400/10 border border-gray-400/50 p-4 rounded-xl flex flex-col items-center">
+                <div className="bg-gray-400/10 border border-gray-400/50 p-4 rounded-xl flex flex-col items-center w-full">
                   <span className="text-4xl mb-2">🥈</span>
                   <label className="text-gray-300 font-black mb-2">SUBCAMPEÓN (2do Puesto)</label>
-                  <select name="secondId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Subcampe"))?.teamId || ""} className="w-full bg-black border border-gray-400/50 rounded p-3 text-center font-bold focus:outline-none focus:border-gray-400">
+                  <select name="secondId" value={secondTeamId} onChange={e => { setSecondTeamId(e.target.value); setSecondExcluded([]); }} className="w-full bg-black border border-gray-400/50 rounded p-3 text-center font-bold focus:outline-none focus:border-gray-400">
                     <option value="">-- Seleccionar Equipo --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
                     ) : null)}
                   </select>
+                  {secondTeamId && (
+                    <div className="w-full mt-4 bg-black/50 p-3 rounded border border-gray-400/30">
+                      <p className="text-xs text-muted-foreground mb-2 text-center">Desmarca a los jugadores que NO recibirán el trofeo.</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {enrolledTeamsData.find((t: any) => t.teamId === secondTeamId)?.players?.map((p: any) => {
+                           const isExcluded = secondExcluded.includes(p.playerId);
+                           return (
+                             <label key={p.playerId} className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs cursor-pointer border transition-colors ${!isExcluded ? 'bg-gray-400/20 border-gray-400 text-gray-100' : 'bg-gray-800 border-gray-600 text-gray-400'}`}>
+                               <input type="checkbox" className="hidden" checked={!isExcluded} onChange={() => {
+                                 if(isExcluded) setSecondExcluded(prev => prev.filter(id => id !== p.playerId));
+                                 else setSecondExcluded(prev => [...prev, p.playerId]);
+                               }} />
+                               {p.player?.nick}
+                             </label>
+                           );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="bg-orange-700/10 border border-orange-700/50 p-4 rounded-xl flex flex-col items-center">
+                <div className="bg-orange-700/10 border border-orange-700/50 p-4 rounded-xl flex flex-col items-center w-full">
                   <span className="text-4xl mb-2">🥉</span>
                   <label className="text-orange-500 font-black mb-2">TERCER PUESTO</label>
-                  <select name="thirdId" defaultValue={tournament.trophies?.find((t:any) => t.name?.includes("Tercer"))?.teamId || ""} className="w-full bg-black border border-orange-700/50 rounded p-3 text-center font-bold focus:outline-none focus:border-orange-500">
+                  <select name="thirdId" value={thirdTeamId} onChange={e => { setThirdTeamId(e.target.value); setThirdExcluded([]); }} className="w-full bg-black border border-orange-700/50 rounded p-3 text-center font-bold focus:outline-none focus:border-orange-500">
                     <option value="">-- Seleccionar Equipo --</option>
                     {enrolledTeamsData.map((t: any) => t.team ? (
                       <option key={t.team.id} value={t.team.id}>{t.team.name}</option>
                     ) : null)}
                   </select>
+                  {thirdTeamId && (
+                    <div className="w-full mt-4 bg-black/50 p-3 rounded border border-orange-700/30">
+                      <p className="text-xs text-muted-foreground mb-2 text-center">Desmarca a los jugadores que NO recibirán el trofeo.</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {enrolledTeamsData.find((t: any) => t.teamId === thirdTeamId)?.players?.map((p: any) => {
+                           const isExcluded = thirdExcluded.includes(p.playerId);
+                           return (
+                             <label key={p.playerId} className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs cursor-pointer border transition-colors ${!isExcluded ? 'bg-orange-500/20 border-orange-500 text-orange-100' : 'bg-gray-800 border-gray-600 text-gray-400'}`}>
+                               <input type="checkbox" className="hidden" checked={!isExcluded} onChange={() => {
+                                 if(isExcluded) setThirdExcluded(prev => prev.filter(id => id !== p.playerId));
+                                 else setThirdExcluded(prev => [...prev, p.playerId]);
+                               }} />
+                               {p.player?.nick}
+                             </label>
+                           );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

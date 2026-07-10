@@ -105,6 +105,7 @@ model Player {
   
   // Trophies/Awards won
   trophies        Trophy[]
+  excludedFromTrophies Trophy[] @relation("TrophyExclusions")
   
   // Transfer Market
   isFreeAgent     Boolean            @default(false)
@@ -308,6 +309,7 @@ model Trophy {
   team         Team?       @relation(fields: [teamId], references: [id])
   player       Player?     @relation(fields: [playerId], references: [id])
   user         User?       @relation(fields: [userId], references: [id])
+  excludedPlayers Player[] @relation("TrophyExclusions")
 }
 
 model News {

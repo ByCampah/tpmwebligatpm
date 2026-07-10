@@ -48,7 +48,7 @@ export default async function JugadoresPage() {
     p.matchStats.forEach(stat => {
       const isHistoric = stat.match.round === "Estadísticas Históricas";
       
-      const matchPj = isHistoric ? 0 : 1;
+      const matchPj = isHistoric ? (stat.matchTime || 0) : 1;
       
       const isOfficial = stat.match.tournament.isOfficial;
 

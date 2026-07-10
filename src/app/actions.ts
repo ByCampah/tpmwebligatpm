@@ -181,7 +181,7 @@ export async function submitMatchStats(formData: any) {
 }
 
 export async function submitTrophy(formData: any) {
-  const { name, type, tournamentId, teamId, playerId } = formData;
+  const { name, type, tournamentId, teamId, playerId, excludedPlayerIds } = formData;
 
   await prisma.trophy.create({
     data: {
@@ -189,7 +189,12 @@ export async function submitTrophy(formData: any) {
       type,
       tournamentId: tournamentId || null,
       teamId: teamId || null,
-      playerId: playerId || null
+      playerId: playerId || null,
+      ...(excludedPlayerIds && excludedPlayerIds.length > 0 ? {
+        excludedPlayers: {
+          connect: excludedPlayerIds.map((id: string) => ({ id }))
+        }
+      } : {})
     }
   });
 
@@ -858,6 +863,10 @@ export async function assignTournamentPodium(formData: FormData) {
   const mvpId = formData.get("mvpId") as string | null;
   const prodeWinnerIds = formData.getAll("prodeWinnerId") as string[];
 
+  const firstExcludedIds = formData.getAll("firstExcludedIds") as string[];
+  const secondExcludedIds = formData.getAll("secondExcludedIds") as string[];
+  const thirdExcludedIds = formData.getAll("thirdExcludedIds") as string[];
+
   try {
     // 1. Delete all old podium and individual trophies for this tournament to allow fixing errors (efecto cascada)
     await prisma.trophy.deleteMany({
@@ -866,8 +875,11 @@ export async function assignTournamentPodium(formData: FormData) {
         name: {
           in: [
             "Campeón", 
+            "Campeón (1er Puesto)",
             "Subcampeón", 
+            "Subcampeón (2do Puesto)",
             "Tercer Puesto",
+            "Tercer Puesto (3ro)",
             "Máximo Goleador",
             "Máximo Asistidor",
             "Valla Invicta",
@@ -880,9 +892,9 @@ export async function assignTournamentPodium(formData: FormData) {
 
     // 2. Team placements
     const placements = [
-      { teamId: firstId, name: "Campeón" },
-      { teamId: secondId, name: "Subcampeón" },
-      { teamId: thirdId, name: "Tercer Puesto" }
+      { teamId: firstId, name: "Campeón (1er Puesto)", excludedIds: firstExcludedIds },
+      { teamId: secondId, name: "Subcampeón (2do Puesto)", excludedIds: secondExcludedIds },
+      { teamId: thirdId, name: "Tercer Puesto (3ro)", excludedIds: thirdExcludedIds }
     ];
 
     for (const place of placements) {
@@ -894,7 +906,12 @@ export async function assignTournamentPodium(formData: FormData) {
           name: place.name,
           type: "TEAM",
           tournamentId,
-          teamId: place.teamId
+          teamId: place.teamId,
+          ...(place.excludedIds && place.excludedIds.length > 0 ? {
+            excludedPlayers: {
+              connect: place.excludedIds.map((id: string) => ({ id }))
+            }
+          } : {})
         }
       });
     }

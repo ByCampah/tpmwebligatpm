@@ -61,14 +61,16 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
     tournamentId: t.tournamentTeam.tournamentId
   }));
 
-  const collectiveTrophies = await prisma.trophy.findMany({
+  const rawCollectiveTrophies = await prisma.trophy.findMany({
     where: {
       type: "TEAM",
       OR: rosterData.length > 0 ? rosterData : [{ id: "none" }]
     },
-    include: { tournament: { include: { season: true, category: true } }, team: true },
+    include: { tournament: { include: { season: true, category: true } }, team: true, excludedPlayers: { select: { id: true } } },
     orderBy: { createdAt: "desc" }
   });
+
+  const collectiveTrophies = rawCollectiveTrophies.filter(t => !t.excludedPlayers.some(p => p.id === params.id));
 
   // Merge trophies
   const allTrophies = [...jugador.trophies, ...collectiveTrophies];
@@ -127,7 +129,13 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
-      let sumPj = ((stat.matchTime ?? 0) > 0 || (stat.gkTime ?? 0) > 0) ? 1 : 0;
+      const isHistoric = stat.match?.round === "Estadísticas Históricas";
+      let sumPj = 0;
+      if (isHistoric) {
+        sumPj = stat.matchTime || 0;
+      } else {
+        sumPj = ((stat.matchTime ?? 0) > 0 || (stat.gkTime ?? 0) > 0) ? 1 : 0;
+      }
       acc.pj += sumPj;
       acc.goles += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
       acc.asistencias += stat.assists;
@@ -176,7 +184,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
           <div className="flex flex-col z-10 items-center">
             <span className={`font-black text-xl ${styles.textClass} uppercase tracking-widest drop-shadow-md`}>{formattedName}</span>
             <span className="text-sm font-bold text-white/90 uppercase tracking-wider mt-1">
-              {trofeo.tournament ? trofeo.tournament.name : 'Histórico'}
+              {trofeo.tournament ? `${trofeo.tournament.name}${trofeo.tournament.isOfficial ? ` - ${trofeo.tournament.season?.name || ''}` : ''}` : 'Histórico'}
             </span>
             {trofeo.type === 'TEAM' && trofeo.team && (
               <span className="text-xs font-semibold text-muted-foreground/80 mt-0.5 uppercase tracking-wide">
