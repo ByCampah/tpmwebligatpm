@@ -169,10 +169,11 @@ export default async function Home() {
             </h2>
             <div className="flex flex-col gap-8">
               {historyData.map((season) => (
-                <div key={season.id} className="group bg-card border border-border rounded-xl overflow-hidden shadow-lg">
-                  <div className="flex items-center justify-between p-4 bg-secondary/50 border-b border-border font-black text-2xl text-primary">
+                <details key={season.id} className="group bg-card border border-border rounded-xl overflow-hidden shadow-lg [&_summary::-webkit-details-marker]:hidden">
+                  <summary className="flex items-center justify-between p-4 bg-secondary/50 border-b border-border font-black text-2xl text-primary cursor-pointer hover:bg-white/5 transition-colors">
                     <span>{season.name}</span>
-                  </div>
+                    <span className="text-primary transition duration-300 group-open:-rotate-180">▼</span>
+                  </summary>
                   <div className="p-6 flex flex-col gap-6">
                     {season.tournaments.map((tournament: any) => {
                       const campeon = tournament.trophies.find((t: any) => t.name.includes('Campeón') && !t.name.includes('Sub'));
@@ -242,7 +243,7 @@ export default async function Home() {
                       <p className="text-sm text-muted-foreground">No hay torneos registrados.</p>
                     )}
                   </div>
-                </div>
+                </details>
               ))}
               {historyData.length === 0 && (
                 <div className="p-8 text-center text-muted-foreground border border-border rounded-xl">
