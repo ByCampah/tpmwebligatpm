@@ -12,7 +12,7 @@ export default async function TrofeosPage() {
     include: {
       trophies: {
         where: { type: "TEAM" },
-        include: { tournament: { include: { category: true } } }
+        include: { tournament: { include: { category: true, season: true } } }
       }
     }
   });
@@ -22,7 +22,7 @@ export default async function TrofeosPage() {
     include: {
       trophies: {
         where: { type: "PLAYER" },
-        include: { tournament: { include: { category: true } } }
+        include: { tournament: { include: { category: true, season: true } } }
       },
       tournamentTeams: {
         include: {
@@ -32,7 +32,7 @@ export default async function TrofeosPage() {
                 include: {
                   trophies: {
                     where: { type: "TEAM" },
-                    include: { tournament: { include: { category: true } } }
+                    include: { tournament: { include: { category: true, season: true } } }
                   }
                 }
               }

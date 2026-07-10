@@ -10,6 +10,7 @@ type TrophyRecord = {
     name: string;
     isOfficial?: boolean;
     category?: { name: string } | null;
+    season?: { name: string } | null;
   } | null;
 };
 
