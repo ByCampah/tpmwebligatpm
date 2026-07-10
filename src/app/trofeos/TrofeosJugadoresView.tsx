@@ -166,13 +166,14 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
                   const isIndividual = indBadge !== null;
                   
                   const tournamentName = trophy.tournament?.name || "Torneo Desconocido";
+                  const seasonName = trophy.tournament?.season?.name ? ` - ${trophy.tournament.season.name}` : "";
                   const imageUrl = getTrophyImage(tournamentName);
                   
                   return (
                     <div 
                       key={trophy.id} 
                       className="relative group flex items-end justify-center"
-                      title={`${trophy.name} - ${tournamentName}`}
+                      title={`${trophy.name} - ${tournamentName}${seasonName}`}
                     >
                       {isFirst && !isIndividual && (
                         <div className="flex flex-col items-center">
@@ -203,7 +204,7 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
                       
                       {/* Tooltip */}
                       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                        {trophy.name} - {tournamentName}
+                        {trophy.name} - {tournamentName}{seasonName}
                       </div>
                     </div>
                   );
