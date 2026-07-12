@@ -352,3 +352,8 @@ model ProdePrediction {
 
   @@unique([userId, matchId])
 }
+
+model GlobalStat {
+  id     String @id @default("visits")
+  visits Int    @default(0)
+}

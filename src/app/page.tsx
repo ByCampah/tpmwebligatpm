@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import ProdeSection from "@/components/ProdeSection";
+import VisitTracker from "@/components/VisitTracker";
 
 export default async function Home() {
   const activeSeason = await prisma.season.findFirst({
@@ -98,6 +99,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col gap-12 max-w-5xl mx-auto">
+      <VisitTracker />
       {/* Hero Section */}
       <section className="text-center py-16 px-4 bg-card rounded-2xl border border-border shadow-lg relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"></div>
