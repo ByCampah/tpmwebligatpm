@@ -240,7 +240,7 @@ function parseData() {
         if (currentTeam.toLowerCase() === "catadores de latenha") currentTeam = "Latenha";
         teamsData[currentTeam] = [];
       } else {
-        const parts = line.split(/[\\s\\t]+/);
+        const parts = line.split(/[\s\t]+/);
         if (parts.length >= 4) {
           const pj = parseInt(parts.pop());
           const a = parseInt(parts.pop());
@@ -292,13 +292,19 @@ async function main() {
   };
 
   // 2. Tournament
-  let category = await prisma.category.findFirst({ where: { name: "Primera División" } });
-  if (!category) category = await prisma.category.create({ data: { name: "Primera División" } });
+  let category = await prisma.category.findFirst({ where: { name: "Liga TPM" } });
+  if (!category) category = await prisma.category.create({ data: { name: "Liga TPM" } });
 
   let liga = await prisma.tournament.findFirst({ where: { season: { id: season.id }, name: "Liga TPM" } });
   if (!liga) {
     liga = await prisma.tournament.create({
       data: { season: { connect: { id: season.id } }, name: "Liga TPM", format: "LEAGUE_PLAYOFF", category: { connect: { id: category.id } } }
+    });
+  } else {
+    // Update category just in case it was created with a wrong one
+    await prisma.tournament.update({
+      where: { id: liga.id },
+      data: { category: { connect: { id: category.id } } }
     });
   }
 
@@ -374,13 +380,17 @@ async function main() {
       });
       
       for (const p of players) {
+        const pEnt = await prisma.player.findUnique({ where: { nick: p.nick } });
         if (matchIdx <= p.pj) {
-          const pEnt = await prisma.player.findUnique({ where: { nick: p.nick } });
           const g = matchIdx === 1 ? p.g : 0;
           const a = matchIdx === 1 ? p.a : 0;
           
           await prisma.matchStat.create({
             data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: g, assists: a, matchTime: 90 }
+          });
+        } else {
+          await prisma.matchStat.create({
+            data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: 0, assists: 0, matchTime: 0 }
           });
         }
       }
