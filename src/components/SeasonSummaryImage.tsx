@@ -15,7 +15,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
     const playerStats = new Map<string, any>();
     
     // Solo contar partidos jugados que no sean de "Estadísticas Históricas"
-    const validMatches = tournament.matches?.filter((m: any) => m.status === 'PLAYED' && m.round !== 'Estadísticas Históricas') || [];
+    const validMatches = tournament.matches?.filter((m: any) => m.status === 'PLAYED' && (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round))) || [];
     
     validMatches.forEach((match: any) => {
       match.stats?.forEach((stat: any) => {

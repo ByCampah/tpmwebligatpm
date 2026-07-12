@@ -64,7 +64,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
       });
     });
 
-    matches.filter((m: any) => m.status === 'PLAYED' && m.round !== 'Estadísticas Históricas').forEach((match: any) => {
+    matches.filter((m: any) => m.status === 'PLAYED' && (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round))).forEach((match: any) => {
       const home = tableMap.get(match.homeTeamId);
       const away = tableMap.get(match.awayTeamId);
       
@@ -138,7 +138,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   const calculatePlayerStats = () => {
     const statsMap = new Map();
     selectedTournament?.matches.forEach((m: any) => {
-      if (m.status === 'PLAYED' || m.round === 'Estadísticas Históricas') {
+      if (m.status === 'PLAYED' || (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round))) {
         m.stats?.forEach((s: any) => {
           if (!statsMap.has(s.playerId)) {
             const pTeamData = s.player.tournamentTeams?.find((t: any) => t.tournamentTeam.tournamentId === selectedTournament.id);
