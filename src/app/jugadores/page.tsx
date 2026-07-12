@@ -46,7 +46,7 @@ export default async function JugadoresPage() {
     };
 
     p.matchStats.forEach(stat => {
-      const isHistoric = (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(stat.match.round));
+      const isHistoric = (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(stat.match.round ?? ""));
       
       const matchPj = isHistoric ? (stat.matchTime || 0) : 1;
       

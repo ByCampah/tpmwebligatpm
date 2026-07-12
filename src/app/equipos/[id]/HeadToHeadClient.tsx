@@ -26,7 +26,7 @@ export default function HeadToHeadClient({
 
   // Filtrar partidos: sacar amistosos/historiales, y dejar solo los que jugó contra el oponente
   const h2hMatches = allMatches.filter(m => 
-    (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round)) &&
+    (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round ?? "")) &&
     m.status === "PLAYED" &&
     (m.homeTeamId === selectedOpponentId || m.awayTeamId === selectedOpponentId)
   ).sort((a, b) => new Date(b.matchDate || 0).getTime() - new Date(a.matchDate || 0).getTime());

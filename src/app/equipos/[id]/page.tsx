@@ -55,7 +55,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   const allMatches = [...team.homeMatches, ...team.awayMatches];
   
   const recentMatches = allMatches
-    .filter(m => (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round)))
+    .filter(m => (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round ?? "")))
     .sort((a, b) => new Date(b.matchDate || 0).getTime() - new Date(a.matchDate || 0).getTime())
     .slice(0, 5);
 

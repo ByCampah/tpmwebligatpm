@@ -112,7 +112,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const validStatsObj = jugador.matchStats.filter(s => 
     (s.matchTime ?? 0) > 0 || 
     (s.gkTime ?? 0) > 0 || 
-    (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(s.match.round))
+    (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(s.match.round ?? ""))
   );
 
   const officialStatsObj = validStatsObj.filter(s => s.match.tournament.isOfficial !== false);
@@ -129,7 +129,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
-      const isHistoric = (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(stat.match?.round));
+      const isHistoric = (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(stat.match?.round ?? ""));
       let sumPj = 0;
       if (isHistoric) {
         sumPj = stat.matchTime || 0;
@@ -578,7 +578,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
                 </thead>
                 <tbody className="divide-y divide-border">
                   {validStatsObj.slice(0, 5).map((stat: any) => {
-                    const isHistorico = (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(stat.match.round));
+                    const isHistorico = (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(stat.match.round ?? ""));
                     return (
                     <tr key={stat.id} className={`transition-colors ${isHistorico ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-white/5'}`}>
                       <td className="px-4 py-3">
