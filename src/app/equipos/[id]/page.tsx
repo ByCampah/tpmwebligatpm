@@ -55,7 +55,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   const allMatches = [...team.homeMatches, ...team.awayMatches];
   
   const recentMatches = allMatches
-    .filter(m => (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round ?? "")))
+    .filter(m => (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ", "Ficticio (PJ)", "Histórico"].includes(m.round ?? "")))
     .sort((a, b) => new Date(b.matchDate || 0).getTime() - new Date(a.matchDate || 0).getTime())
     .slice(0, 5);
 
@@ -465,7 +465,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
                       </span>
                       <span className="text-xs text-muted-foreground w-8">{isHome ? '(L)' : '(V)'}</span>
                       <Link href={`/partidos/${match.id}`} className="font-bold truncate max-w-[120px] sm:max-w-[200px] hover:text-primary hover:underline transition-colors">
-                        vs {opponent.name}
+                        vs {opponent?.name || "Sin Rival"}
                       </Link>
                     </div>
                   </div>
