@@ -32,7 +32,10 @@ export default async function TrofeosPage() {
                 include: {
                   trophies: {
                     where: { type: "TEAM" },
-                    include: { tournament: { include: { category: true, season: true } } }
+                    include: { 
+                      tournament: { include: { category: true, season: true } },
+                      excludedPlayers: { select: { id: true } }
+                    }
                   }
                 }
               }
@@ -48,7 +51,7 @@ export default async function TrofeosPage() {
     player.tournamentTeams.forEach(pt => {
       const tournamentId = pt.tournamentTeam.tournamentId;
       const wonTrophies = pt.tournamentTeam.team.trophies.filter(
-        t => t.tournamentId === tournamentId
+        t => t.tournamentId === tournamentId && !t.excludedPlayers.some(ex => ex.id === player.id)
       );
       collectiveTrophies.push(...wonTrophies);
     });
