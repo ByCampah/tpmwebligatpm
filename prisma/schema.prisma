@@ -357,3 +357,8 @@ model GlobalStat {
   id     String @id @default("visits")
   visits Int    @default(0)
 }
+
+model DailyVisit {
+  date   String @id // YYYY-MM-DD
+  visits Int    @default(0)
+}

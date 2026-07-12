@@ -41,7 +41,7 @@ export default function ClientNavbar() {
     { name: t.nav.news, href: '/noticias' },
     { name: t.nav.league, href: '/liga' },
     { name: t.nav.history, href: '/historial' },
-    { name: "Extras", href: '/extras' },
+    { name: "Pretemporada", href: '/extras' },
     { name: "Trofeos", href: '/trofeos' },
     { name: "Selecciones", href: '/selecciones' },
     { name: t.nav.teams, href: '/equipos' },
