@@ -182,7 +182,7 @@ FlapJack	0	1	3
 Edusao	0	0	1`;
 
 function parseData() {
-  const lines = text_data.split('\\n').map(l => l.trim()).filter(l => l !== '');
+  const lines = text_data.split('\n').map(l => l.trim()).filter(l => l !== '');
   let mode = "matches";
   let currentRoundName = "Fecha 1";
   
@@ -218,7 +218,7 @@ function parseData() {
             as: 3
           });
         } else {
-          const matchRegex = /(\\d+)\\s*-\\s*(\\d+)/;
+          const matchRegex = /(\d+)\s*-\s*(\d+)/;
           const matchResult = line.match(matchRegex);
           if (matchResult) {
             const hs = parseInt(matchResult[1]);
