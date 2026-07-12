@@ -129,9 +129,9 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
   const aggregateStats = (stats: any[]) => {
     return stats.reduce((acc, stat) => {
-      const isHistoric = (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(stat.match?.round ?? ""));
+      const isOldHistoric = stat.match?.round === "Estadísticas Históricas";
       let sumPj = 0;
-      if (isHistoric) {
+      if (isOldHistoric) {
         sumPj = stat.matchTime || 0;
       } else {
         sumPj = ((stat.matchTime ?? 0) > 0 || (stat.gkTime ?? 0) > 0) ? 1 : 0;
