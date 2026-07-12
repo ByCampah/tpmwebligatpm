@@ -90,6 +90,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <Link href="/admin/logs" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-red-300 hover:bg-red-900/30 transition-all flex items-center gap-3 group">
                   <span className="group-hover:scale-125 transition-transform">📋</span> <span>Registro de Acciones (Logs)</span>
                 </Link>
+                <Link href="/admin/visitas" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-red-300 hover:bg-red-900/30 transition-all flex items-center gap-3 group">
+                  <span className="group-hover:scale-125 transition-transform">👁️</span> <span>Registro de Visitas</span>
+                </Link>
               </>
             )}
           </nav>
