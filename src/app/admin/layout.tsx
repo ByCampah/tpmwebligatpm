@@ -62,7 +62,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                   <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span> Sistema
                 </div>
                 <Link href="/admin/firmas" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-purple-300 hover:bg-purple-900/30 transition-all flex items-center gap-3 group">
-                  <span className="group-hover:scale-125 transition-transform">🔒</span> <span>Firmas Anti-DU</span>
+                  <span className="group-hover:scale-125 transition-transform">🔒</span> <span>Salas Firmas Anti-DU</span>
+                </Link>
+                <Link href="/admin/firmas/historial" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-purple-300 hover:bg-purple-900/30 transition-all flex items-center gap-3 group">
+                  <span className="group-hover:scale-125 transition-transform">💾</span> <span>Base Datos Anti-DU</span>
                 </Link>
                 <div className="text-[10px] font-black text-emerald-400/80 uppercase mt-4 mb-1 px-4 tracking-widest flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Base de Datos

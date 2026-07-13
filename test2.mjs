@@ -1,0 +1,10 @@
+import fs from 'fs';
+const code = fs.readFileSync('seed_season9_real.mjs', 'utf8');
+const textDataStr = code.match(/const text_data = `[\s\S]*?`;/)[0];
+const parseDataStr = code.match(/function parseData\(\) \{[\s\S]*?return \{ matches, teamsData \};\n\}/)[0];
+eval(textDataStr);
+eval(parseDataStr);
+const { matches, teamsData } = parseData();
+console.log('Matches count:', matches.length);
+console.log('Sample matches:', matches.slice(0, 3));
+console.log('Teams count:', Object.keys(teamsData).length);

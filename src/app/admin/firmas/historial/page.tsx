@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import HistorialTable from "./HistorialTable";
 
 export const dynamic = "force-dynamic";
 
@@ -28,50 +29,7 @@ export default async function HistorialFirmasPage() {
         </p>
       </div>
 
-      <div className="bg-secondary/20 rounded-xl border border-white/5 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-300">
-            <thead className="bg-black/20 text-gray-400 uppercase text-xs font-bold">
-              <tr>
-                <th className="px-4 py-3">Jugador / Discord</th>
-                <th className="px-4 py-3">Sala (Partido)</th>
-                <th className="px-4 py-3">Fecha</th>
-                <th className="px-4 py-3">Ubicación (Idioma local)</th>
-                <th className="px-4 py-3">IP Pública</th>
-                <th className="px-4 py-3">Huella Única (PC)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {signatures.map(sig => (
-                <tr key={sig.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-4 flex items-center gap-3">
-                    <img src={sig.user?.customAvatarUrl || sig.user?.image || "/img/logos/tpm_logo.png"} className="w-8 h-8 rounded-full border border-white/10" alt="" />
-                    <div className="flex flex-col">
-                      <span className="font-bold text-white">{sig.user?.nickName || "Sin Nick Web"}</span>
-                      <span className="text-xs text-tpm-primary">Discord: {sig.user?.name || "Desconocido"}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 font-medium text-white">{sig.lobby?.title}</td>
-                  <td className="px-4 py-4 whitespace-nowrap">{new Date(sig.createdAt).toLocaleString("es-AR")}</td>
-                  <td className="px-4 py-4">
-                    {sig.city !== "Desconocido" ? `${sig.city}, ${sig.country}` : "Desconocido"}
-                    <div className="text-xs text-gray-500 mt-1">Proveedor: {sig.isp}</div>
-                  </td>
-                  <td className="px-4 py-4 font-mono text-xs text-blue-300">{sig.ip}</td>
-                  <td className="px-4 py-4 font-mono text-xs text-emerald-300">{sig.fingerprint}</td>
-                </tr>
-              ))}
-              {signatures.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                    Todavía no hay registros en la base de datos.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <HistorialTable signatures={signatures} />
     </div>
   );
 }

@@ -33,9 +33,6 @@ export default async function AdminFirmasPage() {
           <p className="text-sm text-gray-400">Crea salas para que los jugadores firmen asistencia y detecta multicuentas.</p>
         </div>
         <div className="flex gap-4 items-center w-full md:w-auto">
-          <Link href="/admin/firmas/historial" className="px-4 py-2 bg-blue-500/20 text-blue-400 font-bold rounded-lg border border-blue-500/30 hover:bg-blue-500/40 transition-colors">
-            Historial Global
-          </Link>
           <form action={createLobby} className="flex gap-2">
             <input 
               type="text" 
