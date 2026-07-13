@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import MainLayout from "@/components/layout/MainLayout";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +23,7 @@ export default async function ChallengesPage() {
   });
 
   return (
-    <MainLayout>
-      <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full pt-8 pb-20">
+    <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full pt-8 pb-20">
         
         <div className="flex justify-between items-end border-b border-white/10 pb-4">
           <div>
@@ -84,6 +82,5 @@ export default async function ChallengesPage() {
           </div>
         )}
       </div>
-    </MainLayout>
   );
 }

@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
 import ChallengeDetailClient from "./ChallengeDetailClient";
 
@@ -26,7 +25,6 @@ export default async function ChallengeDetailPage({ params }: { params: { id: st
   if (!challenge) return notFound();
 
   return (
-    <MainLayout>
       <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full pt-8 pb-20">
         
         {/* Header */}
@@ -74,6 +72,5 @@ export default async function ChallengeDetailPage({ params }: { params: { id: st
         <ChallengeDetailClient challenge={challenge} />
 
       </div>
-    </MainLayout>
   );
 }
