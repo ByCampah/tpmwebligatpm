@@ -107,6 +107,7 @@ model Player {
   
   // Trophies/Awards won
   trophies        Trophy[]
+  challenges      ChallengeParticipant[]
   excludedFromTrophies Trophy[] @relation("TrophyExclusions")
   
   // Transfer Market
@@ -302,12 +303,14 @@ model Trophy {
   name         String
   type         String
   tournamentId String?
+  challengeId  String?
   teamId       String?
   playerId     String?
   userId       String?
   createdAt    DateTime @default(now())
 
   tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  challenge    ChallengeTournament? @relation(fields: [challengeId], references: [id])
   team         Team?       @relation(fields: [teamId], references: [id])
   player       Player?     @relation(fields: [playerId], references: [id])
   user         User?       @relation(fields: [userId], references: [id])
@@ -392,4 +395,30 @@ model Signature {
   createdAt   DateTime       @default(now())
 
   @@unique([lobbyId, userId])
+}
+
+
+model ChallengeTournament {
+  id           String                 @id @default(uuid())
+  name         String
+  type         String                 // SHOOTING, FREE_KICK, PENALTYS, VOLLEY
+  status       String                 @default("UPCOMING") // UPCOMING, ONGOING, FINISHED
+  bracketData  String                 @db.Text @default("{}")
+  groupsData   String                 @db.Text @default("[]") // For manual room scores
+  createdAt    DateTime               @default(now())
+  
+  participants ChallengeParticipant[]
+  trophies     Trophy[]
+}
+
+model ChallengeParticipant {
+  id           String               @id @default(uuid())
+  playerId     String
+  tournamentId String
+  createdAt    DateTime             @default(now())
+
+  player       Player               @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  tournament   ChallengeTournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, tournamentId])
 }

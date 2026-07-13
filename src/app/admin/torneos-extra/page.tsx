@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import ExtraTournamentsClient from "./ExtraTournamentsClient";
 
 export const metadata = {
-  title: "Gestión de Torneos Extras | Admin",
+  title: "Gestión de Pretemporada | Admin",
 };
 
 export default async function TorneosExtraAdminPage() {
@@ -29,7 +29,7 @@ export default async function TorneosExtraAdminPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-black text-primary mb-6">Torneos Extras (No Oficiales)</h1>
+      <h1 className="text-2xl font-black text-primary mb-6">Pretemporada (No Oficiales)</h1>
       <p className="text-muted-foreground mb-8">
         Aquí puedes crear torneos esporádicos o relámpago. Estos torneos no pertenecen a ninguna temporada oficial y 
         sus estadísticas no se mezclarán con el historial general ("Global") de los jugadores.

@@ -4,12 +4,20 @@ import Link from "next/link";
 interface BracketViewerProps {
   bracketData: any;
   teams: any[];
+  type?: "team" | "player";
 }
 
-export default function BracketViewer({ bracketData, teams }: BracketViewerProps) {
+export default function BracketViewer({ bracketData, teams, type = "team" }: BracketViewerProps) {
   if (!bracketData || !bracketData.rounds) return null;
 
-  const getTeam = (teamId: string) => teams.find(t => t.id === teamId || t.team?.id === teamId);
+  const getEntity = (id: string) => {
+    if (!id) return null;
+    if (type === "team") {
+      return teams.find(t => t.id === id || t.team?.id === id);
+    } else {
+      return teams.find(t => t.player?.id === id || t.id === id);
+    }
+  };
 
   return (
     <div className="w-full overflow-x-auto pb-8">
@@ -20,8 +28,11 @@ export default function BracketViewer({ bracketData, teams }: BracketViewerProps
             
             <div className="flex flex-col justify-around flex-1 relative gap-8 py-4">
               {round.matches.map((match: any, mIndex: number) => {
-                const teamA = getTeam(match.teamA)?.team || getTeam(match.teamA);
-                const teamB = getTeam(match.teamB)?.team || getTeam(match.teamB);
+                const entityA = getEntity(match.teamA);
+                const entityB = getEntity(match.teamB);
+                
+                const teamA = type === "team" ? (entityA?.team || entityA) : (entityA?.player || entityA);
+                const teamB = type === "team" ? (entityB?.team || entityB) : (entityB?.player || entityB);
 
                 const hasPenA = match.penA !== "" && match.penA != null;
                 const hasPenB = match.penB !== "" && match.penB != null;
@@ -53,11 +64,15 @@ export default function BracketViewer({ bracketData, teams }: BracketViewerProps
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           {teamA?.logoUrl ? (
                             <img src={teamA.logoUrl} alt={teamA.name} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                          ) : type === "player" ? (
+                             <div className="w-4 h-4 sm:w-5 sm:h-5 bg-black rounded-full flex-shrink-0 flex items-center justify-center text-[8px] font-bold text-white border border-white/10">
+                               {teamA?.nick?.substring(0,2).toUpperCase() || "?"}
+                             </div>
                           ) : (
                             <div className="w-4 h-4 sm:w-5 sm:h-5 bg-secondary rounded-full flex-shrink-0"></div>
                           )}
-                          <Link href={teamA?.id ? `/equipos/${teamA.id}` : '#'} className={`font-bold text-[10px] sm:text-xs truncate hover:text-primary transition-colors ${winnerA ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            {teamA?.name || "TBD"}
+                          <Link href={teamA?.id ? (type === "team" ? `/equipos/${teamA.id}` : `/jugadores/${teamA.id}`) : '#'} className={`font-bold text-[10px] sm:text-xs truncate hover:text-primary transition-colors ${winnerA ? 'text-foreground' : 'text-muted-foreground'}`}>
+                            {teamA?.name || teamA?.nick || "TBD"}
                           </Link>
                         </div>
                         <div className="flex items-center gap-1">
@@ -73,11 +88,15 @@ export default function BracketViewer({ bracketData, teams }: BracketViewerProps
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           {teamB?.logoUrl ? (
                             <img src={teamB.logoUrl} alt={teamB.name} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                          ) : type === "player" ? (
+                             <div className="w-4 h-4 sm:w-5 sm:h-5 bg-black rounded-full flex-shrink-0 flex items-center justify-center text-[8px] font-bold text-white border border-white/10">
+                               {teamB?.nick?.substring(0,2).toUpperCase() || "?"}
+                             </div>
                           ) : (
                             <div className="w-4 h-4 sm:w-5 sm:h-5 bg-secondary rounded-full flex-shrink-0"></div>
                           )}
-                          <Link href={teamB?.id ? `/equipos/${teamB.id}` : '#'} className={`font-bold text-[10px] sm:text-xs truncate hover:text-primary transition-colors ${winnerB ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            {teamB?.name || "TBD"}
+                          <Link href={teamB?.id ? (type === "team" ? `/equipos/${teamB.id}` : `/jugadores/${teamB.id}`) : '#'} className={`font-bold text-[10px] sm:text-xs truncate hover:text-primary transition-colors ${winnerB ? 'text-foreground' : 'text-muted-foreground'}`}>
+                            {teamB?.name || teamB?.nick || "TBD"}
                           </Link>
                         </div>
                         <div className="flex items-center gap-1">

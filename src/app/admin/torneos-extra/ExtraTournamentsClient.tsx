@@ -65,9 +65,9 @@ export default function ExtraTournamentsClient({ tournaments, categories, userRo
 
       {/* TOURNAMENTS LIST */}
       <div>
-        <h2 className="font-bold text-lg text-white mb-4">Lista de Torneos Extras</h2>
+        <h2 className="font-bold text-lg text-white mb-4">Lista de Pretemporada</h2>
         {tournaments.length === 0 ? (
-          <p className="text-muted-foreground italic">No hay torneos extras creados todavía.</p>
+          <p className="text-muted-foreground italic">No hay Pretemporada creados todavía.</p>
         ) : (
           <div className="grid gap-4">
             {tournaments.map(t => (

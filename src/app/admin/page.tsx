@@ -6,6 +6,13 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const globalStat = await prisma.globalStat.findUnique({ where: { id: "visits" } });
   const totalVisitas = globalStat?.visits || 0;
+  
+  // Obtener fecha actual en Argentina
+  const hoy = new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" });
+  const tzDate = new Date(hoy);
+  const tzDateStr = tzDate.toISOString().split("T")[0];
+  const dailyStat = await prisma.dailyVisit.findUnique({ where: { date: tzDateStr } });
+  const visitasHoy = dailyStat?.visits || 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,8 +47,16 @@ export default async function AdminPage() {
         <div className="flex flex-col gap-6 md:col-span-1">
           <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col justify-center items-center text-center shadow-lg relative overflow-hidden">
             <div className="absolute top-0 right-0 p-2 opacity-10 text-6xl">👁️</div>
-            <h3 className="font-bold text-primary uppercase tracking-wider text-sm mb-2 z-10">Visitas Totales</h3>
-            <span className="text-5xl font-black text-white z-10">{totalVisitas}</span>
+            <div className="flex w-full justify-between z-10 gap-4 mb-2">
+              <div className="flex flex-col items-center flex-1">
+                <h3 className="font-bold text-primary uppercase tracking-wider text-xs mb-1">Hoy</h3>
+                <span className="text-4xl font-black text-white">{visitasHoy}</span>
+              </div>
+              <div className="flex flex-col items-center flex-1 border-l border-white/10">
+                <h3 className="font-bold text-primary uppercase tracking-wider text-xs mb-1">Total</h3>
+                <span className="text-4xl font-black text-white">{totalVisitas}</span>
+              </div>
+            </div>
             <Link href="/admin/visitas" className="mt-4 text-xs font-bold text-primary hover:underline z-10">Ver detalles diarios →</Link>
           </div>
 

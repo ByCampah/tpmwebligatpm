@@ -498,7 +498,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
 
           {extraStatsObj.length > 0 && (
             <>
-              <h2 className="text-lg font-bold text-blue-400 uppercase tracking-wider border-b border-border pb-2 mt-4">Torneos Extras (No Oficiales)</h2>
+              <h2 className="text-lg font-bold text-blue-400 uppercase tracking-wider border-b border-border pb-2 mt-4">Pretemporada (No Oficiales)</h2>
               <PlayerMetricsClient matchStats={extraStatsObj.map(s => ({
                 goals: (s.goals || 0) + (s.freeKickGoals || 0) + (s.penaltyGoals || 0),
                 assists: s.assists,

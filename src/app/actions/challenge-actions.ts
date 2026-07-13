@@ -1,0 +1,119 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+
+export async function createChallengeTournament(data: { name: string, type: string }) {
+  try {
+    const t = await prisma.challengeTournament.create({
+      data: {
+        name: data.name,
+        type: data.type,
+      }
+    });
+    revalidatePath("/admin/challenges");
+    return { success: true, id: t.id };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteChallengeTournament(id: string) {
+  try {
+    await prisma.challengeTournament.delete({ where: { id } });
+    revalidatePath("/admin/challenges");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function addChallengeParticipant(tournamentId: string, playerId: string) {
+  try {
+    await prisma.challengeParticipant.create({
+      data: {
+        tournamentId,
+        playerId
+      }
+    });
+    revalidatePath(`/admin/challenges/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function removeChallengeParticipant(participantId: string, tournamentId: string) {
+  try {
+    await prisma.challengeParticipant.delete({ where: { id: participantId } });
+    revalidatePath(`/admin/challenges/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function saveChallengeBracketData(tournamentId: string, bracketData: any) {
+  try {
+    await prisma.challengeTournament.update({
+      where: { id: tournamentId },
+      data: { bracketData: JSON.stringify(bracketData) }
+    });
+    revalidatePath(`/admin/challenges/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function saveChallengeGroupsData(tournamentId: string, groupsData: any) {
+  try {
+    await prisma.challengeTournament.update({
+      where: { id: tournamentId },
+      data: { groupsData: JSON.stringify(groupsData) }
+    });
+    revalidatePath(`/admin/challenges/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateChallengeSettings(tournamentId: string, data: { name: string, type: string, status: string }) {
+  try {
+    await prisma.challengeTournament.update({
+      where: { id: tournamentId },
+      data
+    });
+    revalidatePath(`/admin/challenges/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function awardChallengeTrophy(tournamentId: string, playerId: string, rank: 1 | 2 | 3) {
+  try {
+    const t = await prisma.challengeTournament.findUnique({ where: { id: tournamentId } });
+    if (!t) throw new Error("Torneo no encontrado");
+
+    let trophyName = "";
+    if (rank === 1) trophyName = `Campeón ${t.name}`;
+    if (rank === 2) trophyName = `2do Puesto ${t.name}`;
+    if (rank === 3) trophyName = `3er Puesto ${t.name}`;
+
+    await prisma.trophy.create({
+      data: {
+        name: trophyName,
+        type: t.type, // e.g. SHOOTING
+        challengeId: tournamentId,
+        playerId: playerId
+      }
+    });
+
+    revalidatePath(`/admin/challenges/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

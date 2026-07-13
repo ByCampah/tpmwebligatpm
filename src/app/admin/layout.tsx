@@ -50,7 +50,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <span className="group-hover:scale-125 transition-transform">🏆</span> <span>Temporadas y Torneos</span>
             </Link>
             <Link href="/admin/torneos-extra" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-blue-300 hover:bg-blue-900/30 transition-all flex items-center gap-3 group">
-              <span className="group-hover:scale-125 transition-transform">⚡</span> <span>Torneos Extras</span>
+              <span className="group-hover:scale-125 transition-transform">⚡</span> <span>Pretemporada</span>
+            </Link>
+            <Link href="/admin/challenges" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-emerald-300 hover:bg-emerald-900/30 transition-all flex items-center gap-3 group">
+              <span className="group-hover:scale-125 transition-transform">🎮</span> <span>Challenges (1v1)</span>
             </Link>
             <Link href="/admin/graficas" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-blue-300 hover:bg-blue-900/30 transition-all flex items-center gap-3 group">
               <span className="group-hover:scale-125 transition-transform">🎨</span> <span>Generador Gráfico</span>

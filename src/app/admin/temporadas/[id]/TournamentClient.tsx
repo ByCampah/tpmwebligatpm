@@ -1317,8 +1317,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             <h2 className="text-2xl font-black text-primary mb-6">Constructor de Llaves</h2>
             <BracketBuilder 
               tournamentId={tournament.id} 
-              enrolledTeamsData={enrolledTeamsData} 
+              participantsData={enrolledTeamsData} 
               initialData={typeof tournament.bracketData === 'string' ? JSON.parse(tournament.bracketData) : tournament.bracketData} 
+              type="team"
             />
           </div>
         </div>

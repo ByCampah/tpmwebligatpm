@@ -70,7 +70,7 @@ export default async function ExtraTournamentPage(props: { params: Promise<{ id:
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-8">
       <Link href="/extras" className="text-primary hover:underline flex items-center gap-2 w-fit">
-        <span>←</span> Volver a Torneos Extras
+        <span>←</span> Volver a Pretemporada
       </Link>
       
       <header className="flex flex-col gap-2 border-b border-border/50 pb-6">

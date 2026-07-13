@@ -6,7 +6,7 @@ import SeasonView from "@/app/historial/[seasonId]/SeasonView";
 import { getDictionary } from "@/i18n/getDictionary";
 
 export const metadata = {
-  title: "Torneos Extras | TPM",
+  title: "Pretemporada | TPM",
 };
 
 export default async function ExtrasPage() {
@@ -56,7 +56,7 @@ export default async function ExtrasPage() {
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-12">
       <header className="flex flex-col gap-2 border-b border-border pb-6">
-        <h1 className="text-4xl font-black text-blue-400 uppercase">Torneos Extras</h1>
+        <h1 className="text-4xl font-black text-blue-400 uppercase">Pretemporada</h1>
         <p className="text-muted-foreground">
           Historial de torneos relámpago, de pretemporada y amistosos.
         </p>
@@ -65,7 +65,7 @@ export default async function ExtrasPage() {
       {extraTournaments.length === 0 ? (
         <div className="bg-card border border-border p-8 rounded-xl text-center flex flex-col items-center gap-4">
           <Trophy className="w-12 h-12 text-muted-foreground" />
-          <p className="text-lg font-bold text-muted-foreground">No hay torneos extras disputados.</p>
+          <p className="text-lg font-bold text-muted-foreground">No hay Pretemporada disputados.</p>
         </div>
       ) : (
         <>
@@ -95,7 +95,7 @@ export default async function ExtrasPage() {
             <div className="flex flex-col gap-6">
               <h2 className="text-2xl font-black uppercase tracking-wider flex items-center gap-2 border-b border-border pb-2">
                 <span className="w-2 h-6 bg-muted-foreground rounded-full inline-block"></span>
-                Historial de Torneos Extras
+                Historial de Pretemporada
               </h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {historyExtras.map(t => {

@@ -122,7 +122,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
   // Group Plantillas by Season
   const tournamentsBySeason: Record<string, typeof team.tournaments> = {};
   team.tournaments.forEach(t => {
-    const sName = t.tournament.isOfficial ? (t.tournament.season?.name || "Sin Temporada") : "Torneos Extras (No Oficiales)";
+    const sName = t.tournament.isOfficial ? (t.tournament.season?.name || "Sin Temporada") : "Pretemporada (No Oficiales)";
     if (!tournamentsBySeason[sName]) tournamentsBySeason[sName] = [];
     tournamentsBySeason[sName].push(t);
   });
@@ -294,7 +294,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
               </div>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1 items-center justify-center shadow-lg group hover:border-amber-500/50 transition-colors">
-              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center">Torneos Extras</span>
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider text-center">Pretemporada</span>
               <div className="flex gap-4 mt-2">
                 <div className="flex flex-col items-center"><span className="text-2xl font-black text-amber-400">{extraPJ}</span><span className="text-[10px] text-muted-foreground">PJ</span></div>
                 <div className="flex flex-col items-center"><span className="text-2xl font-black text-amber-400">{extraG}</span><span className="text-[10px] text-muted-foreground">GF</span></div>
