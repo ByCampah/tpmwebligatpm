@@ -47,8 +47,8 @@ export default async function HistorialFirmasPage() {
                   <td className="px-4 py-4 flex items-center gap-3">
                     <img src={sig.user?.customAvatarUrl || sig.user?.image || "/img/logos/tpm_logo.png"} className="w-8 h-8 rounded-full border border-white/10" alt="" />
                     <div className="flex flex-col">
-                      <span className="font-bold text-white">{sig.user?.nickName || sig.user?.name || "Desconocido"}</span>
-                      <span className="text-xs text-tpm-primary">{sig.user?.email}</span>
+                      <span className="font-bold text-white">{sig.user?.nickName || "Sin Nick Web"}</span>
+                      <span className="text-xs text-tpm-primary">Discord: {sig.user?.name || "Desconocido"}</span>
                     </div>
                   </td>
                   <td className="px-4 py-4 font-medium text-white">{sig.lobby?.title}</td>

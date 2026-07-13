@@ -21,7 +21,7 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
 
   // Search for DU matches
   // For each signature in this lobby, check if its IP or Fingerprint was used by a DIFFERENT userId
-  const matches: { signatureId: string, dupeNames: string[] }[] = [];
+  const matches: { signatureId: string, dupeNames: string[], byIp: boolean, byFingerprint: boolean }[] = [];
   for (const sig of lobby.signatures) {
     if (!sig.userId) continue;
 
@@ -39,13 +39,20 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
     if (duplicates.length > 0) {
       // deduplicate users to avoid spam
       const uniqueDupeUsers = new Map();
+      let byIp = false;
+      let byFingerprint = false;
+      
       duplicates.forEach(d => {
         if (d.user) uniqueDupeUsers.set(d.user.id, d.user.nickName || d.user.name || "Desconocido");
+        if (d.ip === sig.ip) byIp = true;
+        if (d.fingerprint === sig.fingerprint) byFingerprint = true;
       });
       
       matches.push({
         signatureId: sig.id,
-        dupeNames: Array.from(uniqueDupeUsers.values())
+        dupeNames: Array.from(uniqueDupeUsers.values()),
+        byIp,
+        byFingerprint
       });
     }
   }
@@ -107,7 +114,8 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
                     <td className="px-4 py-4 flex items-center gap-3">
                       <img src={sig.user?.customAvatarUrl || sig.user?.image || "/img/logos/tpm_logo.png"} className="w-8 h-8 rounded-full border border-white/10" alt="" />
                       <div className="flex flex-col">
-                        <span className="font-bold text-white">{sig.user?.nickName || sig.user?.name || "Desconocido"}</span>
+                        <span className="font-bold text-white">{sig.user?.nickName || "Sin Nick Web"}</span>
+                        <span className="text-xs text-tpm-primary">Discord: {sig.user?.name || "Desconocido"}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4">{new Date(sig.createdAt).toLocaleTimeString("es-AR")}</td>
@@ -121,7 +129,10 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
                       {isDupe ? (
                         <div className="inline-flex flex-col items-end">
                           <span className="bg-red-500 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-wider animate-pulse">Posible DU</span>
-                          <span className="text-[10px] text-red-300 mt-1 max-w-[150px]">PC usada por: {isDupe.dupeNames.join(", ")}</span>
+                          <span className="text-[10px] text-red-300 mt-1 max-w-[150px] text-right">Usada por: {isDupe.dupeNames.join(", ")}</span>
+                          <span className="text-[9px] text-red-400 mt-0.5 font-bold uppercase text-right leading-tight">
+                            Coincide por: {isDupe.byIp && "IP"} {isDupe.byIp && isDupe.byFingerprint && "y"} {isDupe.byFingerprint && "Huella (PC)"}
+                          </span>
                         </div>
                       ) : (
                         <span className="bg-green-500/20 text-green-500 text-xs font-bold px-2 py-1 rounded">OK</span>
