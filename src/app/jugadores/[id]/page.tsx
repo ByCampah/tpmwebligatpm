@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import { getDictionary } from "@/i18n/getDictionary";
 import PlayerMetricsClient from "./PlayerMetricsClient";
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const players = await prisma.player.findMany({ select: { id: true } });

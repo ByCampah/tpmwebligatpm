@@ -325,6 +325,8 @@ async function main() {
   }
 
   const dbMatches = [];
+  const playerMatchesPlayed = {};
+
   
   // 3. Create Real Matches
   for (const m of matches) {
@@ -348,52 +350,52 @@ async function main() {
     
     for (const hp of hPlayers) {
       const pEnt = await prisma.player.findUnique({ where: { nick: hp.nick } });
+      let mt = 0;
+      if (!playerMatchesPlayed[hp.nick]) playerMatchesPlayed[hp.nick] = 0;
+      if (playerMatchesPlayed[hp.nick] < hp.pj) {
+        mt = 90;
+        playerMatchesPlayed[hp.nick]++;
+      }
       await prisma.matchStat.create({
-        data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: 0, assists: 0, matchTime: 0 }
+        data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: 0, assists: 0, matchTime: mt }
       });
     }
     for (const ap of aPlayers) {
       const pEnt = await prisma.player.findUnique({ where: { nick: ap.nick } });
+      let mt = 0;
+      if (!playerMatchesPlayed[ap.nick]) playerMatchesPlayed[ap.nick] = 0;
+      if (playerMatchesPlayed[ap.nick] < ap.pj) {
+        mt = 90;
+        playerMatchesPlayed[ap.nick]++;
+      }
       await prisma.matchStat.create({
-        data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: 0, assists: 0, matchTime: 0 }
+        data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: 0, assists: 0, matchTime: mt }
       });
     }
   }
 
-  // 4. Create Historical Matches for Stats
+  // 4. Create ONE Historical Match per team for Stats (Goals and Assists)
   for (const [tName, players] of Object.entries(teamsData)) {
     if (!players || players.length === 0) continue;
-    const maxPj = Math.max(...players.map(p => p.pj));
     
-    for (let matchIdx = 1; matchIdx <= maxPj; matchIdx++) {
-      const dbm = await prisma.match.create({
-        data: {
-          tournament: { connect: { id: liga.id } },
-          homeTeam: { connect: { id: getTeamId(tName) } },
-          awayTeam: { connect: { id: getTeamId(tName) } },
-          homeScore: 0,
-          awayScore: 0,
-          status: "PLAYED",
-          matchDate: new Date(),
-          round: "Histórico"
-        }
-      });
-      
-      for (const p of players) {
-        const pEnt = await prisma.player.findUnique({ where: { nick: p.nick } });
-        if (matchIdx <= p.pj) {
-          const g = matchIdx === 1 ? p.g : 0;
-          const a = matchIdx === 1 ? p.a : 0;
-          
-          await prisma.matchStat.create({
-            data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: g, assists: a, matchTime: 90 }
-          });
-        } else {
-          await prisma.matchStat.create({
-            data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: 0, assists: 0, matchTime: 0 }
-          });
-        }
+    const dbm = await prisma.match.create({
+      data: {
+        tournament: { connect: { id: liga.id } },
+        homeTeam: { connect: { id: getTeamId(tName) } },
+        awayTeam: { connect: { id: getTeamId(tName) } },
+        homeScore: 0,
+        awayScore: 0,
+        status: "PLAYED",
+        matchDate: new Date(),
+        round: "Histórico"
       }
+    });
+    
+    for (const p of players) {
+      const pEnt = await prisma.player.findUnique({ where: { nick: p.nick } });
+      await prisma.matchStat.create({
+        data: { match: { connect: { id: dbm.id } }, player: { connect: { id: pEnt.id } }, goals: p.g, assists: p.a, matchTime: 0 }
+      });
     }
   }
 

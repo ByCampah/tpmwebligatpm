@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getDictionary } from "@/i18n/getDictionary";
 import SeasonView from "@/app/historial/[seasonId]/SeasonView";
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const extraTournaments = await prisma.tournament.findMany({

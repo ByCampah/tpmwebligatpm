@@ -960,6 +960,7 @@ export async function assignTournamentPodium(formData: FormData) {
     revalidatePath("/admin/premios");
     revalidatePath("/jugadores");
     revalidatePath("/equipos");
+    revalidatePath("/trofeos");
     
     await createAdminLog("Asignar Podio", `Asignó el podio del torneo ID: ${tournamentId}`);
 

@@ -7,7 +7,7 @@ import HeadToHeadClient from "./HeadToHeadClient";
 import { getTournamentStyles, getTrophyCategory, formatTrophyName } from "@/lib/colors";
 import TeamConfetti from "@/components/TeamConfetti";
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const teams = await prisma.team.findMany({ select: { id: true } });
