@@ -4,7 +4,8 @@ import ChallengeClient from "./ChallengeClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function ChallengeAdminPage({ params }: { params: { id: string } }) {
+export default async function ChallengeAdminPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const challenge = await prisma.challengeTournament.findUnique({
     where: { id: params.id },
     include: {
