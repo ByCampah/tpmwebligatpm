@@ -4,6 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import { auth, signIn, signOut } from "@/auth";
 import { Home, Newspaper, Trophy, History, Shield, Medal, Users, UserSquare, Store, LogIn } from "lucide-react";
+import VisitTracker from "@/components/VisitTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-transparent`}
       >
+        <VisitTracker />
         <div className="fixed inset-0 z-[-1] bg-[#000000] overflow-hidden pointer-events-none">
           {/* Animated gradient orbs */}
           <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-600/20 blur-[120px] mix-blend-screen animate-pulse-slow"></div>
