@@ -35,7 +35,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
         include: { tournamentTeam: { include: { team: true, tournament: { include: { season: true, category: true } } } } }
       },
       trophies: {
-        include: { tournament: { include: { season: true, category: true } }, team: true },
+        include: { tournament: { include: { season: true, category: true } }, team: true, challenge: true },
         orderBy: { createdAt: "desc" }
       }
     }
@@ -66,7 +66,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
       type: "TEAM",
       OR: rosterData.length > 0 ? rosterData : [{ id: "none" }]
     },
-    include: { tournament: { include: { season: true, category: true } }, team: true, excludedPlayers: { select: { id: true } } },
+    include: { tournament: { include: { season: true, category: true } }, team: true, challenge: true, excludedPlayers: { select: { id: true } } },
     orderBy: { createdAt: "desc" }
   });
 
@@ -76,10 +76,11 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
   const allTrophies = [...jugador.trophies, ...collectiveTrophies];
 
   // Group Trophies (Excluir Nacional B del palmares)
-  const validTrophies = allTrophies.filter(t => {
+  const challengeTrophies = allTrophies.filter(t => t.challengeId != null);
+  const validTrophies = allTrophies.filter(t => t.challengeId == null && (() => {
     const catName = t.tournament?.category?.name || t.tournament?.name || "";
     return !catName.toLowerCase().includes("nacional b");
-  });
+  })());
 
   const officialTrophies = validTrophies.filter(t => t.tournament?.isOfficial !== false);
   const extraTrophies = validTrophies.filter(t => t.tournament?.isOfficial === false);
@@ -212,7 +213,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
         <div className="flex flex-col z-10">
           <span className={`font-black ${styles.textClass} uppercase tracking-wider`}>{formattedName}</span>
           <span className="text-xs text-muted-foreground">
-            {trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : 'Histórico'}
+            {trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : trofeo.challenge ? trofeo.challenge.name : 'Histórico'}
           </span>
           {trofeo.type === 'TEAM' && trofeo.team && (
             <span className="text-[10px] text-muted-foreground/70 uppercase font-semibold mt-0.5 tracking-wide">
@@ -428,6 +429,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
           
           {renderTrophySection(officialTrophies, "Trofeos Oficiales", false)}
           {renderTrophySection(extraTrophies, "Trofeos Extra", true)}
+          {renderTrophySection(challengeTrophies, "Challenges", true)}
         </div>
 
         {/* ESTADISTICAS AVANZADAS */}

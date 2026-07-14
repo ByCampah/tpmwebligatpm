@@ -5,7 +5,7 @@ import TrofeosView from "./TrofeosView";
 import TrofeosJugadoresView from "./TrofeosJugadoresView";
 
 export default function TrofeosTabs({ teams, players, dictionary }: { teams: any[], players: any[], dictionary: any }) {
-  const [typeTab, setTypeTab] = useState<"oficiales" | "extras">("oficiales");
+  const [typeTab, setTypeTab] = useState<"oficiales" | "extras" | "challenges">("oficiales");
   const [entityTab, setEntityTab] = useState<"equipos" | "jugadores">("equipos");
 
   const officialTrophies = [
@@ -23,14 +23,18 @@ export default function TrofeosTabs({ teams, players, dictionary }: { teams: any
     { name: "Copa de Primavera", url: "/img/trofeos/CopaPrimaveraNew.png" }
   ];
 
-  const currentTrophies = typeTab === "oficiales" ? officialTrophies : extraTrophies;
+  const challengeTrophies = [
+    { name: "Challenges TPM", url: "/img/trophy-default.png" }
+  ];
+
+  const currentTrophies = typeTab === "oficiales" ? officialTrophies : typeTab === "extras" ? extraTrophies : challengeTrophies;
 
   return (
     <div className="flex flex-col gap-8">
       {/* Trophies Display */}
       <div className="bg-card border border-border shadow-md rounded-2xl p-6 flex flex-col items-center gap-6">
         <h3 className="text-xl font-black text-muted-foreground uppercase tracking-wider">
-          {typeTab === "oficiales" ? "Trofeos Oficiales" : "Trofeos de Pretemporada"}
+          {typeTab === "oficiales" ? "Trofeos Oficiales" : typeTab === "extras" ? "Trofeos de Pretemporada" : "Trofeos de Challenges"}
         </h3>
         <div className="flex flex-wrap justify-center gap-8 md:gap-12">
           {currentTrophies.map(trophy => (
@@ -61,29 +65,37 @@ export default function TrofeosTabs({ teams, players, dictionary }: { teams: any
           >
             Torneos de Pretemporada
           </button>
+          <button
+            onClick={() => { setTypeTab("challenges"); setEntityTab("jugadores"); }}
+            className={`px-6 py-2 rounded-md font-bold transition-all ${typeTab === "challenges" ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"}`}
+          >
+            Challenges
+          </button>
         </div>
 
         {/* Level 2: Equipos / Jugadores */}
-        <div className="flex gap-6 px-4">
-          <button
-            onClick={() => setEntityTab("equipos")}
-            className={`font-bold pb-1 border-b-2 text-lg transition-colors ${entityTab === "equipos" ? "text-white border-primary" : "text-muted-foreground border-transparent hover:text-white"}`}
-          >
-            Equipos
-          </button>
-          <button
-            onClick={() => setEntityTab("jugadores")}
-            className={`font-bold pb-1 border-b-2 text-lg transition-colors ${entityTab === "jugadores" ? "text-white border-primary" : "text-muted-foreground border-transparent hover:text-white"}`}
-          >
-            Jugadores
-          </button>
-        </div>
+        {typeTab !== "challenges" && (
+          <div className="flex gap-6 px-4">
+            <button
+              onClick={() => setEntityTab("equipos")}
+              className={`font-bold pb-1 border-b-2 text-lg transition-colors ${entityTab === "equipos" ? "text-white border-primary" : "text-muted-foreground border-transparent hover:text-white"}`}
+            >
+              Equipos
+            </button>
+            <button
+              onClick={() => setEntityTab("jugadores")}
+              className={`font-bold pb-1 border-b-2 text-lg transition-colors ${entityTab === "jugadores" ? "text-white border-primary" : "text-muted-foreground border-transparent hover:text-white"}`}
+            >
+              Jugadores
+            </button>
+          </div>
+        )}
       </div>
 
-      {entityTab === "equipos" ? (
+      {entityTab === "equipos" && typeTab !== "challenges" ? (
         <TrofeosView teams={teams} isOfficial={typeTab === "oficiales"} dictionary={dictionary} />
       ) : (
-        <TrofeosJugadoresView players={players} isOfficial={typeTab === "oficiales"} dictionary={dictionary} />
+        <TrofeosJugadoresView players={players} type={typeTab} dictionary={dictionary} />
       )}
     </div>
   );

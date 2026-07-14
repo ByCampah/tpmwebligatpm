@@ -22,7 +22,7 @@ export default async function TrofeosPage() {
     include: {
       trophies: {
         where: { type: "PLAYER" },
-        include: { tournament: { include: { category: true, season: true } } }
+        include: { tournament: { include: { category: true, season: true } }, challenge: true }
       },
       tournamentTeams: {
         include: {

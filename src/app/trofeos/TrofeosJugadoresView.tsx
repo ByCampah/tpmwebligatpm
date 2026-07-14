@@ -20,19 +20,21 @@ type PlayerWithTrophies = {
   trophies: TrophyRecord[];
 };
 
-export default function TrofeosJugadoresView({ players, dictionary, isOfficial = true }: { players: PlayerWithTrophies[], dictionary: any, isOfficial?: boolean }) {
+export default function TrofeosJugadoresView({ players, dictionary, type = "oficiales" }: { players: PlayerWithTrophies[], dictionary: any, type?: "oficiales" | "extras" | "challenges" }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const getRankedPlayers = () => {
     const ranked = players.filter(p => p.nick.toLowerCase().includes(searchTerm.toLowerCase())).map(player => {
-      // Filter trophies based on isOfficial
+      // Filter trophies based on type
       const relevantTrophies = player.trophies.filter(t => {
+        if (type === "challenges") return t.challenge != null;
+        if (t.challenge != null) return false;
         const tIsOfficial = t.tournament?.isOfficial ?? true; // Default true if not specified
-        return tIsOfficial === isOfficial;
+        return type === "oficiales" ? tIsOfficial : !tIsOfficial;
       });
 
       const isMajorTrophy = (t: any) => {
-        const name = t.tournament?.name?.toLowerCase() || "";
+        const name = (t.tournament?.name || t.challenge?.name || "").toLowerCase();
         return !name.includes("nacional b") && !name.includes("segunda");
       };
 
@@ -118,7 +120,7 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
     <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center bg-card p-4 rounded-xl border border-border shadow-sm">
         <h2 className="text-2xl font-black text-primary uppercase">
-          {isOfficial ? "Ranking Oficial de Jugadores" : "Ranking Extra de Jugadores"}
+          {type === "oficiales" ? "Ranking Oficial de Jugadores" : type === "extras" ? "Ranking Extra de Jugadores" : "Ranking de Challenges"}
         </h2>
         <input 
           type="text" 
@@ -166,7 +168,7 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
                   const indBadge = getIndividualBadge(trophy.name);
                   const isIndividual = indBadge !== null;
                   
-                  const tournamentName = trophy.tournament?.name || "Torneo Desconocido";
+                  const tournamentName = trophy.tournament?.name || trophy.challenge?.name || "Torneo Desconocido";
                   const seasonName = trophy.tournament?.season?.name ? ` - ${trophy.tournament.season.name}` : "";
                   const imageUrl = getTrophyImage(tournamentName);
                   
@@ -178,7 +180,7 @@ export default function TrofeosJugadoresView({ players, dictionary, isOfficial =
                     >
                       {isFirst && !isIndividual && (
                         <div className="flex flex-col items-center">
-                          <img src={imageUrl} alt={tournamentName} className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                          <img src={getTrophyImage(trophy.tournament?.name || trophy.challenge?.name)} alt={trophy.name} className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
                         </div>
                       )}
 
