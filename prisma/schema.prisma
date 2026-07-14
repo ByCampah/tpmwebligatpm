@@ -391,6 +391,8 @@ model Signature {
   country     String?        // País en español
   city        String?        // Ciudad
   isp         String?        // Proveedor de internet
+  lat         Float?
+  lon         Float?
   
   createdAt   DateTime       @default(now())
 

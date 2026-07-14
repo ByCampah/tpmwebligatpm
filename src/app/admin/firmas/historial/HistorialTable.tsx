@@ -53,6 +53,11 @@ export default function HistorialTable({ signatures }: { signatures: any[] }) {
                 <td className="px-4 py-4">
                   {sig.city !== "Desconocido" ? `${sig.city}, ${sig.country}` : "Desconocido"}
                   <div className="text-xs text-gray-500 mt-1">Proveedor: {sig.isp}</div>
+                  {(sig.lat !== null && sig.lon !== null && sig.lat !== undefined && sig.lon !== undefined) && (
+                    <div className="text-[10px] text-gray-600 mt-1">
+                      📍 Lat: {sig.lat}, Lon: {sig.lon}
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-4 font-mono text-xs text-blue-300">{sig.ip}</td>
                 <td className="px-4 py-4 font-mono text-xs text-emerald-300">{sig.fingerprint}</td>

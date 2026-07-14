@@ -29,15 +29,19 @@ export async function POST(req: Request) {
     let country = "Desconocido";
     let city = "Desconocido";
     let isp = "Desconocido";
+    let lat: number | null = null;
+    let lon: number | null = null;
 
     if (ip && ip !== "127.0.0.1" && ip !== "::1") {
       try {
-        const geoRes = await fetch(`http://ip-api.com/json/${ip}?fields=country,city,isp,status&lang=es`);
+        const geoRes = await fetch(`http://ip-api.com/json/${ip}?fields=country,city,isp,lat,lon,status&lang=es`);
         const geoData = await geoRes.json();
         if (geoData.status === "success") {
           country = geoData.country || "Desconocido";
           city = geoData.city || "Desconocido";
           isp = geoData.isp || "Desconocido";
+          lat = geoData.lat !== undefined ? geoData.lat : null;
+          lon = geoData.lon !== undefined ? geoData.lon : null;
         }
       } catch (err) {
         console.error("Geo error:", err);
@@ -58,6 +62,8 @@ export async function POST(req: Request) {
         country,
         city,
         isp,
+        lat,
+        lon
       },
       create: {
         lobbyId,
@@ -66,7 +72,9 @@ export async function POST(req: Request) {
         fingerprint,
         country,
         city,
-        isp
+        isp,
+        lat,
+        lon
       }
     });
 
