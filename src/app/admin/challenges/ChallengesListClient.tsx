@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createChallengeTournament, deleteChallengeTournament } from "@/app/actions/challenge-actions";
+import { createChallengeTournament, deleteChallengeTournament, setActiveChallenge } from "@/app/actions/challenge-actions";
 
 export default function ChallengesListClient({ initialChallenges }: { initialChallenges: any[] }) {
   const [challenges, setChallenges] = useState(initialChallenges);
@@ -32,6 +32,17 @@ export default function ChallengesListClient({ initialChallenges }: { initialCha
     setLoading(false);
     if (res.success) {
       setChallenges(challenges.filter(c => c.id !== id));
+    } else {
+      alert("Error: " + res.error);
+    }
+  };
+
+  const handleSetActive = async (id: string) => {
+    setLoading(true);
+    const res = await setActiveChallenge(id);
+    setLoading(false);
+    if (res.success) {
+      window.location.reload();
     } else {
       alert("Error: " + res.error);
     }
@@ -83,21 +94,38 @@ export default function ChallengesListClient({ initialChallenges }: { initialCha
                 </div>
                 
                 <div className="z-10">
-                  <h3 className="font-black text-xl text-primary">{t.name}</h3>
+                  <h3 className="font-black text-xl flex items-center gap-2">
+                    <span className={t.isActiveChallenge ? "text-primary" : "text-white"}>{t.name}</span>
+                    {t.isActiveChallenge && (
+                      <span className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                        ACTIVO
+                      </span>
+                    )}
+                  </h3>
                   <p className="text-sm text-muted-foreground mt-1">Tipo: <span className="font-bold text-white">{t.type}</span></p>
                   <p className="text-sm text-muted-foreground">Estado: {t.status}</p>
                   <p className="text-xs text-muted-foreground mt-2">{t._count.participants} Participantes</p>
                 </div>
 
-                <div className="mt-auto flex gap-2 z-10 pt-4 border-t border-white/5">
-                  <Link 
-                    href={`/admin/challenges/${t.id}`}
-                    className="flex-1 bg-white/10 hover:bg-white/20 text-center py-2 rounded text-sm font-bold text-white transition-colors"
-                  >
-                    Gestionar
-                  </Link>
-                  <button 
-                    onClick={() => handleDelete(t.id)}
+                <div className="mt-auto flex flex-col gap-2 z-10 pt-4 border-t border-white/5">
+                  {!t.isActiveChallenge && (
+                    <button 
+                      onClick={() => handleSetActive(t.id)}
+                      disabled={loading}
+                      className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-center py-2 rounded text-sm font-bold transition-colors"
+                    >
+                      Marcar como Activo
+                    </button>
+                  )}
+                  <div className="flex gap-2">
+                    <Link 
+                      href={`/admin/challenges/${t.id}`}
+                      className="flex-1 bg-white/10 hover:bg-white/20 text-center py-2 rounded text-sm font-bold text-white transition-colors"
+                    >
+                      Gestionar
+                    </Link>
+                    <button 
+                      onClick={() => handleDelete(t.id)}
                     className="bg-destructive/20 hover:bg-destructive/40 text-destructive px-3 rounded text-sm font-bold transition-colors"
                   >
                     🗑️

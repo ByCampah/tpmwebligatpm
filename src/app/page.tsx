@@ -24,6 +24,10 @@ export default async function Home() {
     where: { isActiveExtra: true }
   });
 
+  const activeChallenge = await prisma.challengeTournament.findFirst({
+    where: { isActiveChallenge: true }
+  });
+
   const seasonsHistory = await prisma.season.findMany({
     where: { isActive: false },
     orderBy: { createdAt: "asc" },
@@ -289,10 +293,26 @@ export default async function Home() {
           {activeExtra && (
             <section className="bg-card border border-primary/30 rounded-xl p-6 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
               <h3 className="text-lg font-bold mb-4 uppercase tracking-wider text-primary flex items-center gap-2">
-                <span className="animate-pulse">🏆</span> Torneo Extra Activo
+                <span className="animate-pulse">🏆</span> Pretemporada Actual
               </h3>
               <div className="text-2xl font-black mb-4">{activeExtra.name}</div>
               <Link href="/extras" className="w-full py-3 bg-secondary/80 hover:bg-secondary text-white font-bold rounded-lg border border-border transition-colors flex items-center justify-center gap-2">
+                Ver Torneo &rarr;
+              </Link>
+            </section>
+          )}
+
+          {/* Active Challenge */}
+          {activeChallenge && (
+            <section className="bg-card border border-emerald-500/30 rounded-xl p-6 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+              <h3 className="text-lg font-bold mb-4 uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                <span className="animate-pulse">🎯</span> Challenge Actual
+              </h3>
+              <div className="text-2xl font-black text-white mb-2">{activeChallenge.name}</div>
+              <p className="text-xs text-muted-foreground uppercase font-black mb-4 bg-white/5 inline-block px-2 py-1 rounded">
+                {activeChallenge.type}
+              </p>
+              <Link href={`/challenges/${activeChallenge.id}`} className="w-full py-3 bg-secondary/80 hover:bg-secondary text-white font-bold rounded-lg border border-border transition-colors flex items-center justify-center gap-2">
                 Ver Torneo &rarr;
               </Link>
             </section>

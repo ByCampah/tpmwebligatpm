@@ -28,6 +28,27 @@ export async function deleteChallengeTournament(id: string) {
   }
 }
 
+export async function setActiveChallenge(id: string) {
+  try {
+    // Primero, desactivar todos los challenges
+    await prisma.challengeTournament.updateMany({
+      data: { isActiveChallenge: false }
+    });
+    
+    // Segundo, activar el elegido
+    await prisma.challengeTournament.update({
+      where: { id },
+      data: { isActiveChallenge: true }
+    });
+    
+    revalidatePath("/admin/challenges");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function addChallengeParticipant(tournamentId: string, playerId: string) {
   try {
     await prisma.challengeParticipant.create({

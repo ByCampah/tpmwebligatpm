@@ -403,6 +403,7 @@ model ChallengeTournament {
   name         String
   type         String                 // SHOOTING, FREE_KICK, PENALTYS, VOLLEY
   status       String                 @default("UPCOMING") // UPCOMING, ONGOING, FINISHED
+    isActiveChallenge Boolean       @default(false)
   bracketData  String                 @db.Text @default("{}")
   groupsData   String                 @db.Text @default("[]") // For manual room scores
   createdAt    DateTime               @default(now())
