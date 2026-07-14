@@ -18,7 +18,7 @@ export async function createChallengeTournament(data: { name: string, type: stri
   }
 }
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/auth";
 
 export async function deleteChallengeTournament(id: string) {
   const session = await auth();

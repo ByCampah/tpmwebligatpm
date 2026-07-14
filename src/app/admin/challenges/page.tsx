@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import ChallengesListClient from "./ChallengesListClient";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";

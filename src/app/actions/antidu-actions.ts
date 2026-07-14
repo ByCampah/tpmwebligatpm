@@ -1,7 +1,7 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
 export async function createAntiDuSession(title: string) {
@@ -85,8 +85,7 @@ export async function submitAntiDuResult(data: {
         OR: [
           { ip: data.ip },
           { fingerprint: data.fingerprint }
-        ],
-        nick: { not: data.nick }
+        ]
       }
     });
 

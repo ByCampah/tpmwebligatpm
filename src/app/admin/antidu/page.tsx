@@ -1,6 +1,6 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { auth } from "@/lib/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { createAntiDuSession, deleteAntiDuSession } from "@/app/actions/antidu-actions";
 

@@ -46,10 +46,7 @@ export async function POST(req: Request) {
         OR: [
           { ip: ip },
           { fingerprint: fingerprint }
-        ],
-        // Since signatures use user.discordName but here we use manual Nick, we just find any signature that doesn't match this Nick.
-        // Wait, signature might not have Nick saved (it's linked to User). 
-        // We'll just check if there is ANY signature with this IP/Fingerprint.
+        ]
       }
     });
 
