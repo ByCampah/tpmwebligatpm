@@ -1167,3 +1167,94 @@ export async function renameSeason(id: string, newName: string) {
     return { success: false, error: "Error al renombrar temporada" };
   }
 }
+
+export async function addMultiplePlayersToRoster(tournamentId: string, teamId: string, textList: string) {
+  try {
+    const rawNicks = textList.split(/[\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
+    const added: string[] = [];
+    const notFound: string[] = [];
+    const alreadyExists: string[] = [];
+
+    const allPlayers = await prisma.player.findMany();
+    
+    // Get the specific tournamentTeam
+    const tournamentTeam = await prisma.tournamentTeam.findFirst({
+      where: { tournamentId, teamId }
+    });
+
+    if (!tournamentTeam) return { success: false, error: "Equipo no inscripto en torneo" };
+
+    for (const rawNick of rawNicks) {
+      const lowerNick = rawNick.toLowerCase();
+      const player = allPlayers.find(p => p.nick.toLowerCase() === lowerNick);
+      
+      if (!player) {
+        notFound.push(rawNick);
+        continue;
+      }
+
+      const existing = await prisma.tournamentPlayer.findFirst({
+        where: { tournamentTeamId: tournamentTeam.id, playerId: player.id }
+      });
+
+      if (existing) {
+        alreadyExists.push(player.nick);
+      } else {
+        await prisma.tournamentPlayer.create({
+          data: {
+            tournamentTeamId: tournamentTeam.id,
+            playerId: player.id
+          }
+        });
+        added.push(player.nick);
+      }
+    }
+
+    revalidatePath(`/admin/temporadas/${tournamentId}`);
+    return { success: true, added, notFound, alreadyExists };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function enrollMultipleTeamsToTournament(tournamentId: string, textList: string) {
+  try {
+    const rawNames = textList.split(/[\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
+    const added: string[] = [];
+    const notFound: string[] = [];
+    const alreadyExists: string[] = [];
+
+    const allTeams = await prisma.team.findMany();
+    
+    for (const rawName of rawNames) {
+      const lowerName = rawName.toLowerCase();
+      const team = allTeams.find(t => t.name.toLowerCase() === lowerName);
+      
+      if (!team) {
+        notFound.push(rawName);
+        continue;
+      }
+
+      const existing = await prisma.tournamentTeam.findFirst({
+        where: { tournamentId, teamId: team.id }
+      });
+
+      if (existing) {
+        alreadyExists.push(team.name);
+      } else {
+        await prisma.tournamentTeam.create({
+          data: {
+            tournamentId,
+            teamId: team.id
+          }
+        });
+        added.push(team.name);
+      }
+    }
+
+    revalidatePath(`/admin/temporadas/${tournamentId}`);
+    return { success: true, added, notFound, alreadyExists };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

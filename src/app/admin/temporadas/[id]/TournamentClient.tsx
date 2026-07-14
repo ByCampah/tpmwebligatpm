@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde } from "@/app/actions";
+import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde, addMultiplePlayersToRoster, enrollMultipleTeamsToTournament } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toPng } from 'html-to-image';
@@ -42,6 +42,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
+  const [bulkTeamText, setBulkTeamText] = useState("");
+  const [bulkPlayerText, setBulkPlayerText] = useState("");
 
   const [groupAssignments, setGroupAssignments] = useState<Record<string, string>>(
     Object.fromEntries(tournament.teams.map((t: any) => [t.teamId, t.group || ""]))
@@ -142,6 +144,40 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
       if (!res.success) setError(res.error || "Error");
       setLoading(false);
       router.refresh();
+    }
+  };
+
+  const handleBulkAddTeams = async () => {
+    if (!bulkTeamText.trim()) return;
+    setLoading(true);
+    const res = await enrollMultipleTeamsToTournament(tournament.id, bulkTeamText);
+    setLoading(false);
+    if (res.success) {
+      setBulkTeamText("");
+      let msg = `Se inscribieron ${res.added.length} equipos.`;
+      if (res.notFound.length > 0) msg += `\n\nNo encontrados:\n${res.notFound.join(', ')}`;
+      if (res.alreadyExists.length > 0) msg += `\n\nYa estaban inscriptos:\n${res.alreadyExists.join(', ')}`;
+      alert(msg);
+      router.refresh();
+    } else {
+      alert("Error: " + res.error);
+    }
+  };
+
+  const handleBulkAddPlayers = async (teamId: string) => {
+    if (!bulkPlayerText.trim()) return;
+    setLoading(true);
+    const res = await addMultiplePlayersToRoster(tournament.id, teamId, bulkPlayerText);
+    setLoading(false);
+    if (res.success) {
+      setBulkPlayerText("");
+      let msg = `Se añadieron ${res.added.length} jugadores al plantel.`;
+      if (res.notFound.length > 0) msg += `\n\nNo encontrados:\n${res.notFound.join(', ')}`;
+      if (res.alreadyExists.length > 0) msg += `\n\nYa estaban en el plantel:\n${res.alreadyExists.join(', ')}`;
+      alert(msg);
+      router.refresh();
+    } else {
+      alert("Error: " + res.error);
     }
   };
 
@@ -371,9 +407,26 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
               <button disabled={loading || availableTeams.length === 0} type="submit" className="bg-primary text-primary-foreground font-bold px-8 rounded hover:bg-primary/90 transition-colors py-2 md:py-0">
-                INSCRIBIR
+                INSCRIBIR UNO
               </button>
             </form>
+            
+            <div className="mt-4 pt-4 border-t border-blue-500/30 flex flex-col gap-2">
+              <h4 className="font-bold text-sm text-blue-400 mb-1">Carga Masiva (Varios a la vez)</h4>
+              <textarea 
+                className="w-full bg-black border border-border p-2 rounded focus:outline-none focus:border-primary text-white text-sm min-h-[80px]"
+                placeholder="Pega aquí los nombres de los equipos separados por comas o saltos de línea..."
+                value={bulkTeamText}
+                onChange={e => setBulkTeamText(e.target.value)}
+              />
+              <button 
+                onClick={handleBulkAddTeams}
+                disabled={loading || !bulkTeamText.trim()}
+                className="bg-emerald-600 text-white font-bold px-4 py-2 rounded hover:bg-emerald-500 transition-colors w-fit text-sm"
+              >
+                Inscribir Lista de Equipos
+              </button>
+            </div>
           </div>
 
           {/* LISTA DE EQUIPOS Y PLANTELES */}
@@ -439,9 +492,26 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                           ))}
                         </select>
                         <button disabled={loading} type="submit" className="bg-secondary text-secondary-foreground font-bold px-6 py-2 rounded text-sm hover:bg-secondary/80">
-                          AÑADIR
+                          AÑADIR UNO
                         </button>
                       </form>
+
+                      <div className="mt-4 pt-4 border-t border-emerald-500/30 flex flex-col gap-2">
+                        <h4 className="font-bold text-sm text-emerald-400 mb-1">Carga Masiva (Varios a la vez)</h4>
+                        <textarea 
+                          className="w-full bg-black border border-border p-2 rounded focus:outline-none focus:border-primary text-white text-sm min-h-[80px]"
+                          placeholder="Pega aquí los nicks separados por comas o saltos de línea..."
+                          value={bulkPlayerText}
+                          onChange={e => setBulkPlayerText(e.target.value)}
+                        />
+                        <button 
+                          onClick={() => handleBulkAddPlayers(team.id)}
+                          disabled={loading || !bulkPlayerText.trim()}
+                          className="bg-emerald-600 text-white font-bold px-4 py-2 rounded hover:bg-emerald-500 transition-colors w-fit text-sm"
+                        >
+                          Añadir Lista de Jugadores
+                        </button>
+                      </div>
                     </div>
 
                     <div>

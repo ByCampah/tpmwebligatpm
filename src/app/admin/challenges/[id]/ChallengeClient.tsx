@@ -6,12 +6,14 @@ import {
   addChallengeParticipant, 
   removeChallengeParticipant,
   saveChallengeGroupsData,
-  awardChallengeTrophy
+  awardChallengeTrophy,
+  addMultipleChallengeParticipants
 } from "@/app/actions/challenge-actions";
 import BracketBuilder from "../../temporadas/[id]/BracketBuilder";
 import { useRef, useCallback } from "react";
 import { toPng } from 'html-to-image';
 import { ChallengeSummaryImage } from "@/components/ChallengeSummaryImage";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 export default function ChallengeClient({ challenge, allPlayers }: { challenge: any, allPlayers: any[] }) {
   const [activeTab, setActiveTab] = useState<"PARTICIPANTES" | "GRUPOS" | "LLAVES" | "PREMIOS" | "GRÁFICOS">("PARTICIPANTES");
@@ -39,6 +41,7 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
   // Participantes Tab
   const [playerIdToAdd, setPlayerIdToAdd] = useState("");
   const [loading, setLoading] = useState(false);
+  const [bulkText, setBulkText] = useState("");
 
   const handleAddParticipant = async () => {
     if (!playerIdToAdd) return;
@@ -47,6 +50,26 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
     setLoading(false);
     if (res.success) {
       setPlayerIdToAdd("");
+    } else {
+      alert("Error: " + res.error);
+    }
+  };
+
+  const handleBulkAdd = async () => {
+    if (!bulkText.trim()) return;
+    setLoading(true);
+    const res = await addMultipleChallengeParticipants(challenge.id, bulkText);
+    setLoading(false);
+    if (res.success) {
+      setBulkText("");
+      let msg = `Se añadieron ${res.added.length} jugadores.`;
+      if (res.notFound.length > 0) {
+        msg += `\n\nNo encontrados:\n${res.notFound.join(', ')}`;
+      }
+      if (res.alreadyExists.length > 0) {
+        msg += `\n\nYa estaban anotados:\n${res.alreadyExists.join(', ')}`;
+      }
+      alert(msg);
     } else {
       alert("Error: " + res.error);
     }
@@ -138,24 +161,51 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
       {activeTab === "PARTICIPANTES" && (
         <div className="flex flex-col gap-6">
           <div className="bg-secondary/30 p-6 rounded-xl border border-border">
-            <h2 className="text-xl font-black text-primary mb-4">Añadir Participante</h2>
-            <div className="flex gap-4">
-              <select 
-                className="flex-1 bg-black border border-border p-3 rounded focus:outline-none focus:border-primary text-white"
-                value={playerIdToAdd}
-                onChange={e => setPlayerIdToAdd(e.target.value)}
-              >
-                <option value="">-- Seleccionar Jugador --</option>
-                {allPlayers.filter(p => !challenge.participants.find((cp: any) => cp.playerId === p.id)).map(p => (
-                  <option key={p.id} value={p.id}>{p.nick}</option>
-                ))}
-              </select>
+            <h2 className="text-xl font-black text-primary mb-4">Añadir Participante Individual</h2>
+            
+            <form action={handleAddParticipant} className="flex flex-col gap-4">
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <SearchableSelect
+                    name="playerIdToAdd"
+                    options={allPlayers
+                      .filter(p => !challenge.participants.find((cp: any) => cp.playerId === p.id))
+                      .map(p => ({ value: p.id, label: p.nick }))}
+                    defaultValue={playerIdToAdd}
+                    placeholder="-- Buscar y Seleccionar Jugador --"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="bg-primary text-primary-foreground font-bold px-6 py-2 h-10 rounded hover:bg-primary/90 transition-colors"
+                  onClick={() => {
+                    // Update state from hidden input created by SearchableSelect
+                    const input = document.querySelector('input[name="playerIdToAdd"]') as HTMLInputElement;
+                    if (input) setPlayerIdToAdd(input.value);
+                  }}
+                >
+                  Añadir Uno
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-secondary/30 p-6 rounded-xl border border-border">
+            <h2 className="text-xl font-black text-primary mb-4">Carga Masiva (Varios a la vez)</h2>
+            <div className="flex flex-col gap-4">
+              <textarea 
+                className="w-full bg-black border border-border p-3 rounded focus:outline-none focus:border-primary text-white text-sm min-h-[120px]"
+                placeholder="Pega aquí los nicks separados por comas o saltos de línea... (Ej: Campah, Messi, Cr7)"
+                value={bulkText}
+                onChange={e => setBulkText(e.target.value)}
+              />
               <button 
-                onClick={handleAddParticipant}
-                disabled={loading}
-                className="bg-primary text-primary-foreground font-bold px-6 rounded hover:bg-primary/90 transition-colors"
+                onClick={handleBulkAdd}
+                disabled={loading || !bulkText.trim()}
+                className="bg-emerald-600 text-white font-bold px-6 py-3 rounded hover:bg-emerald-500 transition-colors w-fit"
               >
-                Añadir
+                Añadir Lista Completa
               </button>
             </div>
           </div>

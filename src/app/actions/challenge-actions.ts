@@ -138,3 +138,45 @@ export async function awardChallengeTrophy(tournamentId: string, playerId: strin
     return { success: false, error: error.message };
   }
 }
+export async function addMultipleChallengeParticipants(challengeId: string, textList: string) {
+  try {
+    const rawNicks = textList.split(/[\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
+    const added: string[] = [];
+    const notFound: string[] = [];
+    const alreadyExists: string[] = [];
+
+    const allPlayers = await prisma.player.findMany();
+    
+    for (const rawNick of rawNicks) {
+      const lowerNick = rawNick.toLowerCase();
+      const player = allPlayers.find(p => p.nick.toLowerCase() === lowerNick);
+      
+      if (!player) {
+        notFound.push(rawNick);
+        continue;
+      }
+
+      // Check if already in challenge
+      const existing = await prisma.challengeParticipant.findFirst({
+        where: { playerId: player.id, tournamentId: challengeId }
+      });
+
+      if (existing) {
+        alreadyExists.push(player.nick);
+      } else {
+        await prisma.challengeParticipant.create({
+          data: {
+            playerId: player.id,
+            tournamentId: challengeId
+          }
+        });
+        added.push(player.nick);
+      }
+    }
+
+    revalidatePath(/admin/challenges/);
+    return { success: true, added, notFound, alreadyExists };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
