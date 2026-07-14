@@ -154,9 +154,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     setLoading(false);
     if (res.success) {
       setBulkTeamText("");
-      let msg = `Se inscribieron ${res.added.length} equipos.`;
-      if (res.notFound.length > 0) msg += `\n\nNo encontrados:\n${res.notFound.join(', ')}`;
-      if (res.alreadyExists.length > 0) msg += `\n\nYa estaban inscriptos:\n${res.alreadyExists.join(', ')}`;
+      const added = res.added || [];
+      const notFound = res.notFound || [];
+      const alreadyExists = res.alreadyExists || [];
+      
+      let msg = `Se inscribieron ${added.length} equipos.`;
+      if (notFound.length > 0) msg += `\n\nNo encontrados:\n${notFound.join(', ')}`;
+      if (alreadyExists.length > 0) msg += `\n\nYa estaban inscriptos:\n${alreadyExists.join(', ')}`;
       alert(msg);
       router.refresh();
     } else {
@@ -171,9 +175,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     setLoading(false);
     if (res.success) {
       setBulkPlayerText("");
-      let msg = `Se añadieron ${res.added.length} jugadores al plantel.`;
-      if (res.notFound.length > 0) msg += `\n\nNo encontrados:\n${res.notFound.join(', ')}`;
-      if (res.alreadyExists.length > 0) msg += `\n\nYa estaban en el plantel:\n${res.alreadyExists.join(', ')}`;
+      const added = res.added || [];
+      const notFound = res.notFound || [];
+      const alreadyExists = res.alreadyExists || [];
+      
+      let msg = `Se añadieron ${added.length} jugadores al plantel.`;
+      if (notFound.length > 0) msg += `\n\nNo encontrados:\n${notFound.join(', ')}`;
+      if (alreadyExists.length > 0) msg += `\n\nYa estaban en el plantel:\n${alreadyExists.join(', ')}`;
       alert(msg);
       router.refresh();
     } else {

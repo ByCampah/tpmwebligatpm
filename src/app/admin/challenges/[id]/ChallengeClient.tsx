@@ -62,12 +62,16 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
     setLoading(false);
     if (res.success) {
       setBulkText("");
-      let msg = `Se añadieron ${res.added.length} jugadores.`;
-      if (res.notFound.length > 0) {
-        msg += `\n\nNo encontrados:\n${res.notFound.join(', ')}`;
+      const added = res.added || [];
+      const notFound = res.notFound || [];
+      const alreadyExists = res.alreadyExists || [];
+      
+      let msg = `Se añadieron ${added.length} jugadores.`;
+      if (notFound.length > 0) {
+        msg += `\n\nNo encontrados:\n${notFound.join(', ')}`;
       }
-      if (res.alreadyExists.length > 0) {
-        msg += `\n\nYa estaban anotados:\n${res.alreadyExists.join(', ')}`;
+      if (alreadyExists.length > 0) {
+        msg += `\n\nYa estaban anotados:\n${alreadyExists.join(', ')}`;
       }
       alert(msg);
     } else {
