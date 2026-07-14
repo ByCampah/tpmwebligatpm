@@ -12,6 +12,9 @@ type TrophyRecord = {
     category?: { name: string } | null;
     season?: { name: string } | null;
   } | null;
+  challenge?: {
+    name: string;
+  } | null;
 };
 
 type PlayerWithTrophies = {
