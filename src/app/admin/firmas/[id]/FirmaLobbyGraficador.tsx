@@ -44,7 +44,7 @@ export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, m
           </label>
           <button 
             onClick={handleDownload}
-            className="bg-tpm-primary hover:bg-tpm-primary/80 text-black font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+            className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
             Descargar Imagen
@@ -57,7 +57,7 @@ export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, m
         <div ref={printRef} className="bg-[#0a0a0a] p-8 w-[500px] flex flex-col gap-6 relative">
           {/* Watermark / Logo background */}
           <div className="absolute top-4 right-4 opacity-10 pointer-events-none">
-            <img src="/img/logos/tpm_logo.png" className="w-32 h-32" alt="" crossOrigin="anonymous" />
+            <img src="/img/logos/LogoTPM.png" className="w-32 h-32" alt="" crossOrigin="anonymous" />
           </div>
 
           <div className="z-10 border-b border-white/10 pb-4">
@@ -72,7 +72,7 @@ export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, m
                 <div key={sig.id} className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/5">
                   <div className="flex items-center gap-3">
                     <img 
-                      src={sig.user?.customAvatarUrl || sig.user?.image || "/img/logos/tpm_logo.png"} 
+                      src={sig.user?.customAvatarUrl || sig.user?.image || "/img/logos/LogoTPM.png"} 
                       className="w-8 h-8 rounded-full border border-white/20 object-cover" 
                       crossOrigin="anonymous"
                       alt="" 
