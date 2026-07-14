@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { createChallengeTournament, deleteChallengeTournament, setActiveChallenge } from "@/app/actions/challenge-actions";
 
-export default function ChallengesListClient({ initialChallenges }: { initialChallenges: any[] }) {
+export default function ChallengesListClient({ initialChallenges, isAdmin }: { initialChallenges: any[], isAdmin?: boolean }) {
   const [challenges, setChallenges] = useState(initialChallenges);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
