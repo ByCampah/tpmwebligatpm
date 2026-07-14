@@ -57,9 +57,14 @@ export default function HistorialTable({ signatures }: { signatures: any[] }) {
                   <div className="text-xs text-gray-500 mt-1">Proveedor: {sig.isp}</div>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {(sig.lat !== null && sig.lon !== null && sig.lat !== undefined && sig.lon !== undefined) && (
-                      <div className="text-[10px] text-gray-600 bg-black/30 px-1.5 py-0.5 rounded">
+                      <a 
+                        href={`https://www.google.com/maps?q=${sig.lat},${sig.lon}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] text-gray-400 hover:text-white bg-black/30 hover:bg-black/50 px-1.5 py-0.5 rounded transition-colors"
+                      >
                         📍 {sig.lat}, {sig.lon}
-                      </div>
+                      </a>
                     )}
                     {(sig.isProxy || sig.isHosting) && (
                       <div className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">

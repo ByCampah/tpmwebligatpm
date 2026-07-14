@@ -1,9 +1,10 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import * as htmlToImage from "html-to-image";
 
 export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, matches: any[] }) {
   const printRef = useRef<HTMLDivElement>(null);
+  const [showDiscord, setShowDiscord] = useState(false);
 
   // Filter out inactive signatures so they don't appear in the image
   const activeSignatures = lobby.signatures.filter((s: any) => s.isActive);
@@ -31,13 +32,24 @@ export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, m
     <div className="bg-secondary/20 p-6 rounded-xl border border-white/5 mt-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-lg text-white">Exportar Firmas (Gráfico)</h3>
-        <button 
-          onClick={handleDownload}
-          className="bg-tpm-primary hover:bg-tpm-primary/80 text-black font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-          Descargar Imagen
-        </button>
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+            <input 
+              type="checkbox" 
+              className="rounded bg-black/50 border-white/10 text-tpm-primary focus:ring-tpm-primary"
+              checked={showDiscord}
+              onChange={e => setShowDiscord(e.target.checked)}
+            />
+            Incluir Discord
+          </label>
+          <button 
+            onClick={handleDownload}
+            className="bg-tpm-primary hover:bg-tpm-primary/80 text-black font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            Descargar Imagen
+          </button>
+        </div>
       </div>
       
       {/* Container to export */}
@@ -45,7 +57,7 @@ export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, m
         <div ref={printRef} className="bg-[#0a0a0a] p-8 w-[500px] flex flex-col gap-6 relative">
           {/* Watermark / Logo background */}
           <div className="absolute top-4 right-4 opacity-10 pointer-events-none">
-            <img src="/img/logos/tpm_logo.png" className="w-32 h-32" alt="" />
+            <img src="/img/logos/tpm_logo.png" className="w-32 h-32" alt="" crossOrigin="anonymous" />
           </div>
 
           <div className="z-10 border-b border-white/10 pb-4">
@@ -62,9 +74,13 @@ export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, m
                     <img 
                       src={sig.user?.customAvatarUrl || sig.user?.image || "/img/logos/tpm_logo.png"} 
                       className="w-8 h-8 rounded-full border border-white/20 object-cover" 
+                      crossOrigin="anonymous"
                       alt="" 
                     />
-                    <span className="font-bold text-white text-sm">{sig.user?.nickName || sig.user?.name || "Sin Nombre"}</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-white text-sm">{sig.user?.nickName || sig.user?.name || "Sin Nombre"}</span>
+                      {showDiscord && <span className="text-[10px] text-gray-400">@{sig.user?.name}</span>}
+                    </div>
                   </div>
                   <div>
                     {isDupe ? (
