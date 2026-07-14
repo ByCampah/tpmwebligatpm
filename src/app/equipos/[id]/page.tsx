@@ -153,7 +153,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
           <div className="flex flex-col z-10 items-center">
             <span className={`font-black text-xl ${styles.textClass} uppercase tracking-widest drop-shadow-md`}>{formattedName}</span>
             <span className="text-sm font-bold text-white/90 uppercase tracking-wider mt-1">
-              {trofeo.tournament ? trofeo.tournament.name : 'Histórico'}
+              {trofeo.tournament ? trofeo.tournament.name : trofeo.challenge ? trofeo.challenge.name : 'Histórico'}
             </span>
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none z-0"></div>
@@ -175,7 +175,7 @@ export default async function EquipoProfilePage(props: { params: Promise<{ id: s
         </div>
         <div className="flex flex-col z-10">
           <span className={`font-black ${styles.textClass} uppercase tracking-wider`}>{formattedName}</span>
-          <span className="text-xs text-muted-foreground">{trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : 'Histórico'}</span>
+          <span className="text-xs text-muted-foreground">{trofeo.tournament ? `${trofeo.tournament.name} - ${trofeo.tournament.isOfficial ? (trofeo.tournament.season?.name || '') : 'Extra'}` : trofeo.challenge ? trofeo.challenge.name : 'Histórico'}</span>
         </div>
         <div className="absolute -right-4 -bottom-4 opacity-5 text-8xl z-0 pointer-events-none">
           {styles.icon}

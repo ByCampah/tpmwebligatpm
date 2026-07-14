@@ -185,7 +185,7 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
           <div className="flex flex-col z-10 items-center">
             <span className={`font-black text-xl ${styles.textClass} uppercase tracking-widest drop-shadow-md`}>{formattedName}</span>
             <span className="text-sm font-bold text-white/90 uppercase tracking-wider mt-1">
-              {trofeo.tournament ? `${trofeo.tournament.name}${trofeo.tournament.isOfficial ? ` - ${trofeo.tournament.season?.name || ''}` : ''}` : 'Histórico'}
+              {trofeo.tournament ? `${trofeo.tournament.name}${trofeo.tournament.isOfficial ? ` - ${trofeo.tournament.season?.name || ''}` : ''}` : trofeo.challenge ? trofeo.challenge.name : 'Histórico'}
             </span>
             {trofeo.type === 'TEAM' && trofeo.team && (
               <span className="text-xs font-semibold text-muted-foreground/80 mt-0.5 uppercase tracking-wide">
