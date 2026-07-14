@@ -24,7 +24,10 @@ export default function TrofeosTabs({ teams, players, dictionary }: { teams: any
   ];
 
   const challengeTrophies = [
-    { name: "Challenges TPM", url: "/img/trophy-default.png" }
+    { name: "Shooting", url: "/img/trofeos/trofeo_shooting.png" },
+    { name: "Free Kick", url: "/img/trofeos/trofeo_freekick.png" },
+    { name: "Penalty", url: "/img/trofeos/trofeo_penaltys.png" },
+    { name: "Volley", url: "/img/trofeos/trofeo_volley.png" }
   ];
 
   const currentTrophies = typeTab === "oficiales" ? officialTrophies : typeTab === "extras" ? extraTrophies : challengeTrophies;

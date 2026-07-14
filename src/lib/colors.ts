@@ -18,6 +18,53 @@ export function getTournamentStyles(trophyName: string, tournamentName: string) 
     return { textClass: "text-teal-400", bgClass: "bg-teal-500/10", borderClass: "border-teal-500/30", icon: "🧤" };
   }
 
+  // Challenges
+  if (combined.includes("shooting")) {
+    return {
+      textClass: "text-emerald-400",
+      bgClass: "bg-emerald-500/10",
+      borderClass: "border-emerald-500/30",
+      icon: defaultIcon,
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/trofeo_shooting.png' })
+    };
+  }
+  if (combined.includes("freekick") || combined.includes("tiro libre")) {
+    return {
+      textClass: "text-orange-400",
+      bgClass: "bg-orange-500/10",
+      borderClass: "border-orange-500/30",
+      icon: defaultIcon,
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/trofeo_freekick.png' })
+    };
+  }
+  if (combined.includes("penalty") || combined.includes("penales")) {
+    return {
+      textClass: "text-blue-400",
+      bgClass: "bg-blue-500/10",
+      borderClass: "border-blue-500/30",
+      icon: defaultIcon,
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/trofeo_penaltys.png' })
+    };
+  }
+  if (combined.includes("volley") || combined.includes("volea")) {
+    return {
+      textClass: "text-purple-400",
+      bgClass: "bg-purple-500/10",
+      borderClass: "border-purple-500/30",
+      icon: defaultIcon,
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/trofeo_volley.png' })
+    };
+  }
+  if (combined.includes("challenge")) {
+    return {
+      textClass: "text-emerald-500",
+      bgClass: "bg-emerald-500/10",
+      borderClass: "border-emerald-500/30",
+      icon: defaultIcon,
+      ...(isFirstPlace && { imageSrc: '/img/trofeos/trofeo_shooting.png' }) // fallback
+    };
+  }
+
   // Supercopa TPM
   if (combined.includes("supercopa")) {
     return {

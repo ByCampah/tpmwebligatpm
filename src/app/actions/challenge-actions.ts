@@ -123,14 +123,32 @@ export async function awardChallengeTrophy(tournamentId: string, playerId: strin
     if (rank === 2) trophyName = `2do Puesto ${t.name}`;
     if (rank === 3) trophyName = `3er Puesto ${t.name}`;
 
-    await prisma.trophy.create({
-      data: {
-        name: trophyName,
-        type: t.type, // e.g. SHOOTING
+    // Find existing trophy for this rank and challenge
+    const existing = await prisma.trophy.findFirst({
+      where: {
         challengeId: tournamentId,
-        playerId: playerId
+        name: trophyName
       }
     });
+
+    if (existing) {
+      await prisma.trophy.update({
+        where: { id: existing.id },
+        data: {
+          playerId: playerId,
+          type: "PLAYER" // ensure it's correct
+        }
+      });
+    } else {
+      await prisma.trophy.create({
+        data: {
+          name: trophyName,
+          type: "PLAYER", // Must be PLAYER so it shows up in TrofeosJugadoresView
+          challengeId: tournamentId,
+          playerId: playerId
+        }
+      });
+    }
 
     revalidatePath(`/admin/challenges/${tournamentId}`);
     revalidatePath("/challenges");

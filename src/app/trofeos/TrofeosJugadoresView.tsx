@@ -14,6 +14,7 @@ type TrophyRecord = {
   } | null;
   challenge?: {
     name: string;
+    type: string;
   } | null;
 };
 
@@ -98,10 +99,16 @@ export default function TrofeosJugadoresView({ players, dictionary, type = "ofic
 
   const rankedPlayers = getRankedPlayers();
 
-  const getTrophyImage = (tournamentName: string | undefined): string => {
-    if (!tournamentName) return '/img/trophy-default.png';
+  const getTrophyImage = (tournamentName: string, t?: TrophyRecord): string => {
+    if (t?.challenge) {
+      if (t.challenge.type === "SHOOTING") return "/img/trofeos/trofeo_shooting.png";
+      if (t.challenge.type === "FREE_KICK") return "/img/trofeos/trofeo_freekick.png";
+      if (t.challenge.type === "PENALTYS") return "/img/trofeos/trofeo_penaltys.png";
+      if (t.challenge.type === "VOLLEY") return "/img/trofeos/trofeo_volley.png";
+      return "/img/trofeos/trofeo_shooting.png";
+    }
+
     const normalized = tournamentName.toLowerCase();
-    
     if (normalized.includes('supercopa')) return '/img/trofeos/SupercopaTPMNew.png';
     if (normalized.includes('promesas')) return '/img/trofeos/CopaDePromesasNew.png';
     if (normalized.includes('copa tpm') || (normalized.includes('copa') && !normalized.includes('liga'))) return '/img/trofeos/CopaTPMNew.png';
@@ -143,7 +150,6 @@ export default function TrofeosJugadoresView({ players, dictionary, type = "ofic
           rankedPlayers.map((player, index) => (
             <div key={player.id} className="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row gap-6 items-center shadow-lg hover:border-primary/50 transition-all">
               
-              {/* Pos & Player Info */}
               <div className="flex items-center gap-4 min-w-[250px] w-full md:w-auto border-b md:border-b-0 md:border-r border-border pb-4 md:pb-0 md:pr-6">
                 <div className="text-3xl font-black text-muted-foreground/30 w-10 text-center">
                   #{index + 1}
@@ -161,19 +167,18 @@ export default function TrofeosJugadoresView({ players, dictionary, type = "ofic
                 </div>
               </div>
 
-              {/* Trophies Visuals */}
               <div className="flex flex-wrap items-center gap-4 w-full flex-1">
                 {player.allTrophies.map((trophy) => {
                   const isFirst = trophy.name.includes("Campeón") || trophy.name === "Campeon";
                   const isSecond = trophy.name.includes("Subcampeón") || trophy.name === "Subcampeon";
-                  const isThird = trophy.name.includes("Tercer") || trophy.name.includes("3er");
+                  const isThird = trophy.name.includes("Tercer") || trophy.name === "3er";
                   
                   const indBadge = getIndividualBadge(trophy.name);
                   const isIndividual = indBadge !== null;
                   
                   const tournamentName = trophy.tournament?.name || trophy.challenge?.name || "Torneo Desconocido";
                   const seasonName = trophy.tournament?.season?.name ? ` - ${trophy.tournament.season.name}` : "";
-                  const imageUrl = getTrophyImage(tournamentName);
+                  const imageUrl = getTrophyImage(tournamentName, trophy);
                   
                   return (
                     <div 
@@ -183,7 +188,7 @@ export default function TrofeosJugadoresView({ players, dictionary, type = "ofic
                     >
                       {isFirst && !isIndividual && (
                         <div className="flex flex-col items-center">
-                          <img src={getTrophyImage(trophy.tournament?.name || trophy.challenge?.name)} alt={trophy.name} className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                          <img src={imageUrl} alt={trophy.name} className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
                         </div>
                       )}
 
