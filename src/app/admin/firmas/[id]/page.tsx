@@ -3,6 +3,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import AdminFirmaClientCopier from "./AdminFirmaClientCopier";
 import FirmaLobbyTable from "./FirmaLobbyTable";
+import FirmaLobbyGraficador from "./FirmaLobbyGraficador";
 
 export const dynamic = "force-dynamic";
 
@@ -105,6 +106,7 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
       </div>
 
       <FirmaLobbyTable lobby={lobby} matches={matches} />
+      <FirmaLobbyGraficador lobby={lobby} matches={matches} />
     </div>
   );
 }
