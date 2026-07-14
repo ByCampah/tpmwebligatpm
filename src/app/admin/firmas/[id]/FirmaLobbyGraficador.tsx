@@ -95,8 +95,8 @@ export default function FirmaLobbyGraficador({ lobby, matches }: { lobby: any, m
           </div>
 
           <div className="z-10 pt-4 mt-2 border-t border-white/10 flex justify-between items-center text-xs text-gray-500">
-            <span>Generado automáticamente</span>
-            <span>ligatpm.com</span>
+            <span>ByCampah</span>
+            <span>TPM Sudamerica</span>
           </div>
         </div>
       </div>
