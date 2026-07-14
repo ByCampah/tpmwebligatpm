@@ -36,6 +36,7 @@ export default function HistorialTable({ signatures }: { signatures: any[] }) {
               <th className="px-4 py-3">Ubicación (Idioma local)</th>
               <th className="px-4 py-3">IP Pública</th>
               <th className="px-4 py-3">Huella Única (PC)</th>
+              <th className="px-4 py-3 text-right">Estado</th>
             </tr>
           </thead>
           <tbody>
@@ -74,6 +75,19 @@ export default function HistorialTable({ signatures }: { signatures: any[] }) {
                 </td>
                 <td className="px-4 py-4 font-mono text-xs text-blue-300">{sig.ip}</td>
                 <td className="px-4 py-4 font-mono text-xs text-emerald-300">{sig.fingerprint}</td>
+                <td className="px-4 py-4 text-right">
+                  <button 
+                    onClick={async () => {
+                      if(confirm(sig.isActive ? "¿Desactivar firma?" : "¿Activar firma?")) {
+                        const { toggleSignatureActive } = await import("../actions");
+                        await toggleSignatureActive(sig.id, location.pathname);
+                      }
+                    }}
+                    className={`text-[10px] px-2 py-1 rounded font-bold border transition-colors ${sig.isActive ? "text-gray-400 border-gray-600/50 hover:bg-gray-600/20" : "text-yellow-500 border-yellow-500/50 hover:bg-yellow-500/20 bg-yellow-500/10"}`}
+                  >
+                    {sig.isActive ? "Activa" : "Inactiva"}
+                  </button>
+                </td>
               </tr>
             ))}
             {filteredSignatures.length === 0 && (

@@ -397,6 +397,7 @@ model Signature {
   isProxy     Boolean        @default(false)
   isHosting   Boolean        @default(false)
   isMobile    Boolean        @default(false)
+  isActive    Boolean        @default(true)
   
   createdAt   DateTime       @default(now())
 

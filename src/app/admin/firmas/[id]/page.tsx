@@ -24,10 +24,11 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
   // For each signature in this lobby, check if its IP or Fingerprint was used by a DIFFERENT userId
   const matches: { signatureId: string, dupeNames: string[], byIp: boolean, byFingerprint: boolean }[] = [];
   for (const sig of lobby.signatures) {
-    if (!sig.userId) continue;
+    if (!sig.userId || !sig.isActive) continue;
 
     const duplicates = await prisma.signature.findMany({
       where: {
+        isActive: true,
         OR: [
           { ip: sig.ip },
           { fingerprint: sig.fingerprint }
@@ -84,11 +85,23 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
           </div>
         </div>
         
-        <form action={toggleStatus}>
-          <button type="submit" className={`px-6 py-3 font-bold rounded-xl transition-all shadow-lg ${lobby.status === 'OPEN' ? 'bg-red-500/20 text-red-500 hover:bg-red-500/40 border border-red-500/50' : 'bg-green-500/20 text-green-500 hover:bg-green-500/40 border border-green-500/50'}`}>
-            {lobby.status === 'OPEN' ? 'Cerrar Sala' : 'Reabrir Sala'}
-          </button>
-        </form>
+        <div className="flex flex-col md:flex-row gap-2">
+          <form action={toggleStatus}>
+            <button type="submit" className={`px-6 py-3 font-bold rounded-xl transition-all shadow-lg ${lobby.status === 'OPEN' ? 'bg-red-500/20 text-red-500 hover:bg-red-500/40 border border-red-500/50' : 'bg-green-500/20 text-green-500 hover:bg-green-500/40 border border-green-500/50'}`}>
+              {lobby.status === 'OPEN' ? 'Cerrar Sala' : 'Reabrir Sala'}
+            </button>
+          </form>
+          <form action={async () => {
+            "use server";
+            await prisma.signatureLobby.delete({ where: { id: lobby?.id } });
+            const { redirect } = await import("next/navigation");
+            redirect("/admin/firmas");
+          }}>
+            <button type="submit" className="px-6 py-3 font-bold rounded-xl transition-all shadow-lg bg-gray-500/20 text-gray-400 hover:bg-red-500/40 hover:text-white border border-gray-500/50 hover:border-red-500/50">
+              Eliminar Sala
+            </button>
+          </form>
+        </div>
       </div>
 
       <FirmaLobbyTable lobby={lobby} matches={matches} />

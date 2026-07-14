@@ -76,17 +76,40 @@ export default function FirmaLobbyTable({ lobby, matches }: { lobby: any, matche
                   <td className="px-4 py-4 font-mono text-xs text-gray-400">{sig.ip}</td>
                   <td className="px-4 py-4 font-mono text-xs text-gray-400">{sig.fingerprint}</td>
                   <td className="px-4 py-4 text-right">
-                    {isDupe ? (
-                      <div className="inline-flex flex-col items-end">
-                        <span className="bg-red-500 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-wider animate-pulse">Posible DU</span>
-                        <span className="text-[10px] text-red-300 mt-1 max-w-[150px] text-right">Usada por: {isDupe.dupeNames.join(", ")}</span>
-                        <span className="text-[9px] text-red-400 mt-0.5 font-bold uppercase text-right leading-tight">
-                          Coincide por: {isDupe.byIp && "IP"} {isDupe.byIp && isDupe.byFingerprint && "y"} {isDupe.byFingerprint && "Huella (PC)"}
-                        </span>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex gap-2 items-center">
+                        <button 
+                          onClick={async () => {
+                            if(confirm(sig.isActive ? "¿Desactivar firma? (Dejará de contar para DU)" : "¿Activar firma?")) {
+                              const { toggleSignatureActive } = await import("../actions");
+                              await toggleSignatureActive(sig.id, location.pathname);
+                            }
+                          }}
+                          className={`text-[10px] px-2 py-1 rounded font-bold border transition-colors ${sig.isActive ? "text-gray-400 border-gray-600/50 hover:bg-gray-600/20" : "text-yellow-500 border-yellow-500/50 hover:bg-yellow-500/20 bg-yellow-500/10"}`}
+                        >
+                          {sig.isActive ? "Desactivar" : "Inactiva"}
+                        </button>
+
+                        {isDupe && sig.isActive ? (
+                          <div className="inline-flex flex-col items-end">
+                            <span className="bg-red-500 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-wider animate-pulse">Posible DU</span>
+                          </div>
+                        ) : sig.isActive ? (
+                          <span className="bg-green-500/20 text-green-500 text-xs font-bold px-2 py-1 rounded">OK</span>
+                        ) : (
+                          <span className="bg-gray-500/20 text-gray-500 text-xs font-bold px-2 py-1 rounded">IGNORADA</span>
+                        )}
                       </div>
-                    ) : (
-                      <span className="bg-green-500/20 text-green-500 text-xs font-bold px-2 py-1 rounded">OK</span>
-                    )}
+
+                      {isDupe && sig.isActive && (
+                        <div className="flex flex-col items-end">
+                          <span className="text-[10px] text-red-300 max-w-[150px] text-right">Usada por: {isDupe.dupeNames.join(", ")}</span>
+                          <span className="text-[9px] text-red-400 mt-0.5 font-bold uppercase text-right leading-tight">
+                            Coincide por: {isDupe.byIp && "IP"} {isDupe.byIp && isDupe.byFingerprint && "y"} {isDupe.byFingerprint && "Huella (PC)"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
