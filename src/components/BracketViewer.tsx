@@ -41,11 +41,21 @@ export default function BracketViewer({ bracketData, teams, type = "team" }: Bra
                 const winnerB = match.scoreB > match.scoreA || (match.scoreA === match.scoreB && match.penB > match.penA);
 
                 return (
-                  <div key={match.id} className={`relative flex flex-col justify-center my-2 min-w-[140px] sm:min-w-[170px] ${match.isThirdPlace ? 'mt-8' : ''}`}>
-                    {match.label && <div className="text-center text-[10px] font-bold text-muted-foreground uppercase mb-1">{match.label}</div>}
+                  <div key={match.id} className={`relative flex flex-col justify-center my-2 min-w-[140px] sm:min-w-[170px] min-h-[60px] ${match.isThirdPlace ? 'mt-8' : ''}`}>
+                    {match.nodeType === "spacer" && <div className="w-full h-full min-h-[70px]"></div>}
                     
-                    {/* Visual Connector lines for next round */}
-                    {rIndex < bracketData.rounds.length - 1 && !match.isThirdPlace && (
+                    {match.nodeType === "title" && (
+                      <div className="w-full text-center font-black text-primary/80 uppercase tracking-widest text-sm py-4 border-b border-primary/20">
+                        {match.titleText || "TITULO"}
+                      </div>
+                    )}
+
+                    {(!match.nodeType || match.nodeType === "match") && (
+                      <>
+                        {match.label && <div className="text-center text-[10px] font-bold text-muted-foreground uppercase mb-1">{match.label}</div>}
+                        
+                        {/* Visual Connector lines for next round */}
+                        {rIndex < bracketData.rounds.length - 1 && !match.isThirdPlace && (
                       <>
                         <div className="absolute w-4 border-t-2 border-border/50 right-[-16px] top-1/2"></div>
                         {mIndex % 2 === 0 ? (
@@ -112,6 +122,8 @@ export default function BracketViewer({ bracketData, teams, type = "team" }: Bra
                     {/* Connector line from previous round */}
                     {rIndex > 0 && !match.isThirdPlace && (
                       <div className="absolute w-4 border-t-2 border-border/50 left-[-16px] top-1/2"></div>
+                    )}
+                    </>
                     )}
                   </div>
                 );

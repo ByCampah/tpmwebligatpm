@@ -65,10 +65,13 @@ export default function BracketBuilder({ tournamentId, participantsData, initial
     setBracket(newBracket);
   };
 
-  const addMatch = (roundIndex: number) => {
+  const addMatch = (roundIndex: number, nodeType: "match" | "spacer" | "title" = "match") => {
     const newBracket = { ...bracket };
     newBracket.rounds[roundIndex].matches.push({
-      id: `m_${Date.now()}`, teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: ""
+      id: `m_${Date.now()}`, 
+      nodeType,
+      teamA: "", teamB: "", scoreA: "", scoreB: "", penA: "", penB: "",
+      titleText: nodeType === "title" ? "NUEVO TÍTULO" : ""
     });
     setBracket(newBracket);
   };
@@ -148,31 +151,51 @@ export default function BracketBuilder({ tournamentId, participantsData, initial
               
               <div className="flex flex-col justify-center flex-1 gap-4">
                 {round.matches.map((match: any, mIndex: number) => (
-                  <div key={match.id} className="bg-card border border-border rounded-lg p-3 shadow-md flex flex-col gap-2 relative z-10 group">
+                  <div key={match.id} className="bg-card border border-border rounded-lg p-3 shadow-md flex flex-col gap-2 relative z-10 group min-h-[60px]">
                     <button 
                       onClick={() => removeMatch(rIndex, mIndex)} 
-                      className="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity z-20"
                     >
                       X
                     </button>
                     
-                    {match.label ? (
-                      <input 
-                        type="text" 
-                        value={match.label} 
-                        onChange={e => updateMatch(rIndex, mIndex, "label", e.target.value)}
-                        className="text-center text-xs font-bold text-muted-foreground uppercase bg-transparent border-b border-border outline-none w-full mb-1"
-                      />
-                    ) : (
-                      <button 
-                        onClick={() => updateMatch(rIndex, mIndex, "label", "Título Opcional")}
-                        className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground text-center"
-                      >
-                        + Título Sup.
-                      </button>
+                    {match.nodeType === "spacer" && (
+                      <div className="w-full h-full min-h-[70px] flex items-center justify-center text-muted-foreground/30 border-2 border-dashed border-border/10 rounded-lg">
+                        ESPACIO VACÍO
+                      </div>
                     )}
                     
-                    {/* Elemento A */}
+                    {match.nodeType === "title" && (
+                      <div className="w-full text-center flex flex-col justify-center py-4">
+                        <input 
+                          type="text" 
+                          value={match.titleText || ""} 
+                          onChange={e => updateMatch(rIndex, mIndex, "titleText", e.target.value)}
+                          className="bg-transparent font-black text-primary/80 uppercase tracking-widest text-sm text-center outline-none border-b border-primary/20 w-full"
+                          placeholder="TITULO AQUÍ"
+                        />
+                      </div>
+                    )}
+
+                    {(!match.nodeType || match.nodeType === "match") && (
+                      <>
+                        {match.label ? (
+                          <input 
+                            type="text" 
+                            value={match.label} 
+                            onChange={e => updateMatch(rIndex, mIndex, "label", e.target.value)}
+                            className="text-center text-xs font-bold text-muted-foreground uppercase bg-transparent border-b border-border outline-none w-full mb-1"
+                          />
+                        ) : (
+                          <button 
+                            onClick={() => updateMatch(rIndex, mIndex, "label", "Título Opcional")}
+                            className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground text-center"
+                          >
+                            + Título Sup.
+                          </button>
+                        )}
+                        
+                        {/* Elemento A */}
                     <div className="flex items-center gap-2">
                       {renderSelect(match, "teamA", rIndex, mIndex)}
                       <input 
@@ -211,16 +234,36 @@ export default function BracketBuilder({ tournamentId, participantsData, initial
                         onChange={e => updateMatch(rIndex, mIndex, "penB", e.target.value)}
                       />
                     </div>
+                      </>
+                    )}
 
                   </div>
                 ))}
               </div>
-              <button 
-                onClick={() => addMatch(rIndex)}
-                className="w-full py-2 bg-white/5 hover:bg-white/10 border border-dashed border-white/20 rounded text-xs text-muted-foreground transition-colors"
-              >
-                + Añadir Partido
-              </button>
+              
+              <div className="flex flex-col gap-1 w-full">
+                <button 
+                  onClick={() => addMatch(rIndex, "match")}
+                  className="w-full py-2 bg-white/5 hover:bg-white/10 border border-dashed border-white/20 rounded text-xs text-muted-foreground transition-colors"
+                >
+                  + Añadir Partido
+                </button>
+                <div className="flex gap-1 w-full">
+                  <button 
+                    onClick={() => addMatch(rIndex, "spacer")}
+                    className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 border border-dashed border-white/20 rounded text-[10px] text-muted-foreground transition-colors"
+                  >
+                    + Espacio
+                  </button>
+                  <button 
+                    onClick={() => addMatch(rIndex, "title")}
+                    className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 border border-dashed border-white/20 rounded text-[10px] text-muted-foreground transition-colors"
+                  >
+                    + Título
+                  </button>
+                </div>
+              </div>
+
             </div>
           ))}
           {bracket.rounds.length === 0 && (
