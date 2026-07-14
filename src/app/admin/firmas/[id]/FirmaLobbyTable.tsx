@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-export default function FirmaLobbyTable({ lobby, matches }: { lobby: any, matches: any[] }) {
+export default function FirmaLobbyTable({ lobby, matches, isAdmin }: { lobby: any, matches: any[], isAdmin: boolean }) {
   const [search, setSearch] = useState("");
 
   const filteredSignatures = lobby.signatures.filter((sig: any) => {
@@ -32,15 +32,21 @@ export default function FirmaLobbyTable({ lobby, matches }: { lobby: any, matche
             <tr>
               <th className="px-4 py-3">Jugador / Discord</th>
               <th className="px-4 py-3">Fecha</th>
-              <th className="px-4 py-3">Ubicación</th>
-              <th className="px-4 py-3">IP</th>
-              <th className="px-4 py-3">Huella de PC</th>
+              {isAdmin && (
+                <>
+                  <th className="px-4 py-3">Ubicación</th>
+                  <th className="px-4 py-3">IP</th>
+                  <th className="px-4 py-3">Huella de PC</th>
+                </>
+              )}
               <th className="px-4 py-3 text-right">Alerta DU</th>
             </tr>
           </thead>
           <tbody>
             {filteredSignatures.map((sig: any) => {
               const isDupe = matches.find(m => m.signatureId === sig.id);
+              const isDuIp = isDupe?.byIp;
+              const isDuFp = isDupe?.byFingerprint;
               return (
                 <tr key={sig.id} className={`border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors ${isDupe ? 'bg-red-500/10' : ''}`}>
                   <td className="px-4 py-4 flex items-center gap-3">
@@ -50,36 +56,32 @@ export default function FirmaLobbyTable({ lobby, matches }: { lobby: any, matche
                       <span className="text-xs text-tpm-primary">Discord: {sig.user?.name || "Desconocido"}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-4">{new Date(sig.createdAt).toLocaleTimeString("es-AR")}</td>
-                  <td className="px-4 py-4">
-                    {sig.city !== "Desconocido" ? `${sig.city}, ${sig.country}` : "Desconocido"}
-                    {sig.zip && <span className="ml-1 text-gray-400">({sig.zip})</span>}
-                    <div className="text-xs text-gray-500">{sig.isp}</div>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {(sig.lat !== null && sig.lon !== null && sig.lat !== undefined && sig.lon !== undefined) && (
-                        <a 
-                          href={`https://www.google.com/maps?q=${sig.lat},${sig.lon}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[10px] text-gray-400 hover:text-white bg-black/30 hover:bg-black/50 px-1.5 py-0.5 rounded transition-colors"
-                        >
-                          📍 {sig.lat}, {sig.lon}
-                        </a>
-                      )}
-                      {(sig.isProxy || sig.isHosting) && (
-                        <div className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">
-                          🛡️ VPN / PROXY
-                        </div>
-                      )}
-                      {sig.isMobile && (
-                        <div className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">
-                          📱 DATOS MÓVILES
-                        </div>
-                      )}
-                    </div>
+                  <td className="px-4 py-4 text-xs text-gray-500 whitespace-nowrap">
+                    {new Date(sig.createdAt).toLocaleString()}
                   </td>
-                  <td className="px-4 py-4 font-mono text-xs text-gray-400">{sig.ip}</td>
-                  <td className="px-4 py-4 font-mono text-xs text-gray-400">{sig.fingerprint}</td>
+                  {isAdmin && (
+                    <>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-300">{sig.country || "Desconocido"}</span>
+                          <span className="text-xs text-gray-500">{sig.city || "-"}</span>
+                          <span className="text-[10px] text-gray-600 mt-1" title="ISP">{sig.isp}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 font-mono text-xs text-gray-400 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          {sig.ip}
+                          {isDuIp && <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" title="IP Duplicada"></span>}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 font-mono text-[10px] text-gray-500 max-w-[120px] truncate">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate">{sig.fingerprint}</span>
+                          {isDuFp && <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" title="Huella Duplicada"></span>}
+                        </div>
+                      </td>
+                    </>
+                  )}
                   <td className="px-4 py-4 text-right">
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex gap-2 items-center">
@@ -121,8 +123,8 @@ export default function FirmaLobbyTable({ lobby, matches }: { lobby: any, matche
             })}
             {filteredSignatures.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                  {lobby.signatures.length === 0 ? "Todavía nadie ha firmado en esta sala." : "No hay resultados para la búsqueda."}
+                <td colSpan={isAdmin ? 6 : 3} className="px-4 py-8 text-center text-gray-500 italic">
+                  No hay firmas que coincidan con la búsqueda.
                 </td>
               </tr>
             )}

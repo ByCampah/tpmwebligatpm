@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -14,38 +14,38 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  
+
   // Relaciones Auth
-  accounts      Account[]
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 
   // Campos personalizados LigaTPM
   role            String  @default("USER") // USER, MODERATOR, ADMIN
   nickName        String? // Elegido por el usuario para mostrarse
   customAvatarUrl String? // Elegido por el usuario
   discordId       String? // Extraido al iniciar sesion
-  
-  signatures      Signature[]
-  
+
+  signatures Signature[]
+
   // Link a perfil de Jugador físico
-  playerId        String? @unique
-  player          Player? @relation(fields: [playerId], references: [id])
-  
+  playerId String? @unique
+  player   Player? @relation(fields: [playerId], references: [id])
+
   // Equipos donde es capitan/manager
-  captainOfTeams  Team[]  @relation("TeamCaptain")
-  
+  captainOfTeams Team[] @relation("TeamCaptain")
+
   // Noticias creadas
-  news            News[]
+  news News[]
 
   // Admin logs
-  adminLogs       AdminLog[]
-  
+  adminLogs AdminLog[]
+
   // Prode
   prodePredictions ProdePrediction[]
   trophies         Trophy[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
@@ -61,12 +61,12 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@unique([provider, providerAccountId])
 }
 
@@ -76,7 +76,7 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -85,120 +85,120 @@ model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@unique([identifier, token])
 }
 
 model Player {
-  id              String             @id @default(uuid())
-  nick            String             @unique
-  nationality     String             @default("Sin Nacionalidad")
-  primaryPosition String?
+  id                String  @id @default(uuid())
+  nick              String  @unique
+  nationality       String  @default("Sin Nacionalidad")
+  primaryPosition   String?
   secondaryPosition String?
-  
+
   // Link to User account
-  user            User?
-  
+  user User?
+
   // Roster history
   tournamentTeams TournamentPlayer[]
-  
+
   // Match stats history
-  matchStats      MatchStat[]
-  
+  matchStats MatchStat[]
+
   // Trophies/Awards won
-  trophies        Trophy[]
-  challenges      ChallengeParticipant[]
-  excludedFromTrophies Trophy[] @relation("TrophyExclusions")
-  
+  trophies             Trophy[]
+  challenges           ChallengeParticipant[]
+  excludedFromTrophies Trophy[]               @relation("TrophyExclusions")
+
   // Transfer Market
-  isFreeAgent     Boolean            @default(false)
+  isFreeAgent       Boolean @default(false)
   marketDescription String?
-  
+
   // National Teams
-  isNationalTeamCalledUp Boolean      @default(false)
-  
-  createdAt       DateTime           @default(now())
+  isNationalTeamCalledUp Boolean @default(false)
+
+  createdAt DateTime @default(now())
 }
 
 model Team {
-  id               String  @id @default(uuid())
-  name             String  @unique
-  logoUrl          String?
-  bannerUrl        String?
-  
+  id        String  @id @default(uuid())
+  name      String  @unique
+  logoUrl   String?
+  bannerUrl String?
+
   // Team Captain / Manager
-  captainId        String?
-  captain          User?   @relation("TeamCaptain", fields: [captainId], references: [id])
-  
+  captainId String?
+  captain   User?   @relation("TeamCaptain", fields: [captainId], references: [id])
+
   // Tournament participation
-  tournaments      TournamentTeam[]
-  
+  tournaments TournamentTeam[]
+
   // Match history
-  homeMatches      Match[] @relation("HomeMatches")
-  awayMatches      Match[] @relation("AwayMatches")
-  
+  homeMatches Match[] @relation("HomeMatches")
+  awayMatches Match[] @relation("AwayMatches")
+
   // Trophies/Awards won
-  trophies         Trophy[]
-  
+  trophies Trophy[]
+
   // Transfer Market
   isLookingForPlayers Boolean @default(false)
   marketDescription   String?
-  
+
   // National Teams
-  isNationalTeam      Boolean @default(false)
-  
-  createdAt        DateTime @default(now())
+  isNationalTeam Boolean @default(false)
+
+  createdAt DateTime @default(now())
 }
 
 model Season {
-  id               String  @id @default(uuid())
-  name             String  @unique // e.g. "Temporada 1"
-  isActive         Boolean @default(false)
-  
-  tournaments      Tournament[]
-  
-  createdAt        DateTime @default(now())
+  id       String  @id @default(uuid())
+  name     String  @unique // e.g. "Temporada 1"
+  isActive Boolean @default(false)
+
+  tournaments Tournament[]
+
+  createdAt DateTime @default(now())
 }
 
 model Category {
-  id        String       @id @default(uuid())
-  name      String       @unique
+  id          String       @id @default(uuid())
+  name        String       @unique
   tournaments Tournament[]
 }
 
 model Tournament {
-  id        String   @id @default(cuid())
-  name      String
-  format    String   @default("LEAGUE") // LEAGUE, CUP, PLAYOFF
-  seasonId  String?
-  season    Season?   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
-  isOfficial Boolean  @default(true)
+  id            String  @id @default(cuid())
+  name          String
+  format        String  @default("LEAGUE") // LEAGUE, CUP, PLAYOFF
+  seasonId      String?
+  season        Season? @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  isOfficial    Boolean @default(true)
   isActiveExtra Boolean @default(false)
-  
+
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   bracketImageUrl String? // Imagen estática antigua para las llaves
-  bracketData     Json?   // JSON interactivo con la estructura de las llaves
+  bracketData     Json? // JSON interactivo con la estructura de las llaves
 
-  matches    Match[]
-  teams      TournamentTeam[]
-  trophies   Trophy[] // Trophies awarded in this tournament
-  
-  createdAt        DateTime @default(now())
+  matches  Match[]
+  teams    TournamentTeam[]
+  trophies Trophy[] // Trophies awarded in this tournament
+
+  createdAt DateTime @default(now())
 }
 
 model TournamentTeam {
-  id               String  @id @default(uuid())
-  tournamentId     String
-  tournament       Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  
-  teamId           String
-  team             Team       @relation(fields: [teamId], references: [id])
-  
-  captainId        String?
-  players          TournamentPlayer[]
-  
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  captainId String?
+  players   TournamentPlayer[]
+
   // Manual override fields for historical standings without match data
   manualPoints       Int?
   manualGamesPlayed  Int?
@@ -209,94 +209,93 @@ model TournamentTeam {
   manualGoalsAgainst Int?
 
   // Fase de grupos
-  group              String?  // "A", "B", "C", etc.
+  group String? // "A", "B", "C", etc.
 
   @@unique([tournamentId, teamId])
 }
 
 model TournamentPlayer {
-  id                 String  @id @default(uuid())
-  tournamentTeamId   String
-  tournamentTeam     TournamentTeam @relation(fields: [tournamentTeamId], references: [id], onDelete: Cascade)
-  
-  playerId           String
-  player             Player         @relation(fields: [playerId], references: [id])
-  
+  id               String         @id @default(uuid())
+  tournamentTeamId String
+  tournamentTeam   TournamentTeam @relation(fields: [tournamentTeamId], references: [id], onDelete: Cascade)
+
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id])
+
   @@unique([tournamentTeamId, playerId])
 }
 
 model Match {
-  id               String  @id @default(uuid())
-  tournamentId     String
-  tournament       Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  
-  homeTeamId       String
-  homeTeam         Team       @relation("HomeMatches", fields: [homeTeamId], references: [id])
-  
-  awayTeamId       String
-  awayTeam         Team       @relation("AwayMatches", fields: [awayTeamId], references: [id])
-  
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  homeTeamId String
+  homeTeam   Team   @relation("HomeMatches", fields: [homeTeamId], references: [id])
+
+  awayTeamId String
+  awayTeam   Team   @relation("AwayMatches", fields: [awayTeamId], references: [id])
+
   homeScore        Int?
   awayScore        Int?
   homePenaltyScore Int?
   awayPenaltyScore Int?
-  
-  matchDate        DateTime?
-  round            String? // e.g. "Fecha 1", "Semifinal"
-  status           String  @default("SCHEDULED") // SCHEDULED, PLAYED
-  events           Json?   @default("[]") // Lista de eventos: {type: GOAL|RED, minute: Int, playerId: String, assistId?: String}
-  
+
+  matchDate DateTime?
+  round     String? // e.g. "Fecha 1", "Semifinal"
+  status    String    @default("SCHEDULED") // SCHEDULED, PLAYED
+  events    Json?     @default("[]") // Lista de eventos: {type: GOAL|RED, minute: Int, playerId: String, assistId?: String}
+
   // Prode
-  showInProde      Boolean @default(false)
-  prodeLocked      Boolean @default(false)
+  showInProde      Boolean           @default(false)
+  prodeLocked      Boolean           @default(false)
   prodePredictions ProdePrediction[]
 
-  stats            MatchStat[]
-  
-  createdAt        DateTime @default(now())
+  stats MatchStat[]
+
+  createdAt DateTime @default(now())
 }
 
 model MatchStat {
-  id               String  @id @default(uuid())
-  matchId          String
-  match            Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  
-  playerId         String
-  player           Player  @relation(fields: [playerId], references: [id])
-  
-  matchTime        Int     @default(0)
-  goals            Int     @default(0)
-  assists          Int     @default(0)
-  teamPoints       Int     @default(0)
-  fouls            Int     @default(0)
-  fouled           Int     @default(0)
-  offsides         Int     @default(0)
-  ballLosses       Int     @default(0)
-  tacklesWon       Int     @default(0)
-  redCards         Int     @default(0)
-  
-  freeKickGoals    Int     @default(0)
-  penaltyGoals     Int     @default(0)
-  
-  passesMade       Int     @default(0)
-  passesTotal      Int     @default(0)
-  slidingMade      Int     @default(0)
-  slidingTotal     Int     @default(0)
-  shotsMade        Int     @default(0)
-  shotsTotal       Int     @default(0)
-  headersMade      Int     @default(0)
-  headersTotal     Int     @default(0)
-  
-  gkTime           Int     @default(0)
-  savesMade        Int     @default(0)
-  savesTotal       Int     @default(0)
-  cleanSheet       Boolean @default(false)
-  penaltiesSaved   Int     @default(0)
-  penaltiesConceded Int    @default(0)
-  
+  id      String @id @default(uuid())
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id])
+
+  matchTime  Int @default(0)
+  goals      Int @default(0)
+  assists    Int @default(0)
+  teamPoints Int @default(0)
+  fouls      Int @default(0)
+  fouled     Int @default(0)
+  offsides   Int @default(0)
+  ballLosses Int @default(0)
+  tacklesWon Int @default(0)
+  redCards   Int @default(0)
+
+  freeKickGoals Int @default(0)
+  penaltyGoals  Int @default(0)
+
+  passesMade   Int @default(0)
+  passesTotal  Int @default(0)
+  slidingMade  Int @default(0)
+  slidingTotal Int @default(0)
+  shotsMade    Int @default(0)
+  shotsTotal   Int @default(0)
+  headersMade  Int @default(0)
+  headersTotal Int @default(0)
+
+  gkTime            Int     @default(0)
+  savesMade         Int     @default(0)
+  savesTotal        Int     @default(0)
+  cleanSheet        Boolean @default(false)
+  penaltiesSaved    Int     @default(0)
+  penaltiesConceded Int     @default(0)
+
   @@unique([matchId, playerId])
 }
-
 
 model Trophy {
   id           String   @id @default(cuid())
@@ -309,26 +308,26 @@ model Trophy {
   userId       String?
   createdAt    DateTime @default(now())
 
-  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
-  challenge    ChallengeTournament? @relation(fields: [challengeId], references: [id])
-  team         Team?       @relation(fields: [teamId], references: [id])
-  player       Player?     @relation(fields: [playerId], references: [id])
-  user         User?       @relation(fields: [userId], references: [id])
-  excludedPlayers Player[] @relation("TrophyExclusions")
+  tournament      Tournament?          @relation(fields: [tournamentId], references: [id])
+  challenge       ChallengeTournament? @relation(fields: [challengeId], references: [id])
+  team            Team?                @relation(fields: [teamId], references: [id])
+  player          Player?              @relation(fields: [playerId], references: [id])
+  user            User?                @relation(fields: [userId], references: [id])
+  excludedPlayers Player[]             @relation("TrophyExclusions")
 }
 
 model News {
-  id          String   @id @default(uuid())
-  title       String
-  content     String
-  imageUrl    String?
-  isFeatured  Boolean  @default(false)
-  
-  authorId    String?
-  author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String  @id @default(uuid())
+  title      String
+  content    String
+  imageUrl   String?
+  isFeatured Boolean @default(false)
+
+  authorId String?
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AdminLog {
@@ -341,19 +340,19 @@ model AdminLog {
 }
 
 model ProdePrediction {
-  id           String   @id @default(uuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  matchId      String
-  match        Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
   homeScore    Int
   awayScore    Int
-  pointsEarned Int?     // Se llena al terminar el partido (ej. 6 exacto, 3 ganador)
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  pointsEarned Int? // Se llena al terminar el partido (ej. 6 exacto, 3 ganador)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, matchId])
 }
@@ -368,90 +367,63 @@ model DailyVisit {
   visits Int    @default(0)
 }
 
-
 model SignatureLobby {
-  id        String      @id @default(uuid())
-  title     String
-  status    String      @default("OPEN") // OPEN, CLOSED
-  createdAt DateTime    @default(now())
+  id         String      @id @default(uuid())
+  title      String
+  status     String      @default("OPEN") // OPEN, CLOSED
+  createdAt  DateTime    @default(now())
   signatures Signature[]
 }
 
 model Signature {
-  id          String         @id @default(uuid())
-  lobbyId     String
-  lobby       SignatureLobby @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
-  
-  userId      String?
-  user        User?          @relation(fields: [userId], references: [id])
-  
+  id      String         @id @default(uuid())
+  lobbyId String
+  lobby   SignatureLobby @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
   ip          String
   fingerprint String
-  
-  country     String?        // País en español
-  city        String?        // Ciudad
-  isp         String?        // Proveedor de internet
-  zip         String?        // Código Postal
-  lat         Float?
-  lon         Float?
-  isProxy     Boolean        @default(false)
-  isHosting   Boolean        @default(false)
-  isMobile    Boolean        @default(false)
-  isActive    Boolean        @default(true)
-  
-  createdAt   DateTime       @default(now())
+
+  country   String? // País en español
+  city      String? // Ciudad
+  isp       String? // Proveedor de internet
+  zip       String? // Código Postal
+  lat       Float?
+  lon       Float?
+  isProxy   Boolean @default(false)
+  isHosting Boolean @default(false)
+  isMobile  Boolean @default(false)
+  isActive  Boolean @default(true)
+
+  createdAt DateTime @default(now())
 
   @@unique([lobbyId, userId])
 }
 
-
 model ChallengeTournament {
-  id           String                 @id @default(uuid())
-  name         String
-  type         String                 // SHOOTING, FREE_KICK, PENALTYS, VOLLEY
-  status       String                 @default("UPCOMING") // UPCOMING, ONGOING, FINISHED
-    isActiveChallenge Boolean       @default(false)
-  bracketData  String                 @db.Text @default("{}")
-  groupsData   String                 @db.Text @default("[]") // For manual room scores
-  createdAt    DateTime               @default(now())
-  
+  id                String   @id @default(uuid())
+  name              String
+  type              String // SHOOTING, FREE_KICK, PENALTYS, VOLLEY
+  status            String   @default("UPCOMING") // UPCOMING, ONGOING, FINISHED
+  isActiveChallenge Boolean  @default(false)
+  bracketData       String   @default("{}") @db.Text
+  groupsData        String   @default("[]") @db.Text // For manual room scores
+  createdAt         DateTime @default(now())
+
   participants ChallengeParticipant[]
   trophies     Trophy[]
 }
 
 model ChallengeParticipant {
-  id           String               @id @default(uuid())
+  id           String   @id @default(uuid())
   playerId     String
   tournamentId String
-  createdAt    DateTime             @default(now())
+  createdAt    DateTime @default(now())
 
-  player       Player               @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  tournament   ChallengeTournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player     Player              @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  tournament ChallengeTournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
   @@unique([playerId, tournamentId])
-}
-
-model AntiDuSession {
-  id        String         @id @default(uuid())
-  title     String
-  createdAt DateTime       @default(now())
-  status    String         @default("OPEN") // OPEN or CLOSED
-  results   AntiDuResult[]
-}
-
-model AntiDuResult {
-  id            String        @id @default(uuid())
-  sessionId     String
-  nick          String
-  discord       String?
-  ip            String?
-  fingerprint   String?
-  isp           String?
-  city          String?
-  country       String?
-  zip           String?
-  status        String        @default("PENDING") // OK or DU
-  createdAt     DateTime      @default(now())
-  
-  session       AntiDuSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }

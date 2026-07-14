@@ -105,7 +105,7 @@ export default async function AdminFirmaLobbyPage(props: { params: Promise<{ id:
         </div>
       </div>
 
-      <FirmaLobbyTable lobby={lobby} matches={matches} />
+      <FirmaLobbyTable lobby={lobby} matches={matches} isAdmin={true} />
       <FirmaLobbyGraficador lobby={lobby} matches={matches} />
     </div>
   );
