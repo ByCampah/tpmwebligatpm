@@ -9,9 +9,32 @@ import {
   awardChallengeTrophy
 } from "@/app/actions/challenge-actions";
 import BracketBuilder from "../../temporadas/[id]/BracketBuilder";
+import { useRef, useCallback } from "react";
+import { toPng } from 'html-to-image';
+import { ChallengeSummaryImage } from "@/components/ChallengeSummaryImage";
 
 export default function ChallengeClient({ challenge, allPlayers }: { challenge: any, allPlayers: any[] }) {
-  const [activeTab, setActiveTab] = useState<"PARTICIPANTES" | "GRUPOS" | "LLAVES" | "PREMIOS">("PARTICIPANTES");
+  const [activeTab, setActiveTab] = useState<"PARTICIPANTES" | "GRUPOS" | "LLAVES" | "PREMIOS" | "GRÁFICOS">("PARTICIPANTES");
+  const [error, setError] = useState("");
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  const downloadSummary = useCallback(() => {
+    if (summaryRef.current === null) return;
+    setLoading(true);
+    toPng(summaryRef.current, { cacheBust: true, quality: 1, backgroundColor: '#0a0a0a' })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
+        link.download = `resumen-challenge-${challenge.name}.png`;
+        link.href = dataUrl;
+        link.click();
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("No se pudo generar la imagen.");
+        setLoading(false);
+      });
+  }, [summaryRef, challenge.name]);
   
   // Participantes Tab
   const [playerIdToAdd, setPlayerIdToAdd] = useState("");
@@ -100,7 +123,7 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 mb-2 bg-black/40 p-2 rounded-xl border border-border">
-        {["PARTICIPANTES", "GRUPOS", "LLAVES", "PREMIOS"].map(tab => (
+        {["PARTICIPANTES", "GRUPOS", "LLAVES", "PREMIOS", "GRÁFICOS"].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab as any)}
@@ -275,6 +298,35 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
                 {challenge.participants.map((p: any) => <option key={p.id} value={p.playerId}>{p.player.nick}</option>)}
               </select>
               <button onClick={() => handleAwardTrophy(3, rank3)} className="bg-orange-700/30 text-orange-600 font-bold px-4 py-2 rounded hover:bg-orange-700/50">Otorgar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GRAFICOS TAB */}
+      {activeTab === "GRÁFICOS" && (
+        <div className="bg-secondary/30 p-6 rounded-xl border border-border flex flex-col gap-6">
+          <div className="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-border">
+            <div>
+              <h2 className="text-xl font-black text-primary">Generador de Imagen de Resumen</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Genera una imagen descargable con los grupos y las llaves del torneo.
+              </p>
+            </div>
+            <button 
+              onClick={downloadSummary}
+              disabled={loading}
+              className="bg-primary text-primary-foreground font-black px-6 py-3 rounded-lg hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] flex items-center gap-2"
+            >
+              {loading ? "Generando..." : "Descargar Imagen"}
+            </button>
+          </div>
+
+          {error && <p className="text-red-500 font-bold bg-red-500/10 p-4 rounded-lg">{error}</p>}
+
+          <div className="overflow-x-auto bg-black/50 p-4 rounded-xl border border-border">
+            <div className="min-w-fit origin-top-left scale-[0.8] mb-[-20%]">
+              <ChallengeSummaryImage ref={summaryRef} challenge={challenge} layout="vertical" />
             </div>
           </div>
         </div>

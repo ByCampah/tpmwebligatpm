@@ -42,43 +42,92 @@ export default async function ChallengesPage() {
             <p className="text-lg font-bold text-muted-foreground">Aún no hay challenges disputados.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {challenges.map(t => (
-              <Link 
-                href={`/challenges/${t.id}`} 
-                key={t.id}
-                className="bg-secondary/20 hover:bg-secondary/40 border border-white/5 hover:border-emerald-500/50 p-6 rounded-2xl transition-all group flex flex-col gap-4 relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
-                  <span className="text-8xl">🎯</span>
-                </div>
-                <div className="z-10 flex-1">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors">
-                      {t.name}
-                    </h3>
-                    <span className="text-xs font-black bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded">
-                      {t.type}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-4">
-                    <span className="font-bold">{t._count.participants}</span> Jugadores inscritos
-                  </div>
-                </div>
-                <div className="z-10 flex gap-2 overflow-x-hidden mt-4">
-                  {t.participants.slice(0, 5).map(p => (
-                    <div key={p.id} className="w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs font-bold text-white overflow-hidden shadow" title={p.player.nick}>
-                      {p.player.nick.substring(0, 2).toUpperCase()}
-                    </div>
+          <div className="flex flex-col gap-12">
+            
+            {/* Torneos Actuales / Activos */}
+            {challenges.filter(c => c.status !== "FINISHED").length > 0 && (
+              <div className="flex flex-col gap-6">
+                <h2 className="text-2xl font-black uppercase tracking-wider flex items-center gap-2 border-b border-border pb-2">
+                  <span className="w-2 h-6 bg-emerald-500 rounded-full inline-block"></span>
+                  Challenges en Curso
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {challenges.filter(c => c.status !== "FINISHED").map(t => (
+                    <Link 
+                      href={`/challenges/${t.id}`} 
+                      key={t.id}
+                      className="bg-secondary/20 hover:bg-secondary/40 border border-emerald-500/30 hover:border-emerald-500 p-6 rounded-2xl transition-all group flex flex-col gap-4 relative overflow-hidden shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    >
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
+                        <span className="text-8xl">🎯</span>
+                      </div>
+                      <div className="z-10 flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors">
+                            {t.name}
+                          </h3>
+                          <span className="text-xs font-black bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded">
+                            {t.type}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-4">
+                          <span className="font-bold">{t._count.participants}</span> Jugadores inscritos
+                        </div>
+                      </div>
+                      <div className="z-10 flex gap-2 overflow-x-hidden mt-4">
+                        {t.participants.slice(0, 5).map((p: any) => (
+                          <div key={p.id} className="w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs font-bold text-white overflow-hidden shadow" title={p.player.nick}>
+                            {p.player.nick.substring(0, 2).toUpperCase()}
+                          </div>
+                        ))}
+                        {t.participants.length > 5 && (
+                          <div className="w-8 h-8 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-xs font-bold text-muted-foreground">
+                            +{t.participants.length - 5}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
                   ))}
-                  {t.participants.length > 5 && (
-                    <div className="w-8 h-8 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-xs font-bold text-muted-foreground">
-                      +{t.participants.length - 5}
-                    </div>
-                  )}
                 </div>
-              </Link>
-            ))}
+              </div>
+            )}
+
+            {/* Historial (Torneos Finalizados) */}
+            {challenges.filter(c => c.status === "FINISHED").length > 0 && (
+              <div className="flex flex-col gap-6">
+                <h2 className="text-2xl font-black uppercase tracking-wider flex items-center gap-2 border-b border-border pb-2">
+                  <span className="w-2 h-6 bg-muted-foreground rounded-full inline-block"></span>
+                  Historial de Challenges
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
+                  {challenges.filter(c => c.status === "FINISHED").map(t => (
+                    <Link 
+                      href={`/challenges/${t.id}`} 
+                      key={t.id}
+                      className="bg-black/40 hover:bg-secondary/40 border border-white/5 hover:border-emerald-500/30 p-6 rounded-2xl transition-all group flex flex-col gap-4 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
+                        <span className="text-8xl">🎯</span>
+                      </div>
+                      <div className="z-10 flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-2xl font-black text-gray-300 group-hover:text-emerald-400 transition-colors">
+                            {t.name}
+                          </h3>
+                          <span className="text-xs font-black bg-white/5 text-gray-400 px-2 py-1 rounded">
+                            {t.type}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-4">
+                          <span className="font-bold">{t._count.participants}</span> Jugadores
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
         )}
       </div>
