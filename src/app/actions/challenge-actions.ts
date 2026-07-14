@@ -133,11 +133,31 @@ export async function awardChallengeTrophy(tournamentId: string, playerId: strin
     });
 
     revalidatePath(`/admin/challenges/${tournamentId}`);
+    revalidatePath("/challenges");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (e: any) {
+    return { success: false, error: e.message };
   }
 }
+
+export async function finishChallenge(tournamentId: string) {
+  try {
+    await prisma.challengeTournament.update({
+      where: { id: tournamentId },
+      data: {
+        status: "FINISHED",
+        isActiveChallenge: false
+      }
+    });
+
+    revalidatePath(`/admin/challenges/${tournamentId}`);
+    revalidatePath("/challenges");
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
 export async function addMultipleChallengeParticipants(challengeId: string, textList: string) {
   try {
     const rawNicks = textList.split(/[\n,]+/).map(n => n.trim()).filter(n => n.length > 0);

@@ -13,7 +13,8 @@ export default async function ChallengeAdminPage(props: { params: Promise<{ id: 
         include: {
           player: true
         }
-      }
+      },
+      trophies: true
     }
   });
 

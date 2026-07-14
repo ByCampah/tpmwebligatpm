@@ -8,7 +8,8 @@ import {
   saveChallengeGroupsData,
   awardChallengeTrophy,
   addMultipleChallengeParticipants,
-  saveChallengeBracketData
+  saveChallengeBracketData,
+  finishChallenge
 } from "@/app/actions/challenge-actions";
 import BracketBuilder from "../../temporadas/[id]/BracketBuilder";
 import { useRef, useCallback } from "react";
@@ -122,9 +123,13 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
   };
 
   // Premios Tab
-  const [rank1, setRank1] = useState("");
-  const [rank2, setRank2] = useState("");
-  const [rank3, setRank3] = useState("");
+  const rank1Trophy = challenge.trophies?.find((t: any) => t.name.includes("Campeón") || t.name === "Campeon");
+  const rank2Trophy = challenge.trophies?.find((t: any) => t.name.includes("2do") || t.name.includes("Segundo"));
+  const rank3Trophy = challenge.trophies?.find((t: any) => t.name.includes("3er") || t.name.includes("Tercer"));
+
+  const [rank1, setRank1] = useState(rank1Trophy?.playerId || "");
+  const [rank2, setRank2] = useState(rank2Trophy?.playerId || "");
+  const [rank3, setRank3] = useState(rank3Trophy?.playerId || "");
 
   const handleAwardTrophy = async (rank: 1 | 2 | 3, playerId: string) => {
     if (!playerId) return alert("Selecciona un jugador");
@@ -133,6 +138,19 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
     setLoading(false);
     if (res.success) alert(`Premio otorgado al jugador con éxito.`);
     else alert("Error: " + res.error);
+  };
+
+  const handleFinishChallenge = async () => {
+    if (!confirm("¿Seguro que quieres finalizar este challenge? Ya no aparecerá como activo.")) return;
+    setLoading(true);
+    const res = await finishChallenge(challenge.id);
+    setLoading(false);
+    if (res.success) {
+      alert("Challenge finalizado.");
+      // The page should revalidate and show the updated status, but we don't have router here unless we use useRouter
+    } else {
+      alert("Error: " + res.error);
+    }
   };
 
   return (
@@ -355,6 +373,20 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
               </select>
               <button onClick={() => handleAwardTrophy(3, rank3)} className="bg-orange-700/30 text-orange-600 font-bold px-4 py-2 rounded hover:bg-orange-700/50">Otorgar</button>
             </div>
+            
+            {challenge.status !== "FINISHED" && (
+              <div className="mt-8 p-4 border border-red-500/30 bg-red-500/10 rounded-xl flex flex-col gap-4">
+                <h3 className="font-bold text-red-400">Cerrar Challenge</h3>
+                <p className="text-sm text-muted-foreground">Una vez entregados los premios, puedes dar por finalizado el evento para que pase al historial.</p>
+                <button 
+                  onClick={handleFinishChallenge}
+                  disabled={loading}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full transition-colors"
+                >
+                  Finalizar Challenge
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
