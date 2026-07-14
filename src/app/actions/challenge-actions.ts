@@ -174,7 +174,7 @@ export async function addMultipleChallengeParticipants(challengeId: string, text
       }
     }
 
-    revalidatePath(/admin/challenges/);
+    revalidatePath(`/admin/challenges/${challengeId}`);
     return { success: true, added, notFound, alreadyExists };
   } catch (error: any) {
     return { success: false, error: error.message };
