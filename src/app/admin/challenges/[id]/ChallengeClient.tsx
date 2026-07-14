@@ -7,7 +7,8 @@ import {
   removeChallengeParticipant,
   saveChallengeGroupsData,
   awardChallengeTrophy,
-  addMultipleChallengeParticipants
+  addMultipleChallengeParticipants,
+  saveChallengeBracketData
 } from "@/app/actions/challenge-actions";
 import BracketBuilder from "../../temporadas/[id]/BracketBuilder";
 import { useRef, useCallback } from "react";
@@ -304,6 +305,7 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
             participantsData={challenge.participants} 
             initialData={typeof challenge.bracketData === 'string' ? JSON.parse(challenge.bracketData) : challenge.bracketData} 
             type="player"
+            onSave={saveChallengeBracketData}
           />
         </div>
       )}

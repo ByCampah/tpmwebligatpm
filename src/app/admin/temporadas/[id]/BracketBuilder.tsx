@@ -8,9 +8,10 @@ interface BracketBuilderProps {
   participantsData: any[];
   initialData: any;
   type?: "team" | "player";
+  onSave?: (id: string, bracketData: any) => Promise<{success: boolean, error?: string}>;
 }
 
-export default function BracketBuilder({ tournamentId, participantsData, initialData, type = "team" }: BracketBuilderProps) {
+export default function BracketBuilder({ tournamentId, participantsData, initialData, type = "team", onSave }: BracketBuilderProps) {
   const [loading, setLoading] = useState(false);
   
   // Default structure if no data
@@ -84,7 +85,8 @@ export default function BracketBuilder({ tournamentId, participantsData, initial
 
   const saveBracket = async () => {
     setLoading(true);
-    const res = await saveBracketData(tournamentId, bracket);
+    const saveFn = onSave || saveBracketData;
+    const res = await saveFn(tournamentId, bracket);
     setLoading(false);
     if (res.success) {
       alert("Llave guardada exitosamente");
