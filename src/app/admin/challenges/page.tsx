@@ -19,7 +19,7 @@ export default async function ChallengesAdminPage() {
   const isAdmin = session.user.role === "ADMIN";
 
   const challenges = await prisma.challengeTournament.findMany({
-    where: isAdmin ? undefined : { isActive: true },
+    where: isAdmin ? undefined : { isActiveChallenge: true },
     orderBy: { createdAt: "desc" },
     include: {
       _count: {
