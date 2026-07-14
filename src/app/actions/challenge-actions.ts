@@ -18,7 +18,11 @@ export async function createChallengeTournament(data: { name: string, type: stri
   }
 }
 
+import { auth } from "@/lib/auth";
+
 export async function deleteChallengeTournament(id: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") return { success: false, error: "No autorizado" };
   try {
     await prisma.challengeTournament.delete({ where: { id } });
     revalidatePath("/admin/challenges");

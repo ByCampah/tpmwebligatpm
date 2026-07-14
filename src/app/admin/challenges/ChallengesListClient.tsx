@@ -124,12 +124,14 @@ export default function ChallengesListClient({ initialChallenges }: { initialCha
                     >
                       Gestionar
                     </Link>
-                    <button 
-                      onClick={() => handleDelete(t.id)}
-                      className="bg-destructive/20 hover:bg-destructive/40 text-destructive px-3 rounded text-sm font-bold transition-colors"
-                    >
-                      🗑️
-                    </button>
+                    {isAdmin && (
+                      <button 
+                        onClick={() => handleDelete(t.id)}
+                        className="bg-destructive/20 hover:bg-destructive/40 text-destructive px-3 rounded text-sm font-bold transition-colors"
+                      >
+                        🗑️
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

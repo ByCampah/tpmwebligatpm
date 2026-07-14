@@ -13,9 +13,14 @@ export default async function TorneosExtraAdminPage() {
     redirect("/");
   }
 
+  const isAdmin = session.user.role === "ADMIN";
+
   // Fetch only non-official tournaments
   const extraTournaments = await prisma.tournament.findMany({
-    where: { isOfficial: false },
+    where: { 
+      isOfficial: false,
+      ...(isAdmin ? {} : { isActiveExtra: true })
+    },
     include: {
       category: true,
       _count: { select: { matches: true, teams: true } }

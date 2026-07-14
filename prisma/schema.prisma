@@ -430,3 +430,28 @@ model ChallengeParticipant {
 
   @@unique([playerId, tournamentId])
 }
+
+model AntiDuSession {
+  id        String         @id @default(uuid())
+  title     String
+  createdAt DateTime       @default(now())
+  status    String         @default("OPEN") // OPEN or CLOSED
+  results   AntiDuResult[]
+}
+
+model AntiDuResult {
+  id            String        @id @default(uuid())
+  sessionId     String
+  nick          String
+  discord       String?
+  ip            String?
+  fingerprint   String?
+  isp           String?
+  city          String?
+  country       String?
+  zip           String?
+  status        String        @default("PENDING") // OK or DU
+  createdAt     DateTime      @default(now())
+  
+  session       AntiDuSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
