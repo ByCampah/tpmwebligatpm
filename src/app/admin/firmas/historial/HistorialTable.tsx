@@ -52,12 +52,25 @@ export default function HistorialTable({ signatures }: { signatures: any[] }) {
                 <td className="px-4 py-4 whitespace-nowrap">{new Date(sig.createdAt).toLocaleString("es-AR")}</td>
                 <td className="px-4 py-4">
                   {sig.city !== "Desconocido" ? `${sig.city}, ${sig.country}` : "Desconocido"}
+                  {sig.zip && <span className="ml-1 text-gray-400">({sig.zip})</span>}
                   <div className="text-xs text-gray-500 mt-1">Proveedor: {sig.isp}</div>
-                  {(sig.lat !== null && sig.lon !== null && sig.lat !== undefined && sig.lon !== undefined) && (
-                    <div className="text-[10px] text-gray-600 mt-1">
-                      📍 Lat: {sig.lat}, Lon: {sig.lon}
-                    </div>
-                  )}
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {(sig.lat !== null && sig.lon !== null && sig.lat !== undefined && sig.lon !== undefined) && (
+                      <div className="text-[10px] text-gray-600 bg-black/30 px-1.5 py-0.5 rounded">
+                        📍 {sig.lat}, {sig.lon}
+                      </div>
+                    )}
+                    {(sig.isProxy || sig.isHosting) && (
+                      <div className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">
+                        🛡️ VPN / PROXY
+                      </div>
+                    )}
+                    {sig.isMobile && (
+                      <div className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">
+                        📱 DATOS MÓVILES
+                      </div>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-4 font-mono text-xs text-blue-300">{sig.ip}</td>
                 <td className="px-4 py-4 font-mono text-xs text-emerald-300">{sig.fingerprint}</td>

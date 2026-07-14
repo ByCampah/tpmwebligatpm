@@ -391,8 +391,12 @@ model Signature {
   country     String?        // País en español
   city        String?        // Ciudad
   isp         String?        // Proveedor de internet
+  zip         String?        // Código Postal
   lat         Float?
   lon         Float?
+  isProxy     Boolean        @default(false)
+  isHosting   Boolean        @default(false)
+  isMobile    Boolean        @default(false)
   
   createdAt   DateTime       @default(now())
 

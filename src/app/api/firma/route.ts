@@ -29,19 +29,27 @@ export async function POST(req: Request) {
     let country = "Desconocido";
     let city = "Desconocido";
     let isp = "Desconocido";
+    let zip: string | null = null;
     let lat: number | null = null;
     let lon: number | null = null;
+    let isProxy = false;
+    let isHosting = false;
+    let isMobile = false;
 
     if (ip && ip !== "127.0.0.1" && ip !== "::1") {
       try {
-        const geoRes = await fetch(`http://ip-api.com/json/${ip}?fields=country,city,isp,lat,lon,status&lang=es`);
+        const geoRes = await fetch(`http://ip-api.com/json/${ip}?fields=country,city,zip,isp,lat,lon,proxy,hosting,mobile,status&lang=es`);
         const geoData = await geoRes.json();
         if (geoData.status === "success") {
           country = geoData.country || "Desconocido";
           city = geoData.city || "Desconocido";
           isp = geoData.isp || "Desconocido";
+          zip = geoData.zip || null;
           lat = geoData.lat !== undefined ? geoData.lat : null;
           lon = geoData.lon !== undefined ? geoData.lon : null;
+          isProxy = !!geoData.proxy;
+          isHosting = !!geoData.hosting;
+          isMobile = !!geoData.mobile;
         }
       } catch (err) {
         console.error("Geo error:", err);
@@ -62,8 +70,12 @@ export async function POST(req: Request) {
         country,
         city,
         isp,
+        zip,
         lat,
-        lon
+        lon,
+        isProxy,
+        isHosting,
+        isMobile
       },
       create: {
         lobbyId,
@@ -73,8 +85,12 @@ export async function POST(req: Request) {
         country,
         city,
         isp,
+        zip,
         lat,
-        lon
+        lon,
+        isProxy,
+        isHosting,
+        isMobile
       }
     });
 
