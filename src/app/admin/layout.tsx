@@ -61,6 +61,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/admin/graficas" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-blue-300 hover:bg-blue-900/30 transition-all flex items-center gap-3 group">
               <span className="group-hover:scale-125 transition-transform">🎨</span> <span>Generador Gráfico</span>
             </Link>
+            <Link href="/admin/generador-torneos" className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-indigo-300 hover:bg-indigo-900/30 transition-all flex items-center gap-3 group">
+              <span className="group-hover:scale-125 transition-transform">🧮</span> <span>Generador Torneos</span>
+            </Link>
 
             {session.user.role === "ADMIN" && (
               <>
