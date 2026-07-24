@@ -7,11 +7,12 @@ interface PlantelSummaryImageProps {
   tournament: any;
   themeColor?: string;
   showDiscord?: boolean;
+  showAvatar?: boolean;
   selectedTeam?: string; // "" o nombre del equipo
 }
 
 export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImageProps>(
-  ({ tournament, themeColor = "emerald", showDiscord = false, selectedTeam = "" }, ref) => {
+  ({ tournament, themeColor = "emerald", showDiscord = false, showAvatar = false, selectedTeam = "" }, ref) => {
     
     // 1. Calcular Goleadores, Asistidores, GK, PJ
     const playerStats = new Map<string, any>();
@@ -112,12 +113,16 @@ export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImag
                     return (
                       <div key={pIndex} className="flex justify-between items-center px-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
                         <div className="flex items-center gap-3 flex-1 overflow-hidden">
-                          <img src={p.avatarUrl || "/img/default-avatar.png"} alt={p.nick} className="w-10 h-10 rounded-full border border-white/20 object-cover" />
-                          <div className="flex flex-col truncate">
-                            <span className="font-bold text-lg text-white truncate">{p.nick}</span>
-                            {showDiscord && p.discordId && (
-                              <span className="text-xs text-muted-foreground truncate">@{p.discordId}</span>
-                            )}
+                          {showAvatar && (
+                            <img src={p.avatarUrl || "/img/default-avatar.png"} alt={p.nick} className="w-10 h-10 rounded-full border border-white/20 object-cover" />
+                          )}
+                          <div className="flex flex-col truncate justify-center">
+                            <span className="font-bold text-lg text-white truncate flex items-center gap-2">
+                              {p.nick}
+                              {showDiscord && p.discordId && (
+                                <span className="text-sm font-normal text-muted-foreground mt-0.5">@{p.discordId}</span>
+                              )}
+                            </span>
                           </div>
                         </div>
                         <div className="flex gap-4 w-32 justify-end items-center">
@@ -141,12 +146,12 @@ export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImag
 
         {/* FOOTER */}
         <div className="relative z-10 w-full px-16 mt-16 pt-8 border-t border-white/10 flex justify-between items-center bg-black/40">
-          <div className="flex flex-col">
+          <div className="flex flex-col opacity-0">
             <span className="font-black text-2xl text-white">LIGA TPM</span>
             <span className="text-lg font-bold" style={{ color: theme.primary }}>Online Football Manager</span>
           </div>
           
-          <img src="/img/logos/ByCampah3.png" alt="ByCampah" className="h-12 w-auto opacity-80" />
+          <img src="/img/logos/ByCampah3.png" alt="ByCampah" className="h-20 w-auto opacity-100" />
         </div>
       </div>
     );

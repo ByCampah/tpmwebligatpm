@@ -30,6 +30,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   
   const [plantelTeam, setPlantelTeam] = useState("ALL");
   const [showDiscord, setShowDiscord] = useState(false);
+  const [showAvatar, setShowAvatar] = useState(false);
   
   const summaryRef = useRef<HTMLDivElement>(null);
   const fixtureRef = useRef<HTMLDivElement>(null);
@@ -1600,10 +1601,16 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                             ))}
                         </select>
                     </div>
-                    <label className="flex items-center gap-3 cursor-pointer text-left">
-                        <input type="checkbox" checked={showDiscord} onChange={e => { setShowDiscord(e.target.checked); }} className="w-5 h-5 accent-primary" />
-                        <span className="font-bold text-sm">Mostrar Discord de jugadores</span>
-                    </label>
+                    <div className="flex flex-col gap-2 text-left">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" checked={showDiscord} onChange={e => { setShowDiscord(e.target.checked); }} className="w-5 h-5 accent-primary" />
+                            <span className="font-bold text-sm">Mostrar Discord de jugadores</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" checked={showAvatar} onChange={e => { setShowAvatar(e.target.checked); }} className="w-5 h-5 accent-primary" />
+                            <span className="font-bold text-sm">Mostrar Foto de Perfil</span>
+                        </label>
+                    </div>
                 </div>
             )}
 
@@ -1638,7 +1645,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
               {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} themeColor={themeColor} />}
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} />}
-              {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} />}
+              {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} showAvatar={showAvatar} />}
             </div>
           </div>
         </div>
