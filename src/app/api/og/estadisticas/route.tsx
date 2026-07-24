@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getThemeColors } from '@/lib/themeColors';
 
 export const runtime = 'nodejs';
 
@@ -12,6 +13,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const tournamentIdParam = searchParams.get('tournamentId');
+    const color = searchParams.get('color') || 'emerald';
 
     // 1. Obtener temporada activa y torneos
     const activeSeason = await prisma.season.findFirst({
@@ -97,6 +99,8 @@ export async function GET(req: NextRequest) {
     const topAssists = [...allPlayers].sort((a, b) => b.assists - a.assists).slice(0, 5);
 
     // 4. Renderizar
+    const theme = getThemeColors(color);
+
     return new ImageResponse(
       (
         <div
@@ -106,17 +110,17 @@ export async function GET(req: NextRequest) {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#0a0a0a',
-            backgroundImage: 'linear-gradient(to bottom right, #0a0a0a, #111, #0a2a1a)',
+            backgroundImage: theme.bgGradient,
             fontFamily: 'sans-serif',
             padding: '40px 60px',
             color: 'white',
           }}
         >
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 40, borderBottom: '2px solid #D4AF37', paddingBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 40, borderBottom: `2px solid ${theme.primary}`, paddingBottom: 20 }}>
             <img src={`${baseUrl}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 100, height: 100, objectFit: 'contain', marginRight: 30 }} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <h1 style={{ fontSize: 50, fontWeight: 900, color: '#D4AF37', margin: 0, textTransform: 'uppercase' }}>ESTADÍSTICAS</h1>
+              <h1 style={{ fontSize: 50, fontWeight: 900, color: theme.primary, margin: 0, textTransform: 'uppercase' }}>ESTADÍSTICAS</h1>
               <h2 style={{ fontSize: 30, fontWeight: 700, color: '#fff', margin: 0 }}>{tournamentName}</h2>
             </div>
           </div>
@@ -125,12 +129,12 @@ export async function GET(req: NextRequest) {
           <div style={{ display: 'flex', width: '100%', gap: '60px', flex: 1 }}>
             
             {/* Goleadores */}
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, padding: 30, border: '1px solid rgba(212, 175, 55, 0.3)' }}>
-              <h3 style={{ fontSize: 36, fontWeight: 900, color: '#D4AF37', margin: '0 0 20px 0', textAlign: 'center' }}>MÁXIMOS GOLEADORES</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, padding: 30, border: `1px solid ${theme.primary}4d` }}>
+              <h3 style={{ fontSize: 36, fontWeight: 900, color: theme.primary, margin: '0 0 20px 0', textAlign: 'center' }}>MÁXIMOS GOLEADORES</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
                 {topScorers.map((p, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: '15px 20px', borderRadius: 10 }}>
-                    <span style={{ fontSize: 28, fontWeight: 900, color: '#D4AF37', width: 40 }}>{i + 1}</span>
+                    <span style={{ fontSize: 28, fontWeight: 900, color: theme.primary, width: 40 }}>{i + 1}</span>
                     {p.teamLogo ? (
                       <img src={p.teamLogo} style={{ width: 50, height: 50, objectFit: 'contain', marginRight: 15 }} />
                     ) : (
@@ -144,12 +148,12 @@ export async function GET(req: NextRequest) {
             </div>
 
             {/* Asistidores */}
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, padding: 30, border: '1px solid rgba(212, 175, 55, 0.3)' }}>
-              <h3 style={{ fontSize: 36, fontWeight: 900, color: '#D4AF37', margin: '0 0 20px 0', textAlign: 'center' }}>MÁXIMOS ASISTIDORES</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, padding: 30, border: `1px solid ${theme.primary}4d` }}>
+              <h3 style={{ fontSize: 36, fontWeight: 900, color: theme.primary, margin: '0 0 20px 0', textAlign: 'center' }}>MÁXIMOS ASISTIDORES</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
                 {topAssists.map((p, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: '15px 20px', borderRadius: 10 }}>
-                    <span style={{ fontSize: 28, fontWeight: 900, color: '#D4AF37', width: 40 }}>{i + 1}</span>
+                    <span style={{ fontSize: 28, fontWeight: 900, color: theme.primary, width: 40 }}>{i + 1}</span>
                     {p.teamLogo ? (
                       <img src={p.teamLogo} style={{ width: 50, height: 50, objectFit: 'contain', marginRight: 15 }} />
                     ) : (

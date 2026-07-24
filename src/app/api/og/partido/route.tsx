@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getThemeColors } from '@/lib/themeColors';
 
 export const runtime = 'nodejs';
 
@@ -15,6 +16,7 @@ export async function GET(req: NextRequest) {
     const visitante = searchParams.get('visitante');
     const torneo = searchParams.get('torneo');
     const fecha = searchParams.get('fecha');
+    const color = searchParams.get('color') || 'emerald';
 
     if (!local || !visitante) {
       return new Response('Missing team parameters', { status: 400 });
@@ -35,6 +37,8 @@ export async function GET(req: NextRequest) {
     let visitanteLogo = teamVisitante?.logoUrl;
     if (visitanteLogo && visitanteLogo.startsWith('/')) visitanteLogo = `${baseUrl}${visitanteLogo}`;
 
+    const theme = getThemeColors(color);
+
     // Renderizar
     return new ImageResponse(
       (
@@ -45,7 +49,7 @@ export async function GET(req: NextRequest) {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#0a0a0a',
-            backgroundImage: 'linear-gradient(to bottom right, #0a0a0a, #111, #0a2a1a)',
+            backgroundImage: theme.bgGradient,
             fontFamily: 'sans-serif',
             padding: '40px',
             color: 'white',
@@ -55,7 +59,7 @@ export async function GET(req: NextRequest) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 60, paddingBottom: 20 }}>
             <img src={`${baseUrl}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain', marginRight: 20 }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h1 style={{ fontSize: 36, fontWeight: 900, color: '#D4AF37', margin: 0, textTransform: 'uppercase' }}>{torneo}</h1>
+              <h1 style={{ fontSize: 36, fontWeight: 900, color: theme.primary, margin: 0, textTransform: 'uppercase' }}>{torneo}</h1>
               <h2 style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: 0, marginTop: 10 }}>{fecha}</h2>
             </div>
             <img src={`${baseUrl}/img/logos/LogoTPM.png`} alt="TPM" style={{ width: 80, height: 80, objectFit: 'contain', marginLeft: 20, opacity: 0 }} />
@@ -69,7 +73,7 @@ export async function GET(req: NextRequest) {
               {localLogo ? (
                 <img src={localLogo} style={{ width: 250, height: 250, objectFit: 'contain' }} />
               ) : (
-                <div style={{ width: 250, height: 250, borderRadius: '50%', backgroundColor: '#D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 60, fontWeight: 900, color: '#111' }}>
+                <div style={{ width: 250, height: 250, borderRadius: '50%', backgroundColor: theme.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 60, fontWeight: 900, color: '#111' }}>
                   {local.substring(0, 2).toUpperCase()}
                 </div>
               )}
@@ -80,7 +84,7 @@ export async function GET(req: NextRequest) {
 
             {/* VS */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 80, fontWeight: 900, color: '#D4AF37', fontStyle: 'italic' }}>VS</span>
+              <span style={{ fontSize: 80, fontWeight: 900, color: theme.primary, fontStyle: 'italic' }}>VS</span>
             </div>
 
             {/* Visitante */}
@@ -88,7 +92,7 @@ export async function GET(req: NextRequest) {
               {visitanteLogo ? (
                 <img src={visitanteLogo} style={{ width: 250, height: 250, objectFit: 'contain' }} />
               ) : (
-                <div style={{ width: 250, height: 250, borderRadius: '50%', backgroundColor: '#D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 60, fontWeight: 900, color: '#111' }}>
+                <div style={{ width: 250, height: 250, borderRadius: '50%', backgroundColor: theme.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 60, fontWeight: 900, color: '#111' }}>
                   {visitante.substring(0, 2).toUpperCase()}
                 </div>
               )}

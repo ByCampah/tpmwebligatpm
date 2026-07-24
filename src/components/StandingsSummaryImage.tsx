@@ -4,10 +4,13 @@ import React, { forwardRef } from 'react';
 
 interface StandingsSummaryImageProps {
   tournament: any;
+  themeColor?: string;
 }
 
+import { getThemeColors } from '@/lib/themeColors';
+
 export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummaryImageProps>(
-  ({ tournament }, ref) => {
+  ({ tournament, themeColor = "emerald" }, ref) => {
     
     // Solo contar partidos jugados que no sean históricos
     const validMatches = tournament.matches?.filter((m: any) => m.status === 'PLAYED' && (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round ?? ""))) || [];
@@ -97,26 +100,27 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
     }
 
     const isGroups = isCup && groupStandings.length > 0;
+    const theme = getThemeColors(themeColor);
 
     return (
       <div 
         ref={ref} 
         className="w-[1200px] h-fit min-h-[1200px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl"
         style={{
-          backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(20,83,45,0.2) 0%, rgba(10,10,10,1) 80%)'
+          backgroundImage: theme.bgGradient,
         }}
       >
         {/* Decoración de fondo */}
-        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-green-900/30 to-transparent z-0"></div>
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-600/30 via-green-800/10 to-transparent rounded-full z-0"></div>
-        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-600/20 via-teal-800/5 to-transparent rounded-full z-0"></div>
+        <div className={`absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-[${theme.primary}]/30 to-transparent z-0`}></div>
+        <div className={`absolute -top-40 -right-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[${theme.primary}]/30 via-[${theme.primary}]/10 to-transparent rounded-full z-0`}></div>
+        <div className={`absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[${theme.secondary}]/20 via-[${theme.secondary}]/5 to-transparent rounded-full z-0`}></div>
 
         {/* HEADER */}
         <div className="flex flex-col items-center mt-16 z-10 w-full px-16">
           <div className="flex items-center justify-between w-full">
             <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
             <div className="flex flex-col items-end text-right">
-              <h2 className="text-4xl font-bold tracking-widest text-green-500 uppercase mb-3">
+              <h2 className="text-4xl font-bold tracking-widest uppercase mb-3" style={{ color: theme.secondary }}>
                 TABLA DE POSICIONES{isGroups ? " - FASE DE GRUPOS" : ""}
               </h2>
               <h1 className="text-6xl font-black uppercase max-w-3xl text-white leading-tight" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
@@ -124,7 +128,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
               </h1>
             </div>
           </div>
-          <div className="h-1 w-full bg-gradient-to-r from-transparent via-green-600 to-transparent mt-8 rounded-full"></div>
+          <div className="h-1 w-full mt-8 rounded-full" style={{ background: `linear-gradient(to right, transparent, ${theme.primary}, transparent)` }}></div>
         </div>
 
         {/* CONTENT LAYOUT */}
@@ -144,7 +148,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
                       <th className="p-6 font-bold text-center">PP</th>
                       <th className="p-6 font-bold text-center">GF</th>
                       <th className="p-6 font-bold text-center">GC</th>
-                      <th className="p-6 font-bold text-center text-green-400">PTS</th>
+                      <th className="p-6 font-bold text-center" style={{ color: theme.primary }}>PTS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -161,7 +165,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
                         <td className="p-6 text-center text-red-400 text-2xl">{team.pp}</td>
                         <td className="p-6 text-center text-zinc-300 text-xl">{team.gf}</td>
                         <td className="p-6 text-center text-zinc-300 text-xl">{team.gc}</td>
-                        <td className="p-6 text-center font-black text-5xl text-green-400">{team.pts}</td>
+                        <td className="p-6 text-center font-black text-5xl" style={{ color: theme.primary }}>{team.pts}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -173,7 +177,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
               <div className="grid grid-cols-2 gap-10 w-full">
                 {groupStandings.map((group, idx) => (
                   <div key={idx} className="bg-black/40 border border-white/5 rounded-2xl p-8 shadow-lg">
-                    <h4 className="text-3xl font-black text-white mb-6 uppercase tracking-widest border-l-4 border-green-500 pl-4">{group.name}</h4>
+                    <h4 className="text-3xl font-black text-white mb-6 uppercase tracking-widest border-l-4 pl-4" style={{ borderColor: theme.primary }}>{group.name}</h4>
                     <div className="overflow-hidden rounded-xl border border-white/5 w-full">
                       <table className="w-full text-left border-collapse text-lg">
                         <thead>
@@ -184,7 +188,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
                             <th className="p-4 font-bold text-center">PG</th>
                             <th className="p-4 font-bold text-center">PE</th>
                             <th className="p-4 font-bold text-center">PP</th>
-                            <th className="p-4 font-bold text-center text-green-400">PTS</th>
+                            <th className="p-4 font-bold text-center" style={{ color: theme.primary }}>PTS</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -199,7 +203,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
                               <td className="p-4 text-center text-green-400 text-xl">{team.pg}</td>
                               <td className="p-4 text-center text-yellow-400 text-xl">{team.pe}</td>
                               <td className="p-4 text-center text-red-400 text-xl">{team.pp}</td>
-                              <td className="p-4 text-center font-black text-green-400 text-3xl">{team.pts}</td>
+                              <td className="p-4 text-center font-black text-3xl" style={{ color: theme.primary }}>{team.pts}</td>
                             </tr>
                           ))}
                         </tbody>

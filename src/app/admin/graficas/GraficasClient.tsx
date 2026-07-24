@@ -3,7 +3,8 @@
 import { useState } from "react";
 
 export default function GraficasClient({ teams, players, tournaments }: { teams: any[], players: any[], tournaments: any[] }) {
-  const [activeTab, setActiveTab] = useState<"JUGADOR" | "ESTADISTICAS" | "PARTIDO" | "PLANTEL">("PARTIDO");
+  const [activeTab, setActiveTab] = useState<"JUGADOR" | "ESTADISTICAS" | "PARTIDO">("PARTIDO");
+  const [themeColor, setThemeColor] = useState<string>("emerald");
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
 
   const [partidoLocalName, setPartidoLocalName] = useState("");
@@ -15,9 +16,6 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
 
   const [jugadorNick, setJugadorNick] = useState("");
 
-  const [plantelTeam, setPlantelTeam] = useState("");
-  const [showDiscord, setShowDiscord] = useState(false);
-
   const handleGeneratePartido = (e: any) => {
     e.preventDefault();
     const local = partidoLocalName;
@@ -28,13 +26,12 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
       return;
     }
 
-    const url = `/api/og/partido?local=${encodeURIComponent(local)}&visitante=${encodeURIComponent(visitante)}&torneo=${encodeURIComponent(partidoTorneo)}&fecha=${encodeURIComponent(partidoFecha)}`;
-    setGeneratedUrl(url);
+    setGeneratedUrl(`/api/og/partido?local=${encodeURIComponent(local)}&visitante=${encodeURIComponent(visitante)}&torneo=${encodeURIComponent(partidoTorneo)}&fecha=${encodeURIComponent(partidoFecha)}&color=${themeColor}`);
   };
 
   const handleGenerateEstadisticas = (e: any) => {
     e.preventDefault();
-    const url = estadisticasTorneoId ? `/api/og/estadisticas?tournamentId=${estadisticasTorneoId}` : `/api/og/estadisticas`;
+    const url = estadisticasTorneoId ? `/api/og/estadisticas?tournamentId=${estadisticasTorneoId}&color=${themeColor}` : `/api/og/estadisticas?color=${themeColor}`;
     setGeneratedUrl(url);
   };
 
@@ -44,16 +41,7 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
       alert("Seleccioná un jugador.");
       return;
     }
-    setGeneratedUrl(`/api/og/jugador?nick=${encodeURIComponent(jugadorNick)}`);
-  };
-
-  const handleGeneratePlantel = (e: any) => {
-    e.preventDefault();
-    if (!plantelTeam) {
-      alert("Seleccioná un equipo.");
-      return;
-    }
-    setGeneratedUrl(`/api/og/plantel?team=${encodeURIComponent(plantelTeam)}&discord=${showDiscord}`);
+    setGeneratedUrl(`/api/og/jugador?nick=${encodeURIComponent(jugadorNick)}&color=${themeColor}`);
   };
 
   return (
@@ -78,12 +66,6 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
           className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "JUGADOR" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
         >
           Carta de Jugador
-        </button>
-        <button 
-          onClick={() => { setActiveTab("PLANTEL"); setGeneratedUrl(null); }}
-          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "PLANTEL" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
-        >
-          Plantel (Equipo)
         </button>
       </div>
 
@@ -155,21 +137,20 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
             </form>
           )}
 
-          {activeTab === "PLANTEL" && (
-            <form onSubmit={handleGeneratePlantel} className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-bold text-muted-foreground mb-1">Equipo (Buscar)</label>
-                <input list="teams-list" value={plantelTeam} onChange={e => setPlantelTeam(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Buscar equipo..." />
-              </div>
-              <label className="flex items-center gap-3 bg-black/50 p-3 rounded border border-border cursor-pointer">
-                <input type="checkbox" checked={showDiscord} onChange={e => setShowDiscord(e.target.checked)} className="w-5 h-5 accent-primary" />
-                <span className="font-bold text-white">Mostrar Discord en la imagen</span>
-              </label>
-              <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black py-3 rounded uppercase tracking-wider transition-colors mt-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                Generar Plantel
-              </button>
-            </form>
-          )}
+          <div className="mt-6 pt-6 border-t border-border flex items-center gap-4 bg-black/40 p-4 rounded-xl border-white/5">
+            <span className="font-bold text-muted-foreground whitespace-nowrap">Color de Fondo:</span>
+            <select 
+                value={themeColor} 
+                onChange={(e) => { setThemeColor(e.target.value); setGeneratedUrl(null); }}
+                className="w-full bg-black border border-border rounded-lg p-3 font-bold focus:border-primary focus:outline-none"
+            >
+                <option value="emerald">Verde (TPM Clásico)</option>
+                <option value="red">Rojo Fuego</option>
+                <option value="blue">Azul Profundo</option>
+                <option value="purple">Violeta / Rosa</option>
+                <option value="gold">Dorado Campeón</option>
+            </select>
+          </div>
 
         </div>
 

@@ -6,10 +6,13 @@ import BracketViewer from './BracketViewer';
 interface ChallengeSummaryImageProps {
   challenge: any;
   layout?: "vertical" | "square";
+  themeColor?: string;
 }
 
+import { getThemeColors } from '@/lib/themeColors';
+
 export const ChallengeSummaryImage = forwardRef<HTMLDivElement, ChallengeSummaryImageProps>(
-  ({ challenge, layout = "vertical" }, ref) => {
+  ({ challenge, layout = "vertical", themeColor = "emerald" }, ref) => {
     const groups = typeof challenge.groupsData === 'string' ? JSON.parse(challenge.groupsData || "[]") : (challenge.groupsData || []);
     const bracketData = typeof challenge.bracketData === 'string' ? JSON.parse(challenge.bracketData || "{}") : (challenge.bracketData || {});
     
@@ -17,6 +20,8 @@ export const ChallengeSummaryImage = forwardRef<HTMLDivElement, ChallengeSummary
       id: p.playerId,
       player: p.player,
     }));
+
+    const theme = getThemeColors(themeColor);
 
     return (
       <div 
@@ -26,8 +31,8 @@ export const ChallengeSummaryImage = forwardRef<HTMLDivElement, ChallengeSummary
       >
         {/* Background Elements */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] rounded-full bg-emerald-600/10 blur-[120px] mix-blend-screen"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-blue-700/10 blur-[100px] mix-blend-screen"></div>
+          <div className={`absolute top-[-20%] left-[-10%] w-[800px] h-[800px] rounded-full bg-[${theme.primary}]/10 blur-[120px] mix-blend-screen`}></div>
+          <div className={`absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[${theme.secondary}]/10 blur-[100px] mix-blend-screen`}></div>
           <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-[0.05]"></div>
         </div>
 
@@ -36,7 +41,7 @@ export const ChallengeSummaryImage = forwardRef<HTMLDivElement, ChallengeSummary
           <div className="w-24 h-24 mb-4">
             <img src="/img/logos/LogoTPM.png" alt="Liga TPM" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
           </div>
-          <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tighter uppercase">
+          <h1 className="text-5xl font-black bg-clip-text text-transparent tracking-tighter uppercase" style={{ backgroundImage: `linear-gradient(to right, ${theme.primary}, ${theme.secondary})` }}>
             {challenge.name}
           </h1>
           <p className="text-2xl font-bold text-muted-foreground mt-2 uppercase tracking-widest">{challenge.type} CHALLENGE</p>
@@ -49,8 +54,8 @@ export const ChallengeSummaryImage = forwardRef<HTMLDivElement, ChallengeSummary
               <div className="grid grid-cols-2 gap-6">
                 {groups.map((g: any, gIndex: number) => (
                   <div key={gIndex} className="bg-black/60 border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-                    <div className="bg-emerald-500/20 py-3 text-center border-b border-emerald-500/20">
-                      <h3 className="font-black text-emerald-400 text-xl">{g.name || `Grupo ${gIndex + 1}`}</h3>
+                    <div className="py-3 text-center border-b" style={{ backgroundColor: `${theme.primary}33`, borderColor: `${theme.primary}33` }}>
+                      <h3 className="font-black text-xl" style={{ color: theme.primary }}>{g.name || `Grupo ${gIndex + 1}`}</h3>
                     </div>
                     <div className="flex flex-col">
                       {g.players.map((p: any, pIndex: number) => (
@@ -58,7 +63,7 @@ export const ChallengeSummaryImage = forwardRef<HTMLDivElement, ChallengeSummary
                           <div className="flex items-center gap-3">
                             <span className="font-bold text-lg text-white">{p.nick || "TBD"}</span>
                           </div>
-                          <span className="font-black text-xl text-primary">{p.score || "0"}</span>
+                          <span className="font-black text-xl" style={{ color: theme.primary }}>{p.score || "0"}</span>
                         </div>
                       ))}
                     </div>
@@ -88,7 +93,7 @@ export const ChallengeSummaryImage = forwardRef<HTMLDivElement, ChallengeSummary
         <div className="relative z-10 pt-8 border-t border-white/10 flex justify-between items-center mt-auto">
           <div className="flex flex-col">
             <span className="font-black text-xl text-white">LIGA TPM</span>
-            <span className="text-sm text-emerald-400 font-bold">Online Football Manager</span>
+            <span className="text-sm font-bold" style={{ color: theme.primary }}>Online Football Manager</span>
           </div>
           <div className="flex gap-4">
             <div className="flex flex-col items-center">

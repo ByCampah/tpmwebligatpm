@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getThemeColors } from '@/lib/themeColors';
 
 export const runtime = 'nodejs'; // Use nodejs so we can safely use Prisma without Edge issues.
 
@@ -13,6 +14,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const nick = searchParams.get('nick');
     const id = searchParams.get('id');
+    const color = searchParams.get('color') || 'emerald';
 
     if (!nick && !id) {
       return new Response('Jugador no encontrado', { status: 400 });
@@ -89,7 +91,7 @@ export async function GET(req: NextRequest) {
     const slidingAcc = slidingTotal > 0 ? Math.round((slidingMade / slidingTotal) * 100) : 0;
     const saveAcc = savesTotal > 0 ? Math.round((savesMade / savesTotal) * 100) : 0;
 
-    const isGK = gkTime > matchTime; // If played more as GK than field, show GK stats
+    const theme = getThemeColors(color);
 
     return new ImageResponse(
       (
@@ -102,7 +104,7 @@ export async function GET(req: NextRequest) {
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: '#0a0a0a',
-            backgroundImage: 'linear-gradient(to bottom right, #0a0a0a, #111, #0a2a1a)', // Black with green tint
+            backgroundImage: theme.bgGradient,
             fontFamily: 'sans-serif',
           }}
         >
@@ -115,10 +117,10 @@ export async function GET(req: NextRequest) {
               width: 500,
               height: 700,
               backgroundImage: 'linear-gradient(to bottom, #1e1e1e, #111)',
-              border: '2px solid #D4AF37', // Gold border
+              border: `2px solid ${theme.primary}40`,
               borderRadius: 30,
               padding: '40px',
-              boxShadow: '0 0 40px rgba(212, 175, 55, 0.2)',
+              boxShadow: `0 0 40px ${theme.orb1}`,
               position: 'relative',
             }}
           >
@@ -130,7 +132,7 @@ export async function GET(req: NextRequest) {
                 {teamLogo && (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <img src={teamLogo} alt="Team" style={{ width: 80, height: 80, objectFit: 'contain' }} />
-                    <span style={{ fontSize: 16, fontWeight: 700, color: '#D4AF37', marginTop: 10, textAlign: 'center', width: 120 }}>{teamName}</span>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: theme.primary, marginTop: 10, textAlign: 'center', width: 120 }}>{teamName}</span>
                   </div>
                 )}
               </div>
@@ -138,10 +140,10 @@ export async function GET(req: NextRequest) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 250, height: 250 }}>
                 {/* Foto de perfil del jugador */}
                 <div style={{
-                  width: 200,
-                  height: 200,
+                  width: 150,
+                  height: 150,
                   borderRadius: '50%',
-                  backgroundColor: '#D4AF37',
+                  backgroundColor: theme.primary,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -160,11 +162,12 @@ export async function GET(req: NextRequest) {
               display: 'flex', 
               justifyContent: 'center', 
               width: '100%', 
-              borderBottom: '2px solid rgba(212, 175, 55, 0.3)',
+              borderBottom: `2px solid ${theme.primary}4d`,
               paddingBottom: 20,
+              marginBottom: 30,
               marginTop: 20
             }}>
-              <h1 style={{ fontSize: 50, fontWeight: 900, color: '#D4AF37', margin: 0, textTransform: 'uppercase', letterSpacing: 2 }}>
+              <h1 style={{ fontSize: 50, fontWeight: 900, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: 2 }}>
                 {player.nick}
               </h1>
             </div>
@@ -175,15 +178,15 @@ export async function GET(req: NextRequest) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
                   <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{totalMatches}</span>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>PJ</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: theme.primary }}>PJ</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
                   <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{totalGoals}</span>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>GOL</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: theme.primary }}>GOL</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
                   <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{totalAssists}</span>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>ASI</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: theme.primary }}>ASI</span>
                 </div>
               </div>
 
@@ -191,11 +194,11 @@ export async function GET(req: NextRequest) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
                   <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{passAcc}%</span>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>PASES</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: theme.primary }}>PASES</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
                   <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', width: 60, textAlign: 'right' }}>{saveAcc}%</span>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: '#D4AF37' }}>SAVES</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: theme.primary }}>SAVES</span>
                 </div>
               </div>
             </div>

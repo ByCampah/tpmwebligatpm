@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getThemeColors } from '@/lib/themeColors';
 
 export const runtime = 'nodejs'; // Use nodejs so we can safely use Prisma without Edge issues.
 
@@ -12,10 +13,12 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const teamName = searchParams.get('team');
+    const tournamentId = searchParams.get('tournamentId');
     const showDiscord = searchParams.get('discord') === 'true';
+    const color = searchParams.get('color') || 'emerald';
 
-    if (!teamName) {
-      return new Response('Equipo no especificado', { status: 400 });
+    if (!teamName || !tournamentId) {
+      return new Response('Equipo o torneo no especificado', { status: 400 });
     }
 
     // Buscar el equipo
@@ -27,19 +30,11 @@ export async function GET(req: NextRequest) {
       return new Response('Equipo no encontrado', { status: 404 });
     }
 
-    const activeSeason = await prisma.season.findFirst({
-      where: { isActive: true }
-    });
-
-    if (!activeSeason) {
-      return new Response('No hay temporada activa', { status: 404 });
-    }
-
-    // Traer los jugadores del equipo en la temporada activa
+    // Traer los jugadores del equipo en el torneo específico
     const tournamentTeams = await prisma.tournamentTeam.findMany({
       where: {
         teamId: team.id,
-        tournament: { seasonId: activeSeason.id }
+        tournamentId: tournamentId
       },
       include: {
         players: {
@@ -70,6 +65,7 @@ export async function GET(req: NextRequest) {
 
     const tpmLogo = `${baseUrl}/img/logos/LogoTPM.png`;
     const byCampahLogo = `${baseUrl}/img/logos/ByCampah3.png`;
+    const theme = getThemeColors(color);
 
     return new ImageResponse(
       (
@@ -87,14 +83,14 @@ export async function GET(req: NextRequest) {
           }}
         >
           {/* Fondo gradiente sutil */}
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '60%', height: '60%', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.1)', filter: 'blur(100px)' }} />
-          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '60%', height: '60%', borderRadius: '50%', backgroundColor: 'rgba(59, 130, 246, 0.1)', filter: 'blur(100px)' }} />
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '60%', height: '60%', borderRadius: '50%', backgroundColor: theme.orb1, filter: 'blur(100px)' }} />
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '60%', height: '60%', borderRadius: '50%', backgroundColor: theme.orb2, filter: 'blur(100px)' }} />
 
           {/* Top Bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '40px 60px', zIndex: 10 }}>
             <img src={tpmLogo} width="100" height="100" style={{ objectFit: 'contain' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <span style={{ fontSize: '30px', fontWeight: 'bold', color: '#10B981', textTransform: 'uppercase', letterSpacing: '2px' }}>Plantel Oficial</span>
+              <span style={{ fontSize: '30px', fontWeight: 'bold', color: theme.primary, textTransform: 'uppercase', letterSpacing: '2px' }}>Plantel Oficial</span>
               <span style={{ fontSize: '40px', fontWeight: '900', color: 'white' }}>{team.name}</span>
             </div>
             {teamLogo ? (
@@ -111,10 +107,10 @@ export async function GET(req: NextRequest) {
               if (avatar.startsWith('/')) avatar = `${baseUrl}${avatar}`;
 
               return (
-                <div key={p.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '2px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '20px', width: '220px' }}>
-                  <img src={avatar} width="100" height="100" style={{ borderRadius: '50%', objectFit: 'cover', border: '3px solid #10B981', marginBottom: '15px' }} />
+                <div key={p.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: `2px solid ${theme.primary}15`, borderRadius: '16px', padding: '20px', width: '220px' }}>
+                  <img src={avatar} width="100" height="100" style={{ borderRadius: '50%', objectFit: 'cover', border: `3px solid ${theme.primary}`, marginBottom: '15px' }} />
                   <span style={{ fontSize: '22px', fontWeight: '900', color: 'white', textAlign: 'center', marginBottom: '5px' }}>{p.nick}</span>
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#3B82F6', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>{p.primaryPosition || "Libre"}</span>
+                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: theme.secondary, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>{p.primaryPosition || "Libre"}</span>
                   {showDiscord && p.user?.name && (
                     <span style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center', marginTop: '10px', display: 'flex', alignItems: 'center' }}>
                       {/* Pseudo discord icon */}
