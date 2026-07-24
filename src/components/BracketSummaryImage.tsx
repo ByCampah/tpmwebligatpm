@@ -61,7 +61,7 @@ export const BracketSummaryImage = forwardRef<HTMLDivElement, BracketSummaryImag
             <span className="text-zinc-500 font-bold tracking-widest uppercase text-sm">
                 LIGA TPM SUDAMÉRICA
             </span>
-            <img src="/img/logos/ByCampah3.png" alt="By Campah" className="h-10 object-contain opacity-80 mt-1" />
+            <img src="/img/logos/ByCampah3.png" alt="By Campah" className="w-40 h-auto opacity-80 mt-2" />
         </div>
       </div>
     );

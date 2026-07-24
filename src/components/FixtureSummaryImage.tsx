@@ -113,8 +113,12 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
                           )}
                           
                           {m.scheduleNote && (
-                            <div className="mt-3 text-blue-400 font-bold text-sm uppercase tracking-widest bg-blue-900/20 px-4 py-1 rounded-full border border-blue-500/20">
-                              {m.scheduleNote}
+                            <div className="mt-3 text-blue-400 font-bold text-sm uppercase tracking-widest bg-blue-900/20 px-4 py-2 rounded-xl border border-blue-500/20 text-center flex flex-col items-center justify-center leading-tight">
+                              {m.scheduleNote.includes('-') ? m.scheduleNote.split('-').map((line, idx) => (
+                                <span key={idx}>{line.trim()}</span>
+                              )) : (
+                                <span>{m.scheduleNote}</span>
+                              )}
                             </div>
                           )}
                         </div>
@@ -142,7 +146,7 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
             <span className="text-zinc-500 font-bold tracking-widest uppercase text-sm">
                 LIGA TPM SUDAMÉRICA
             </span>
-            <img src="/img/logos/ByCampah3.png" alt="By Campah" className="h-10 object-contain opacity-80 mt-1" />
+            <img src="/img/logos/ByCampah3.png" alt="By Campah" className="w-40 h-auto opacity-80 mt-2" />
         </div>
       </div>
     );
