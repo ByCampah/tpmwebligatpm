@@ -145,13 +145,8 @@ export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImag
         </div>
 
         {/* FOOTER */}
-        <div className="relative z-10 w-full px-16 mt-16 pt-8 border-t border-white/10 flex justify-between items-center bg-black/40">
-          <div className="flex flex-col opacity-0">
-            <span className="font-black text-2xl text-white">LIGA TPM</span>
-            <span className="text-lg font-bold" style={{ color: theme.primary }}>Online Football Manager</span>
-          </div>
-          
-          <img src="/img/logos/ByCampah3.png" alt="ByCampah" className="h-20 w-auto opacity-100" />
+        <div className="relative z-10 w-full px-16 mt-16 pt-8 border-t border-white/10 flex justify-center items-center bg-black/40">
+          <img src="/img/logos/ByCampah3.png" alt="ByCampah" className="h-28 w-auto opacity-100" />
         </div>
       </div>
     );
