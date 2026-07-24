@@ -114,7 +114,7 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
                           
                           {m.scheduleNote && (
                             <div className="mt-3 text-blue-400 font-bold text-sm uppercase tracking-widest bg-blue-900/20 px-4 py-2 rounded-xl border border-blue-500/20 text-center flex flex-col items-center justify-center leading-tight">
-                              {m.scheduleNote.includes('-') ? m.scheduleNote.split('-').map((line, idx) => (
+                              {m.scheduleNote.includes('-') ? m.scheduleNote.split('-').map((line: string, idx: number) => (
                                 <span key={idx}>{line.trim()}</span>
                               )) : (
                                 <span>{m.scheduleNote}</span>
