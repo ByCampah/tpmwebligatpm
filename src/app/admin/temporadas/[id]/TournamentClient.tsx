@@ -14,6 +14,7 @@ import BracketBuilder from "./BracketBuilder";
 
 export default function TournamentClient({ tournament, allTeams, allPlayers, categories, userRole, prodeLeaderboard = [] }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[], userRole: string, prodeLeaderboard?: any[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const initialTabFromUrl = searchParams.get("tab") as any;
   const initialTab = initialTabFromUrl === "RESUMEN" ? "GRAFICOS" : (initialTabFromUrl || "PARTIDOS");
   
