@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { 
   addChallengeParticipant, 
@@ -12,7 +12,7 @@ import {
   finishChallenge
 } from "@/app/actions/challenge-actions";
 import BracketBuilder from "../../temporadas/[id]/BracketBuilder";
-import { useRef, useCallback } from "react";
+
 import { toPng } from 'html-to-image';
 import { ChallengeSummaryImage } from "@/components/ChallengeSummaryImage";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
@@ -130,6 +130,12 @@ export default function ChallengeClient({ challenge, allPlayers }: { challenge: 
   const [rank1, setRank1] = useState(rank1Trophy?.playerId || "");
   const [rank2, setRank2] = useState(rank2Trophy?.playerId || "");
   const [rank3, setRank3] = useState(rank3Trophy?.playerId || "");
+
+  useEffect(() => {
+    if (rank1Trophy?.playerId) setRank1(rank1Trophy.playerId);
+    if (rank2Trophy?.playerId) setRank2(rank2Trophy.playerId);
+    if (rank3Trophy?.playerId) setRank3(rank3Trophy.playerId);
+  }, [rank1Trophy?.playerId, rank2Trophy?.playerId, rank3Trophy?.playerId]);
 
   const handleAwardTrophy = async (rank: 1 | 2 | 3, playerId: string) => {
     if (!playerId) return alert("Selecciona un jugador");

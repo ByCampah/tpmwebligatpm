@@ -429,7 +429,18 @@ export default async function JugadorProfilePage(props: { params: Promise<{ id: 
           
           {renderTrophySection(officialTrophies, "Trofeos Oficiales", false)}
           {renderTrophySection(extraTrophies, "Trofeos Extra", true)}
-          {renderTrophySection(challengeTrophies, "Challenges", true)}
+          
+          {challengeTrophies.some(t => t.challenge?.type === 'SHOOTING' || t.name.toLowerCase().includes('shooting')) && 
+            renderTrophySection(challengeTrophies.filter(t => t.challenge?.type === 'SHOOTING' || t.name.toLowerCase().includes('shooting')), "Challenge Shooting", true)}
+            
+          {challengeTrophies.some(t => t.challenge?.type === 'FREE_KICK' || t.name.toLowerCase().includes('freekick')) && 
+            renderTrophySection(challengeTrophies.filter(t => t.challenge?.type === 'FREE_KICK' || t.name.toLowerCase().includes('freekick')), "Challenge Free Kick", true)}
+            
+          {challengeTrophies.some(t => t.challenge?.type === 'VOLLEY' || t.name.toLowerCase().includes('volley')) && 
+            renderTrophySection(challengeTrophies.filter(t => t.challenge?.type === 'VOLLEY' || t.name.toLowerCase().includes('volley')), "Challenge Volley", true)}
+            
+          {challengeTrophies.some(t => t.challenge?.type === 'PENALTYS' || t.name.toLowerCase().includes('penaltys')) && 
+            renderTrophySection(challengeTrophies.filter(t => t.challenge?.type === 'PENALTYS' || t.name.toLowerCase().includes('penaltys')), "Challenge Penaltys", true)}
         </div>
 
         {/* ESTADISTICAS AVANZADAS */}

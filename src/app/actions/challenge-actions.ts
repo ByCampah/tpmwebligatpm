@@ -119,7 +119,7 @@ export async function updateChallengeSettings(tournamentId: string, data: { name
 
 export async function awardChallengeTrophy(tournamentId: string, playerId: string, rank: 1 | 2 | 3) {
   try {
-    const t = await prisma.challengeTournament.findUnique({ where: { id: tournamentId } });
+    const t = await prisma.challengeTournament.findUnique({ where: { id: tournamentId }, include: { trophies: true } });
     if (!t) throw new Error("Torneo no encontrado");
 
     let trophyName = "";
@@ -151,6 +151,18 @@ export async function awardChallengeTrophy(tournamentId: string, playerId: strin
           challengeId: tournamentId,
           playerId: playerId
         }
+      });
+    }
+
+    // Check if all 3 trophies exist now
+    const currentTrophies = await prisma.trophy.count({
+      where: { challengeId: tournamentId }
+    });
+
+    if (currentTrophies >= 3) {
+      await prisma.challengeTournament.update({
+        where: { id: tournamentId },
+        data: { status: "FINISHED", isActiveChallenge: false }
       });
     }
 

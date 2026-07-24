@@ -6,28 +6,51 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toPng } from 'html-to-image';
 import { SeasonSummaryImage } from "@/components/SeasonSummaryImage";
+import { FixtureSummaryImage } from "@/components/FixtureSummaryImage";
+import { StandingsSummaryImage } from "@/components/StandingsSummaryImage";
+import { BracketSummaryImage } from "@/components/BracketSummaryImage";
 
 import BracketBuilder from "./BracketBuilder";
 
 export default function TournamentClient({ tournament, allTeams, allPlayers, categories, userRole, prodeLeaderboard = [] }: { tournament: any, allTeams: any[], allPlayers: any[], categories: any[], userRole: string, prodeLeaderboard?: any[] }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialTab = (searchParams.get("tab") as any) || "PARTIDOS";
+  const initialTabFromUrl = searchParams.get("tab") as any;
+  const initialTab = initialTabFromUrl === "RESUMEN" ? "GRAFICOS" : (initialTabFromUrl || "PARTIDOS");
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "GRUPOS" | "AJUSTES" | "RESUMEN">(initialTab);
+  const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "GRUPOS" | "AJUSTES" | "GRAFICOS">(initialTab);
   
+  const [exportType, setExportType] = useState<"SEASON" | "FIXTURE" | "STANDINGS" | "BRACKET">("FIXTURE");
+  const [selectedRound, setSelectedRound] = useState<string>("ALL");
   const [imageLayout, setImageLayout] = useState<"vertical" | "square">("vertical");
+  
   const summaryRef = useRef<HTMLDivElement>(null);
+  const fixtureRef = useRef<HTMLDivElement>(null);
+  const standingsRef = useRef<HTMLDivElement>(null);
+  const bracketRef = useRef<HTMLDivElement>(null);
 
   const downloadSummary = useCallback(() => {
-    if (summaryRef.current === null) return;
+    let targetRef = summaryRef;
+    let fileName = `resumen-${tournament.name}.png`;
+    
+    if (exportType === "FIXTURE") {
+        targetRef = fixtureRef;
+        fileName = `fixture-${tournament.name}.png`;
+    } else if (exportType === "STANDINGS") {
+        targetRef = standingsRef;
+        fileName = `posiciones-${tournament.name}.png`;
+    } else if (exportType === "BRACKET") {
+        targetRef = bracketRef;
+        fileName = `llave-${tournament.name}.png`;
+    }
+
+    if (targetRef.current === null) return;
     setLoading(true);
-    toPng(summaryRef.current, { cacheBust: true, quality: 1, backgroundColor: '#0a0a0a' })
+    toPng(targetRef.current, { cacheBust: true, quality: 1, backgroundColor: '#0a0a0a' })
       .then((dataUrl) => {
         const link = document.createElement('a');
-        link.download = `resumen-${tournament.name}.png`;
+        link.download = fileName;
         link.href = dataUrl;
         link.click();
         setLoading(false);
@@ -37,7 +60,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
         setError("No se pudo generar la imagen.");
         setLoading(false);
       });
-  }, [summaryRef, tournament.name]);
+  }, [summaryRef, fixtureRef, standingsRef, bracketRef, exportType, tournament.name]);
   
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");
@@ -377,10 +400,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
           </button>
         )}
         <button 
-          onClick={() => setActiveTab("RESUMEN")}
-          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "RESUMEN" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+          onClick={() => setActiveTab("GRAFICOS")}
+          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "GRAFICOS" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
         >
-          Resumen Imagen
+          Gráficos 📸
         </button>
       </div>
 
@@ -1459,37 +1482,65 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
         </div>
       )}
 
-      {/* TAB CONTENT: RESUMEN (IMAGEN) */}
-      {activeTab === "RESUMEN" as any && (
+      {/* TAB CONTENT: GRAFICOS (IMAGEN) */}
+      {activeTab === "GRAFICOS" as any && (
         <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full items-center">
-          <div className="bg-secondary/30 p-6 rounded-xl border border-border w-full flex flex-col items-center text-center gap-4">
-            <h2 className="text-2xl font-black text-primary">Generador de Resumen</h2>
-            <p className="text-muted-foreground max-w-2xl">
-              Aquí puedes generar y descargar una imagen de alta calidad con el resumen final de la temporada. Incluye al campeón, los mejores jugadores y el cuadro/tabla final. Ideal para compartir en redes sociales o Discord.
+          <div className="bg-secondary/30 p-6 rounded-xl border border-border w-full flex flex-col items-center text-center gap-6 shadow-xl">
+            <h2 className="text-3xl font-black text-primary">Centro de Exportación Gráfica 📸</h2>
+            <p className="text-muted-foreground max-w-2xl text-lg">
+              Selecciona qué gráfico deseas generar para descargar en alta calidad.
             </p>
-            
-            <div className="flex items-center gap-4 mt-2">
-              <button 
-                onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
-                className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex items-center gap-2"
-              >
-                {imageLayout === "vertical" ? "🔄 Cambiar a formato Cuadrado" : "🔄 Cambiar a formato Vertical"}
-              </button>
 
-              <button 
+            <div className="flex flex-wrap items-center justify-center gap-4 bg-black/40 p-2 rounded-xl border border-white/5">
+                <button onClick={() => setExportType("FIXTURE")} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "FIXTURE" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Fixture / Partidos</button>
+                <button onClick={() => setExportType("STANDINGS")} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "STANDINGS" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Posiciones / Grupos</button>
+                <button onClick={() => setExportType("BRACKET")} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "BRACKET" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Llaves (Bracket)</button>
+                <button onClick={() => setExportType("SEASON")} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "SEASON" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Resumen Completo</button>
+            </div>
+            
+            {exportType === "SEASON" && (
+                <div className="flex items-center gap-4 mt-2">
+                <button 
+                    onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
+                    className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex items-center gap-2"
+                >
+                    {imageLayout === "vertical" ? "🔄 Formato Cuadrado" : "🔄 Formato Vertical"}
+                </button>
+                </div>
+            )}
+
+            {exportType === "FIXTURE" && (
+                <div className="flex items-center gap-4 mt-2">
+                    <span className="font-bold text-muted-foreground">Filtrar Fecha:</span>
+                    <select 
+                        value={selectedRound} 
+                        onChange={(e) => setSelectedRound(e.target.value)}
+                        className="bg-black border border-border rounded-lg p-3 font-bold focus:border-primary focus:outline-none"
+                    >
+                        <option value="ALL">Todo el Fixture</option>
+                        {Array.from(new Set(tournament.matches.map((m:any) => m.round || "Sin Etapa"))).filter((r: any) => !["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(r)).map((round: any) => (
+                            <option key={round} value={round}>{round}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
+            <button 
                 onClick={downloadSummary} 
                 disabled={loading}
-                className="bg-primary text-primary-foreground font-black px-12 py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(var(--primary),0.2)] flex items-center gap-2"
-              >
-                {loading ? "Generando Imagen..." : "📸 DESCARGAR IMAGEN"}
-              </button>
-            </div>
+                className="bg-emerald-600 text-white font-black px-12 py-4 rounded-xl hover:bg-emerald-500 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center gap-2 mt-4 text-xl"
+            >
+                {loading ? "Generando Imagen HD..." : "📸 DESCARGAR IMAGEN HD"}
+            </button>
           </div>
 
           <div className="w-full overflow-x-auto p-4 bg-black/50 border border-border rounded-xl">
             {/* The hidden/scaled container to capture */}
-            <div style={{ width: imageLayout === "square" ? "1280px" : "1080px", margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
-              <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} />
+            <div style={{ width: exportType === "SEASON" ? (imageLayout === "square" ? "1280px" : "1080px") : (exportType === "BRACKET" ? "1920px" : "1200px"), margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
+              {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} />}
+              {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} />}
+              {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} />}
+              {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} />}
             </div>
           </div>
         </div>
