@@ -106,10 +106,15 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
                             </div>
                           )}
                           
-                          {/* Penalties if any */}
                           {isPlayed && (m.homePenaltyScore !== null && m.awayPenaltyScore !== null) && (
                             <div className="mt-2 text-yellow-500 font-bold text-lg bg-yellow-500/10 px-4 py-1 rounded-full border border-yellow-500/20">
                               PEN: {m.homePenaltyScore} - {m.awayPenaltyScore}
+                            </div>
+                          )}
+                          
+                          {m.scheduleNote && (
+                            <div className="mt-3 text-blue-400 font-bold text-sm uppercase tracking-widest bg-blue-900/20 px-4 py-1 rounded-full border border-blue-500/20">
+                              {m.scheduleNote}
                             </div>
                           )}
                         </div>
@@ -137,9 +142,7 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
             <span className="text-zinc-500 font-bold tracking-widest uppercase text-sm">
                 LIGA TPM SUDAMÉRICA
             </span>
-            <span className="text-blue-500/50 font-bold tracking-widest uppercase text-xs">
-                BY CAMPAH
-            </span>
+            <img src="/img/logos/ByCampah3.png" alt="By Campah" className="h-10 object-contain opacity-80 mt-1" />
         </div>
       </div>
     );

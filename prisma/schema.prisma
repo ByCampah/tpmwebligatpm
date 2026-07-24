@@ -241,7 +241,8 @@ model Match {
   homePenaltyScore Int?
   awayPenaltyScore Int?
 
-  matchDate DateTime?
+  matchDate    DateTime?
+  scheduleNote String?
   round     String? // e.g. "Fecha 1", "Semifinal"
   status    String    @default("SCHEDULED") // SCHEDULED, PLAYED
   events    Json?     @default("[]") // Lista de eventos: {type: GOAL|RED, minute: Int, playerId: String, assistId?: String}

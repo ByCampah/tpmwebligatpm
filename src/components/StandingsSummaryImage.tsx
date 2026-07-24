@@ -223,9 +223,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
             <span className="text-zinc-500 font-bold tracking-widest uppercase text-sm">
                 LIGA TPM SUDAMÉRICA
             </span>
-            <span className="text-green-500/50 font-bold tracking-widest uppercase text-xs">
-                BY CAMPAH
-            </span>
+            <img src="/img/logos/ByCampah3.png" alt="By Campah" className="h-10 object-contain opacity-80 mt-1" />
         </div>
       </div>
     );

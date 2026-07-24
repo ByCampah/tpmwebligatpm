@@ -1270,12 +1270,12 @@ export async function deleteMatch(matchId: string) {
   }
 }
 
-export async function updateMatchDate(matchId: string, matchDate: string | null) {
+export async function updateScheduleNote(matchId: string, scheduleNote: string | null) {
   try {
     await prisma.match.update({
       where: { id: matchId },
       data: {
-        matchDate: matchDate ? new Date(matchDate) : null
+        scheduleNote: scheduleNote || null
       }
     });
     return { success: true };

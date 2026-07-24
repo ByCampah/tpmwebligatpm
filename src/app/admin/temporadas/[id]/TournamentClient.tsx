@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde, addMultiplePlayersToRoster, enrollMultipleTeamsToTournament, deleteMatch, updateMatchDate } from "@/app/actions";
+import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde, addMultiplePlayersToRoster, enrollMultipleTeamsToTournament, deleteMatch, updateScheduleNote } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toPng } from 'html-to-image';
@@ -724,11 +724,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       </div>
                       <div className="flex items-center">
                         <input 
-                          type="datetime-local" 
-                          defaultValue={m.matchDate ? new Date(new Date(m.matchDate).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ""}
-                          onChange={async (e) => {
-                            await updateMatchDate(m.id, e.target.value ? new Date(e.target.value).toISOString() : null);
-                            router.refresh();
+                          type="text" 
+                          placeholder="Nota (ej. Jueves 16)"
+                          defaultValue={m.scheduleNote || ""}
+                          onBlur={async (e) => {
+                            if (e.target.value !== (m.scheduleNote || "")) {
+                              await updateScheduleNote(m.id, e.target.value || null);
+                              router.refresh();
+                            }
                           }}
                           className="bg-black border border-border text-[10px] p-1 rounded text-muted-foreground focus:text-primary focus:border-primary outline-none"
                         />
