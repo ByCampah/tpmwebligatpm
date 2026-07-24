@@ -9,6 +9,7 @@ import { SeasonSummaryImage } from "@/components/SeasonSummaryImage";
 import { FixtureSummaryImage } from "@/components/FixtureSummaryImage";
 import { StandingsSummaryImage } from "@/components/StandingsSummaryImage";
 import { BracketSummaryImage } from "@/components/BracketSummaryImage";
+import { PlantelSummaryImage } from "@/components/PlantelSummaryImage";
 
 import BracketBuilder from "./BracketBuilder";
 
@@ -27,23 +28,16 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   const [imageLayout, setImageLayout] = useState<"vertical" | "square">("vertical");
   const [themeColor, setThemeColor] = useState<string>("emerald");
   
-  const [plantelTeam, setPlantelTeam] = useState("");
+  const [plantelTeam, setPlantelTeam] = useState("ALL");
   const [showDiscord, setShowDiscord] = useState(false);
-  const [generatedPlantelUrl, setGeneratedPlantelUrl] = useState<string | null>(null);
   
   const summaryRef = useRef<HTMLDivElement>(null);
   const fixtureRef = useRef<HTMLDivElement>(null);
   const standingsRef = useRef<HTMLDivElement>(null);
   const bracketRef = useRef<HTMLDivElement>(null);
+  const plantelRef = useRef<HTMLDivElement>(null);
 
   const downloadSummary = useCallback(() => {
-    if (exportType === "PLANTEL") {
-      if (!plantelTeam) return alert("Seleccioná un equipo para generar el plantel.");
-      const url = `/api/og/plantel?tournamentId=${tournament.id}&team=${encodeURIComponent(plantelTeam)}&discord=${showDiscord}&color=${themeColor}`;
-      setGeneratedPlantelUrl(url);
-      return;
-    }
-
     let targetRef = summaryRef;
     let fileName = `resumen-${tournament.name}.png`;
     
@@ -56,6 +50,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     } else if (exportType === "BRACKET") {
         targetRef = bracketRef;
         fileName = `llave-${tournament.name}.png`;
+    } else if (exportType === "PLANTEL") {
+        targetRef = plantelRef;
+        fileName = `planteles-${tournament.name}.png`;
     }
 
     if (targetRef.current === null) return;
@@ -1555,10 +1552,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
             <div className="flex flex-wrap items-center justify-center gap-4 bg-black/40 p-2 rounded-xl border border-white/5">
                 <button onClick={() => setExportType("FIXTURE")} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "FIXTURE" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Fixture / Partidos</button>
-                <button onClick={() => { setExportType("STANDINGS"); setGeneratedPlantelUrl(null); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "STANDINGS" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Posiciones / Grupos</button>
-                <button onClick={() => { setExportType("BRACKET"); setGeneratedPlantelUrl(null); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "BRACKET" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Llaves (Bracket)</button>
-                <button onClick={() => { setExportType("SEASON"); setGeneratedPlantelUrl(null); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "SEASON" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Resumen Completo</button>
-                <button onClick={() => { setExportType("PLANTEL"); setGeneratedPlantelUrl(null); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "PLANTEL" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Planteles (Equipos)</button>
+                <button onClick={() => { setExportType("STANDINGS"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "STANDINGS" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Posiciones / Grupos</button>
+                <button onClick={() => { setExportType("BRACKET"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "BRACKET" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Llaves (Bracket)</button>
+                <button onClick={() => { setExportType("SEASON"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "SEASON" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Resumen Completo</button>
+                <button onClick={() => { setExportType("PLANTEL"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "PLANTEL" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Planteles (Equipos)</button>
             </div>
             
             {exportType === "SEASON" && (
@@ -1594,17 +1591,17 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                         <label className="font-bold text-muted-foreground text-sm">Equipo:</label>
                         <select 
                             value={plantelTeam} 
-                            onChange={(e) => { setPlantelTeam(e.target.value); setGeneratedPlantelUrl(null); }}
+                            onChange={(e) => { setPlantelTeam(e.target.value); }}
                             className="bg-black border border-border rounded-lg p-3 font-bold focus:border-primary focus:outline-none"
                         >
-                            <option value="">Seleccionar Equipo...</option>
+                            <option value="ALL">Todos los Equipos</option>
                             {enrolledTeamsData.map((t: any) => (
                                 <option key={t.teamId} value={t.team.name}>{t.team.name}</option>
                             ))}
                         </select>
                     </div>
                     <label className="flex items-center gap-3 cursor-pointer text-left">
-                        <input type="checkbox" checked={showDiscord} onChange={e => { setShowDiscord(e.target.checked); setGeneratedPlantelUrl(null); }} className="w-5 h-5 accent-primary" />
+                        <input type="checkbox" checked={showDiscord} onChange={e => { setShowDiscord(e.target.checked); }} className="w-5 h-5 accent-primary" />
                         <span className="font-bold text-sm">Mostrar Discord de jugadores</span>
                     </label>
                 </div>
@@ -1614,7 +1611,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 <span className="font-bold text-muted-foreground">Color de Fondo:</span>
                 <select 
                     value={themeColor} 
-                    onChange={(e) => { setThemeColor(e.target.value); setGeneratedPlantelUrl(null); }}
+                    onChange={(e) => { setThemeColor(e.target.value); }}
                     className="bg-black border border-border rounded-lg p-2 font-bold focus:border-primary focus:outline-none"
                 >
                     <option value="emerald">Verde (TPM Clásico)</option>
@@ -1630,24 +1627,18 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 disabled={loading}
                 className="bg-emerald-600 text-white font-black px-12 py-4 rounded-xl hover:bg-emerald-500 transition-transform hover:scale-105 shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center gap-2 mt-4 text-xl"
             >
-                {loading ? "Generando Imagen HD..." : (exportType === "PLANTEL" ? "📸 GENERAR CARTA DE PLANTEL" : "📸 DESCARGAR IMAGEN HD")}
+                {loading ? "Generando Imagen HD..." : "📸 DESCARGAR IMAGEN HD"}
             </button>
           </div>
 
           <div className="w-full overflow-x-auto p-4 bg-black/50 border border-border rounded-xl">
             {/* The hidden/scaled container to capture */}
-            <div style={{ width: exportType === "SEASON" ? (imageLayout === "square" ? "1280px" : "1080px") : (exportType === "BRACKET" ? "1920px" : "1200px"), margin: "0 auto", transform: exportType === "PLANTEL" ? "none" : "scale(0.7)", transformOrigin: "top center" }}>
+            <div style={{ width: exportType === "SEASON" ? (imageLayout === "square" ? "1280px" : "1080px") : (exportType === "BRACKET" ? "1920px" : (exportType === "PLANTEL" && plantelTeam === "ALL" ? "1600px" : (exportType === "PLANTEL" ? "800px" : "1200px"))), margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
               {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} />}
               {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} themeColor={themeColor} />}
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} />}
-              
-              {exportType === "PLANTEL" && generatedPlantelUrl && (
-                <div className="flex flex-col items-center gap-4">
-                  <p className="text-muted-foreground text-sm font-bold bg-black/40 p-2 rounded-lg inline-block mb-2">Mantén presionado o clic derecho sobre la imagen para descargarla</p>
-                  <img src={generatedPlantelUrl} className="w-full max-w-[1200px] border-4 border-border rounded-xl shadow-2xl" alt="Plantel" />
-                </div>
-              )}
+              {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} />}
             </div>
           </div>
         </div>
