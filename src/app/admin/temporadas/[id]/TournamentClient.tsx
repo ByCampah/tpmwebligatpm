@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde, addMultiplePlayersToRoster, enrollMultipleTeamsToTournament } from "@/app/actions";
+import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde, addMultiplePlayersToRoster, enrollMultipleTeamsToTournament, deleteMatch, updateMatchDate } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toPng } from 'html-to-image';
@@ -685,23 +685,54 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       <span className="font-bold">{m.awayTeam.name}</span>
                     </div>
 
-                    <div className="flex gap-2 ml-4">
-                      <button
-                        onClick={() => handleToggleProde(m.id, !m.showInProde, m.prodeLocked)}
-                        className={`text-xs font-bold px-3 py-1 rounded transition-colors ${m.showInProde ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}
-                        title="Mostrar en Portada para Prode"
-                      >
-                        {m.showInProde ? 'PRODE ON' : 'PRODE OFF'}
-                      </button>
-                      {m.showInProde && (
+                    <div className="flex flex-col gap-2 ml-4">
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => handleToggleProde(m.id, m.showInProde, !m.prodeLocked)}
-                          className={`text-xs font-bold px-3 py-1 rounded transition-colors ${m.prodeLocked ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}
-                          title={m.prodeLocked ? 'Prode Bloqueado' : 'Prode Abierto'}
+                          onClick={() => handleToggleProde(m.id, !m.showInProde, m.prodeLocked)}
+                          className={`text-xs font-bold px-3 py-1 rounded transition-colors ${m.showInProde ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}
+                          title="Mostrar en Portada para Prode"
                         >
-                          {m.prodeLocked ? '🔒 CERRADO' : '🔓 ABIERTO'}
+                          {m.showInProde ? 'PRODE ON' : 'PRODE OFF'}
                         </button>
-                      )}
+                        {m.showInProde && (
+                          <button
+                            onClick={() => handleToggleProde(m.id, m.showInProde, !m.prodeLocked)}
+                            className={`text-xs font-bold px-3 py-1 rounded transition-colors ${m.prodeLocked ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}
+                            title={m.prodeLocked ? 'Prode Bloqueado' : 'Prode Abierto'}
+                          >
+                            {m.prodeLocked ? '🔒 CERRADO' : '🔓 ABIERTO'}
+                          </button>
+                        )}
+                        {userRole === "ADMIN" && (
+                            <button 
+                              onClick={async () => {
+                                if(confirm("¿Estás seguro de eliminar este partido?")) {
+                                  const res = await deleteMatch(m.id);
+                                  if (res.success) {
+                                    router.refresh();
+                                  } else {
+                                    alert(res.error);
+                                  }
+                                }
+                              }}
+                              className="text-xs font-bold px-3 py-1 rounded transition-colors bg-red-900/50 border border-red-500 text-red-200 hover:bg-red-800"
+                              title="Eliminar Partido"
+                            >
+                              🗑️
+                            </button>
+                        )}
+                      </div>
+                      <div className="flex items-center">
+                        <input 
+                          type="datetime-local" 
+                          defaultValue={m.matchDate ? new Date(new Date(m.matchDate).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ""}
+                          onChange={async (e) => {
+                            await updateMatchDate(m.id, e.target.value ? new Date(e.target.value).toISOString() : null);
+                            router.refresh();
+                          }}
+                          className="bg-black border border-border text-[10px] p-1 rounded text-muted-foreground focus:text-primary focus:border-primary outline-none"
+                        />
+                      </div>
                     </div>
                     
                     <button 

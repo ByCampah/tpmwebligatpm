@@ -117,7 +117,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
             <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
             <div className="flex flex-col items-end text-right">
               <h2 className="text-4xl font-bold tracking-widest text-green-500 uppercase mb-3">
-                {isGroups ? "FASE DE GRUPOS" : "TABLA DE POSICIONES"}
+                TABLA DE POSICIONES{isGroups ? " - FASE DE GRUPOS" : ""}
               </h2>
               <h1 className="text-6xl font-black uppercase max-w-3xl text-white leading-tight" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
                 {tournament.name}
@@ -224,7 +224,7 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
                 LIGA TPM SUDAMÉRICA
             </span>
             <span className="text-green-500/50 font-bold tracking-widest uppercase text-xs">
-                Generado Automáticamente • By Campah
+                BY CAMPAH
             </span>
         </div>
       </div>

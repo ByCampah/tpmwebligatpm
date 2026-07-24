@@ -1258,3 +1258,28 @@ export async function enrollMultipleTeamsToTournament(tournamentId: string, text
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteMatch(matchId: string) {
+  try {
+    await prisma.match.delete({
+      where: { id: matchId }
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateMatchDate(matchId: string, matchDate: string | null) {
+  try {
+    await prisma.match.update({
+      where: { id: matchId },
+      data: {
+        matchDate: matchDate ? new Date(matchDate) : null
+      }
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

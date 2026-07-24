@@ -210,7 +210,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
             <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
             <div className="flex flex-col items-end text-right">
               <h2 className="text-4xl font-bold tracking-widest text-blue-400 uppercase mb-3">
-                {tournament.season?.name || "Torneo de Pretemporada"}
+                RESUMEN DE TEMPORADA
               </h2>
               <h1 className="text-6xl font-black uppercase max-w-3xl text-white leading-tight" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
                 {tournament.name}
@@ -501,9 +501,12 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         </div>
 
         {/* FOOTER */}
-        <div className="w-full mt-16 py-6 border-t border-white/5 text-center z-10 flex items-center justify-center gap-4">
+        <div className="w-full mt-16 py-6 border-t border-white/5 text-center z-10 flex flex-col items-center justify-center gap-2">
             <span className="text-zinc-500 font-bold tracking-widest uppercase text-sm">
-                {tournament.name} • By Campah
+                LIGA TPM SUDAMÉRICA
+            </span>
+            <span className="text-blue-500/50 font-bold tracking-widest uppercase text-xs">
+                BY CAMPAH
             </span>
         </div>
       </div>
