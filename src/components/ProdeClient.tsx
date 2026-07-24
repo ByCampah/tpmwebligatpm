@@ -61,64 +61,94 @@ export default function ProdeClient({ tournaments, userPredictions, leaderboards
             tournaments.map((t: any) => (
               <div key={t.tournament.id}>
                 <h3 className="text-xl font-bold mb-4 text-purple-400 border-b border-white/10 pb-2">{t.tournament.name}</h3>
-                <div className="flex flex-col gap-4">
-                  {t.matches.map((m: any) => {
-                    const prediction = userPredictions.find((p: any) => p.matchId === m.id);
-                    const isLocked = m.prodeLocked;
-                    const isLoading = loadingId === m.id;
+                <div className="flex flex-col gap-8">
+                  {(() => {
+                    const matchesByRound = [...t.matches]
+                      .sort((a: any, b: any) => {
+                        const numA = parseInt(a.round?.replace(/\D/g, '') || '0');
+                        const numB = parseInt(b.round?.replace(/\D/g, '') || '0');
+                        if (numA !== numB) return numA - numB;
+                        return (a.createdAt || a.id).localeCompare(b.createdAt || b.id);
+                      })
+                      .reduce((acc: any, m: any) => {
+                        const round = m.round || "Sin Etapa";
+                        if (!acc[round]) acc[round] = [];
+                        acc[round].push(m);
+                        return acc;
+                      }, {});
 
-                    return (
-                      <div key={m.id} className="bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 transition hover:border-purple-500/30">
-                        
-                        <div className="flex-1 flex justify-end items-center gap-3">
-                          <span className="font-bold text-sm sm:text-base">{m.homeTeam.name}</span>
-                          {m.homeTeam.logoUrl && <img src={m.homeTeam.logoUrl} className="h-6 object-contain" alt="" />}
+                    const rounds = Object.keys(matchesByRound).sort((a, b) => {
+                      const numA = parseInt(a.replace(/\D/g, '')) || 0;
+                      const numB = parseInt(b.replace(/\D/g, '')) || 0;
+                      if (numA !== numB) return numA - numB;
+                      return a.localeCompare(b);
+                    });
+
+                    return rounds.map(round => (
+                      <div key={round}>
+                        <h4 className="text-sm font-bold mb-3 text-white/50 bg-white/5 inline-block px-3 py-1 rounded-md">{round}</h4>
+                        <div className="flex flex-col gap-4">
+                          {matchesByRound[round].map((m: any) => {
+                            const prediction = userPredictions.find((p: any) => p.matchId === m.id);
+                            const isLocked = m.prodeLocked;
+                            const isLoading = loadingId === m.id;
+
+                            return (
+                              <div key={m.id} className="bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 transition hover:border-purple-500/30">
+                                
+                                <div className="flex-1 flex justify-end items-center gap-3">
+                                  <span className="font-bold text-sm sm:text-base">{m.homeTeam.name}</span>
+                                  {m.homeTeam.logoUrl && <img src={m.homeTeam.logoUrl} className="h-6 object-contain" alt="" />}
+                                </div>
+
+                                <div className="flex flex-col items-center">
+                                  <form onSubmit={(e) => handlePredict(e, m.id)} className="flex items-center gap-2">
+                                    <input 
+                                      type="number" 
+                                      name="homeScore" 
+                                      min="0" 
+                                      defaultValue={prediction?.homeScore ?? ""}
+                                      disabled={isLocked || isLoading || !userId}
+                                      className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
+                                    />
+                                    <span className="text-muted-foreground font-bold">-</span>
+                                    <input 
+                                      type="number" 
+                                      name="awayScore" 
+                                      min="0" 
+                                      defaultValue={prediction?.awayScore ?? ""}
+                                      disabled={isLocked || isLoading || !userId}
+                                      className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
+                                    />
+                                    {!isLocked && userId && (
+                                      <button 
+                                        type="submit" 
+                                        disabled={isLoading}
+                                        className="ml-2 bg-purple-600 hover:bg-purple-500 text-white font-bold p-2 rounded-lg transition disabled:opacity-50 text-xs"
+                                      >
+                                        {isLoading ? "..." : "✓"}
+                                      </button>
+                                    )}
+                                  </form>
+                                  {isLocked && <span className="text-[10px] text-red-400 font-bold mt-1 uppercase tracking-wider">Cerrado</span>}
+                                  {prediction && !isLocked && <span className="text-[10px] text-green-400 font-bold mt-1 uppercase tracking-wider">Guardado</span>}
+                                  {prediction?.pointsEarned !== null && prediction?.pointsEarned !== undefined && (
+                                     <span className="text-xs text-yellow-500 font-bold mt-1">+{prediction.pointsEarned} pts</span>
+                                  )}
+                                </div>
+
+                                <div className="flex-1 flex justify-start items-center gap-3">
+                                  {m.awayTeam.logoUrl && <img src={m.awayTeam.logoUrl} className="h-6 object-contain" alt="" />}
+                                  <span className="font-bold text-sm sm:text-base">{m.awayTeam.name}</span>
+                                </div>
+
+                              </div>
+                            );
+                          })}
                         </div>
-
-                        <div className="flex flex-col items-center">
-                          <form onSubmit={(e) => handlePredict(e, m.id)} className="flex items-center gap-2">
-                            <input 
-                              type="number" 
-                              name="homeScore" 
-                              min="0" 
-                              defaultValue={prediction?.homeScore ?? ""}
-                              disabled={isLocked || isLoading || !userId}
-                              className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
-                            />
-                            <span className="text-muted-foreground font-bold">-</span>
-                            <input 
-                              type="number" 
-                              name="awayScore" 
-                              min="0" 
-                              defaultValue={prediction?.awayScore ?? ""}
-                              disabled={isLocked || isLoading || !userId}
-                              className="w-12 h-12 text-center text-xl font-black bg-black border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none disabled:opacity-50" 
-                            />
-                            {!isLocked && userId && (
-                              <button 
-                                type="submit" 
-                                disabled={isLoading}
-                                className="ml-2 bg-purple-600 hover:bg-purple-500 text-white font-bold p-2 rounded-lg transition disabled:opacity-50 text-xs"
-                              >
-                                {isLoading ? "..." : "✓"}
-                              </button>
-                            )}
-                          </form>
-                          {isLocked && <span className="text-[10px] text-red-400 font-bold mt-1 uppercase tracking-wider">Cerrado</span>}
-                          {prediction && !isLocked && <span className="text-[10px] text-green-400 font-bold mt-1 uppercase tracking-wider">Guardado</span>}
-                          {prediction?.pointsEarned !== null && prediction?.pointsEarned !== undefined && (
-                             <span className="text-xs text-yellow-500 font-bold mt-1">+{prediction.pointsEarned} pts</span>
-                          )}
-                        </div>
-
-                        <div className="flex-1 flex justify-start items-center gap-3">
-                          {m.awayTeam.logoUrl && <img src={m.awayTeam.logoUrl} className="h-6 object-contain" alt="" />}
-                          <span className="font-bold text-sm sm:text-base">{m.awayTeam.name}</span>
-                        </div>
-
                       </div>
-                    );
-                  })}
+                    ));
+                  })()}
                 </div>
               </div>
             ))

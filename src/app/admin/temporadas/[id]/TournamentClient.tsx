@@ -648,14 +648,26 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             
             {/* Agrupar Partidos por Fecha/Round */}
             {(() => {
-              const matchesByRound = tournament.matches.reduce((acc: any, m: any) => {
-                const round = m.round || "Sin Etapa";
-                if (!acc[round]) acc[round] = [];
-                acc[round].push(m);
-                return acc;
-              }, {});
+              const matchesByRound = [...tournament.matches]
+                .sort((a: any, b: any) => {
+                  const numA = parseInt(a.round?.replace(/\D/g, '') || '0');
+                  const numB = parseInt(b.round?.replace(/\D/g, '') || '0');
+                  if (numA !== numB) return numA - numB;
+                  return (a.createdAt || a.id).localeCompare(b.createdAt || b.id);
+                })
+                .reduce((acc: any, m: any) => {
+                  const round = m.round || "Sin Etapa";
+                  if (!acc[round]) acc[round] = [];
+                  acc[round].push(m);
+                  return acc;
+                }, {});
 
-              const rounds = Object.keys(matchesByRound);
+              const rounds = Object.keys(matchesByRound).sort((a, b) => {
+                const numA = parseInt(a.replace(/\D/g, '')) || 0;
+                const numB = parseInt(b.replace(/\D/g, '')) || 0;
+                if (numA !== numB) return numA - numB;
+                return a.localeCompare(b);
+              });
 
               if (rounds.length === 0) {
                 return <p className="text-muted-foreground text-center py-8">No hay partidos generados.</p>;
