@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Liga TPM - Online Football Manager",
-  description: "Estadísticas, equipos y torneos de la comunidad TPM.",
+  title: "Liga TPM Sudamerica - By Campah",
+  description: "By Campah",
 };
 
 const navLinks = [
