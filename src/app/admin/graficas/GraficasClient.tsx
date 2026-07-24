@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function GraficasClient({ teams, players, tournaments }: { teams: any[], players: any[], tournaments: any[] }) {
-  const [activeTab, setActiveTab] = useState<"JUGADOR" | "ESTADISTICAS" | "PARTIDO">("PARTIDO");
+  const [activeTab, setActiveTab] = useState<"JUGADOR" | "ESTADISTICAS" | "PARTIDO" | "PLANTEL">("PARTIDO");
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
 
   const [partidoLocalName, setPartidoLocalName] = useState("");
@@ -14,6 +14,9 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
   const [estadisticasTorneoId, setEstadisticasTorneoId] = useState("");
 
   const [jugadorNick, setJugadorNick] = useState("");
+
+  const [plantelTeam, setPlantelTeam] = useState("");
+  const [showDiscord, setShowDiscord] = useState(false);
 
   const handleGeneratePartido = (e: any) => {
     e.preventDefault();
@@ -44,6 +47,15 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
     setGeneratedUrl(`/api/og/jugador?nick=${encodeURIComponent(jugadorNick)}`);
   };
 
+  const handleGeneratePlantel = (e: any) => {
+    e.preventDefault();
+    if (!plantelTeam) {
+      alert("Seleccioná un equipo.");
+      return;
+    }
+    setGeneratedUrl(`/api/og/plantel?team=${encodeURIComponent(plantelTeam)}&discord=${showDiscord}`);
+  };
+
   return (
     <div className="flex flex-col gap-8 w-full">
       
@@ -66,6 +78,12 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
           className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "JUGADOR" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
         >
           Carta de Jugador
+        </button>
+        <button 
+          onClick={() => { setActiveTab("PLANTEL"); setGeneratedUrl(null); }}
+          className={`flex-1 py-4 text-center font-black uppercase tracking-wider transition-colors border-b-4 ${activeTab === "PLANTEL" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-white"}`}
+        >
+          Plantel (Equipo)
         </button>
       </div>
 
@@ -128,17 +146,31 @@ export default function GraficasClient({ teams, players, tournaments }: { teams:
           {activeTab === "JUGADOR" && (
             <form onSubmit={handleGenerateJugador} className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-bold text-muted-foreground mb-1">Buscar Jugador</label>
-                <input list="players-list" value={jugadorNick} onChange={e => setJugadorNick(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Buscar por nick..." />
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Jugador (Buscar por Nick)</label>
+                <input list="players-list" value={jugadorNick} onChange={e => setJugadorNick(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Escribí el nick..." />
               </div>
-              <p className="text-muted-foreground text-xs">
-                Se calcularán las estadísticas de este jugador para la Temporada Activa.
-              </p>
-              <button type="submit" className="bg-primary text-primary-foreground font-black py-4 rounded-xl hover:bg-primary/90 transition-transform hover:scale-105 shadow-[0_5px_20px_rgba(var(--primary),0.2)] mt-2">
-                GENERAR CARTA DE JUGADOR
+              <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black py-3 rounded uppercase tracking-wider transition-colors mt-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                Generar Carta
               </button>
             </form>
           )}
+
+          {activeTab === "PLANTEL" && (
+            <form onSubmit={handleGeneratePlantel} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-bold text-muted-foreground mb-1">Equipo (Buscar)</label>
+                <input list="teams-list" value={plantelTeam} onChange={e => setPlantelTeam(e.target.value)} required className="w-full bg-black border border-border rounded p-3 focus:border-primary focus:outline-none" placeholder="Buscar equipo..." />
+              </div>
+              <label className="flex items-center gap-3 bg-black/50 p-3 rounded border border-border cursor-pointer">
+                <input type="checkbox" checked={showDiscord} onChange={e => setShowDiscord(e.target.checked)} className="w-5 h-5 accent-primary" />
+                <span className="font-bold text-white">Mostrar Discord en la imagen</span>
+              </label>
+              <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black py-3 rounded uppercase tracking-wider transition-colors mt-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                Generar Plantel
+              </button>
+            </form>
+          )}
+
         </div>
 
         {/* VISTA PREVIA */}
