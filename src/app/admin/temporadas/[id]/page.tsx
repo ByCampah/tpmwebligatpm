@@ -19,7 +19,7 @@ export default async function AdminTournamentPage(props: { params: Promise<{ id:
         include: { 
           team: true,
           players: {
-            include: { player: true }
+            include: { player: { include: { user: true } } }
           }
         }
       },

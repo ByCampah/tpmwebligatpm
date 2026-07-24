@@ -119,8 +119,8 @@ export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImag
                           <div className="flex flex-col truncate justify-center">
                             <span className="font-bold text-lg text-white truncate flex items-center gap-2">
                               {p.nick}
-                              {showDiscord && p.discordId && (
-                                <span className="text-sm font-normal text-muted-foreground mt-0.5">@{p.discordId}</span>
+                              {showDiscord && p.user?.discordId && (
+                                <span className="text-sm font-normal text-muted-foreground mt-0.5">@{p.user.discordId}</span>
                               )}
                             </span>
                           </div>
