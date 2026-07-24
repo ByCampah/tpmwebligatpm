@@ -68,7 +68,10 @@ export default function ProdeClient({ tournaments, userPredictions, leaderboards
                         const numA = parseInt(a.round?.replace(/\D/g, '') || '0');
                         const numB = parseInt(b.round?.replace(/\D/g, '') || '0');
                         if (numA !== numB) return numA - numB;
-                        return (a.createdAt || a.id).localeCompare(b.createdAt || b.id);
+                        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        if (timeA !== timeB) return timeA - timeB;
+                        return String(a.id).localeCompare(String(b.id));
                       })
                       .reduce((acc: any, m: any) => {
                         const round = m.round || "Sin Etapa";
