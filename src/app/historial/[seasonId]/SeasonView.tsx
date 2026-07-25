@@ -35,6 +35,7 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   
   const [selectedRound, setSelectedRound] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('standings');
+  const [limitGoalsTo4, setLimitGoalsTo4] = useState(false);
 
   // Si cambia el parametro en la url y no habiamos renderizado, sincronizamos (opcional, por si navegan)
   useEffect(() => {
@@ -120,7 +121,18 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   const allTournamentMatches = [...groupMatches, ...regularMatches, ...playoffMatches];
   
   // Deduplicate matches just in case
-  const uniqueTournamentMatches = Array.from(new Map(allTournamentMatches.map(m => [m.id, m])).values());
+  let uniqueTournamentMatches = Array.from(new Map(allTournamentMatches.map(m => [m.id, m])).values());
+  
+  uniqueTournamentMatches.sort((a: any, b: any) => {
+    const numA = parseInt(a.round?.replace(/\D/g, '') || '0');
+    const numB = parseInt(b.round?.replace(/\D/g, '') || '0');
+    if (numA !== numB) return numA - numB;
+    const timeA = a.matchDate ? new Date(a.matchDate).getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+    const timeB = b.matchDate ? new Date(b.matchDate).getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+    if (timeA !== timeB) return timeA - timeB;
+    return String(a.id).localeCompare(String(b.id));
+  });
+
   const displayedMatches = selectedRound ? uniqueTournamentMatches.filter((m: any) => m.round === selectedRound) : uniqueTournamentMatches;
 
   const cupGroups = Array.from(new Set(selectedTournament?.teams.map((tt: any) => tt.group).filter(Boolean)));
@@ -139,6 +151,35 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
     const statsMap = new Map();
     selectedTournament?.matches.forEach((m: any) => {
       if (m.status === 'PLAYED' || (["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round ?? ""))) {
+        
+        let validGoalsEvents: any[] = [];
+        if (limitGoalsTo4 && m.events) {
+          try {
+            const parsedEvents = typeof m.events === 'string' ? JSON.parse(m.events) : m.events;
+            if (Array.isArray(parsedEvents)) {
+              let homeGoals = 0;
+              let awayGoals = 0;
+              const sortedEvents = [...parsedEvents].sort((a: any, b: any) => (a.minute || 0) - (b.minute || 0));
+              
+              for (const ev of sortedEvents) {
+                if (ev.type === 'GOAL' || ev.type === 'FREE_KICK_GOAL' || ev.type === 'PENALTY_GOAL') {
+                  if (ev.teamId === m.homeTeamId) {
+                    if (homeGoals < 4) {
+                      validGoalsEvents.push(ev);
+                      homeGoals++;
+                    }
+                  } else if (ev.teamId === m.awayTeamId) {
+                    if (awayGoals < 4) {
+                      validGoalsEvents.push(ev);
+                      awayGoals++;
+                    }
+                  }
+                }
+              }
+            }
+          } catch(e) {}
+        }
+
         m.stats?.forEach((s: any) => {
           if (!statsMap.has(s.playerId)) {
             const pTeamData = s.player.tournamentTeams?.find((t: any) => t.tournamentTeam.tournamentId === selectedTournament.id);
@@ -158,8 +199,18 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
             });
           }
           const pStat = statsMap.get(s.playerId);
-          pStat.goals += (s.goals || 0) + (s.freeKickGoals || 0) + (s.penaltyGoals || 0);
-          pStat.assists += s.assists || 0;
+          
+          if (limitGoalsTo4 && m.events) {
+             // Only count if it's in validGoalsEvents
+             const playerGoalEvents = validGoalsEvents.filter(ev => ev.playerId === s.playerId);
+             const playerAssistEvents = validGoalsEvents.filter(ev => ev.assistId === s.playerId);
+             pStat.goals += playerGoalEvents.length;
+             pStat.assists += playerAssistEvents.length;
+          } else {
+             pStat.goals += (s.goals || 0) + (s.freeKickGoals || 0) + (s.penaltyGoals || 0);
+             pStat.assists += s.assists || 0;
+          }
+          
           pStat.savesMade += s.savesMade || 0;
           pStat.savesTotal += s.savesTotal || 0;
           if (s.cleanSheet) pStat.cleanSheets += 1;
@@ -227,26 +278,40 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
         <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <h2 className="text-3xl font-black text-primary border-l-4 border-primary pl-4">{selectedTournament.name}</h2>
           
-          <div className="flex gap-2 border-b border-border/30 pb-4 overflow-x-auto hide-scrollbar">
-            {[
-              { id: 'standings', label: dictionary.standings },
-              { id: 'goleadores', label: dictionary.topScorers },
-              { id: 'asistencias', label: dictionary.topAssists },
-              { id: 'vallas', label: dictionary.topGk },
-              { id: 'atajadas', label: 'Atajadas' }
-            ].map(tab => (
-              <button 
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-5 py-2.5 rounded-full font-bold text-sm whitespace-nowrap transition-all duration-300 ${
-                  activeTab === tab.id 
-                    ? 'bg-primary text-primary-foreground shadow-[0_0_15px_rgba(16,185,129,0.3)]' 
-                    : 'bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex flex-col sm:flex-row gap-4 border-b border-border/30 pb-4 overflow-x-auto hide-scrollbar justify-between items-start sm:items-center">
+            <div className="flex gap-2">
+              {[
+                { id: 'standings', label: dictionary.standings },
+                { id: 'goleadores', label: dictionary.topScorers },
+                { id: 'asistencias', label: dictionary.topAssists },
+                { id: 'vallas', label: dictionary.topGk },
+                { id: 'atajadas', label: 'Atajadas' }
+              ].map(tab => (
+                <button 
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`px-5 py-2.5 rounded-full font-bold text-sm whitespace-nowrap transition-all duration-300 ${
+                    activeTab === tab.id 
+                      ? 'bg-primary text-primary-foreground shadow-[0_0_15px_rgba(16,185,129,0.3)]' 
+                      : 'bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            
+            {(activeTab === 'goleadores' || activeTab === 'asistencias') && (
+              <label className="flex items-center gap-2 cursor-pointer bg-black/40 px-3 py-1.5 rounded-full border border-white/5 hover:bg-black/60 transition-colors shrink-0">
+                <input 
+                  type="checkbox" 
+                  checked={limitGoalsTo4} 
+                  onChange={(e) => setLimitGoalsTo4(e.target.checked)} 
+                  className="rounded border-white/20 bg-black/50 text-primary focus:ring-primary/50 cursor-pointer w-4 h-4"
+                />
+                <span className="text-sm font-bold text-muted-foreground">Sólo 4 Primeros Goles</span>
+              </label>
+            )}
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
