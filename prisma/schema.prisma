@@ -184,6 +184,7 @@ model Tournament {
   matches  Match[]
   teams    TournamentTeam[]
   trophies Trophy[] // Trophies awarded in this tournament
+  signatureLobbies SignatureLobby[]
 
   createdAt DateTime @default(now())
 }
@@ -369,10 +370,12 @@ model DailyVisit {
 }
 
 model SignatureLobby {
-  id         String      @id @default(uuid())
-  title      String
-  status     String      @default("OPEN") // OPEN, CLOSED
-  createdAt  DateTime    @default(now())
+  id           String      @id @default(uuid())
+  title        String
+  tournamentId String?
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  status       String      @default("OPEN") // OPEN, CLOSED
+  createdAt    DateTime    @default(now())
   signatures Signature[]
 }
 

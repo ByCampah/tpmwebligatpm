@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde, addMultiplePlayersToRoster, enrollMultipleTeamsToTournament, deleteMatch, updateScheduleNote } from "@/app/actions";
+import { enrollTeamToTournament, removeTeamFromTournament, createManualMatch, generateRoundRobin, addPlayerToRoster, removePlayerFromRoster, submitMatchStats, assignTournamentPodium, updateTournament, updateTournamentTeamGroups, generateGroupMatches, toggleMatchProde, addMultiplePlayersToRoster, enrollMultipleTeamsToTournament, deleteMatch, updateScheduleNote, createAntiDuLobbyFromMatch } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toPng } from 'html-to-image';
@@ -729,6 +729,23 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                           </button>
                         )}
                         {userRole === "ADMIN" && (
+                          <div className="flex gap-1">
+                            <button
+                              onClick={async () => {
+                                if(confirm("¿Estás seguro de crear una sala Anti-DU para este partido?")) {
+                                  const res = await createAntiDuLobbyFromMatch(m.id);
+                                  if (res.success) {
+                                    alert("Sala Anti-DU creada correctamente. Puedes verla en la sección Anti-DU.");
+                                  } else {
+                                    alert(res.error);
+                                  }
+                                }
+                              }}
+                              className="text-xs font-bold px-3 py-1 rounded transition-colors bg-blue-900/50 border border-blue-500 text-blue-200 hover:bg-blue-800"
+                              title="Crear Sala Anti-DU"
+                            >
+                              🕵️ Anti-DU
+                            </button>
                             <button 
                               onClick={async () => {
                                 if(confirm("¿Estás seguro de eliminar este partido?")) {
@@ -745,6 +762,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                             >
                               🗑️
                             </button>
+                          </div>
                         )}
                       </div>
                       <div className="flex items-center">

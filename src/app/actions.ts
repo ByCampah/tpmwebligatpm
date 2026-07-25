@@ -1283,3 +1283,36 @@ export async function updateScheduleNote(matchId: string, scheduleNote: string |
     return { success: false, error: error.message };
   }
 }
+
+export async function createAntiDuLobbyFromMatch(matchId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        homeTeam: true,
+        awayTeam: true,
+        tournament: true
+      }
+    });
+
+    if (!match) return { success: false, error: "Match not found" };
+
+    const title = `${match.round || "Sin Fecha"} - ${match.tournament.name} - ${match.homeTeam.name} vs ${match.awayTeam.name}`;
+    
+    await prisma.signatureLobby.create({
+      data: {
+        title,
+        tournamentId: match.tournamentId
+      }
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
