@@ -31,6 +31,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   const [plantelTeam, setPlantelTeam] = useState("ALL");
   const [showDiscord, setShowDiscord] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
+  const [limitGoalsTo4, setLimitGoalsTo4] = useState(false);
   
   const summaryRef = useRef<HTMLDivElement>(null);
   const fixtureRef = useRef<HTMLDivElement>(null);
@@ -1647,6 +1648,15 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 </select>
             </div>
 
+            {(exportType === "SEASON" || exportType === "PLANTEL") && (
+                <div className="flex flex-col gap-2 mt-4 bg-black/50 p-4 rounded-xl border border-border w-full max-w-md text-left">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" checked={limitGoalsTo4} onChange={e => { setLimitGoalsTo4(e.target.checked); }} className="w-5 h-5 accent-primary" />
+                        <span className="font-bold text-sm">Sólo 4 Primeros Goles por Equipo (Top Goleadores/Asistencias)</span>
+                    </label>
+                </div>
+            )}
+
             <button 
                 onClick={downloadSummary} 
                 disabled={loading}
@@ -1659,11 +1669,11 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
           <div className="w-full overflow-x-auto p-4 bg-black/50 border border-border rounded-xl">
             {/* The hidden/scaled container to capture */}
             <div style={{ width: exportType === "SEASON" ? (imageLayout === "square" ? "1280px" : "1080px") : (exportType === "BRACKET" ? "1920px" : (exportType === "PLANTEL" && plantelTeam === "ALL" ? "1600px" : (exportType === "PLANTEL" ? "800px" : "1200px"))), margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
-              {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} />}
+              {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} limitGoalsTo4={limitGoalsTo4} />}
               {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} themeColor={themeColor} />}
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} />}
-              {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} showAvatar={showAvatar} />}
+              {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} showAvatar={showAvatar} limitGoalsTo4={limitGoalsTo4} />}
             </div>
           </div>
         </div>

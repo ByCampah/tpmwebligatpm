@@ -9,10 +9,11 @@ interface PlantelSummaryImageProps {
   showDiscord?: boolean;
   showAvatar?: boolean;
   selectedTeam?: string; // "" o nombre del equipo
+  limitGoalsTo4?: boolean;
 }
 
 export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImageProps>(
-  ({ tournament, themeColor = "emerald", showDiscord = false, showAvatar = false, selectedTeam = "" }, ref) => {
+  ({ tournament, themeColor = "emerald", showDiscord = false, showAvatar = false, selectedTeam = "", limitGoalsTo4 = false }, ref) => {
     
     // 1. Calcular Goleadores, Asistidores, GK, PJ
     const playerStats = new Map<string, any>();
@@ -21,6 +22,34 @@ export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImag
     const validMatches = tournament.matches?.filter((m: any) => m.status === 'PLAYED' && (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round ?? ""))) || [];
     
     validMatches.forEach((match: any) => {
+      let validGoalsEvents: any[] = [];
+      if (limitGoalsTo4 && match.events) {
+        try {
+          const parsedEvents = typeof match.events === 'string' ? JSON.parse(match.events) : match.events;
+          if (Array.isArray(parsedEvents)) {
+            let homeGoals = 0;
+            let awayGoals = 0;
+            const sortedEvents = [...parsedEvents].sort((a: any, b: any) => (a.minute || 0) - (b.minute || 0));
+            
+            for (const ev of sortedEvents) {
+              if (ev.type === 'GOAL' || ev.type === 'FREE_KICK_GOAL' || ev.type === 'PENALTY_GOAL') {
+                if (ev.teamId === match.homeTeamId) {
+                  if (homeGoals < 4) {
+                    validGoalsEvents.push(ev);
+                    homeGoals++;
+                  }
+                } else if (ev.teamId === match.awayTeamId) {
+                  if (awayGoals < 4) {
+                    validGoalsEvents.push(ev);
+                    awayGoals++;
+                  }
+                }
+              }
+            }
+          }
+        } catch(e) {}
+      }
+
       match.stats?.forEach((stat: any) => {
         if (!stat.player) return;
         const pId = stat.player.id;
@@ -33,8 +62,17 @@ export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImag
         }
         
         const pData = playerStats.get(pId);
-        pData.goals += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
-        pData.assists += (stat.assists || 0);
+        
+        if (limitGoalsTo4 && match.events) {
+           const playerGoalEvents = validGoalsEvents.filter(ev => ev.playerId === pId);
+           const playerAssistEvents = validGoalsEvents.filter(ev => ev.assistId === pId);
+           pData.goals += playerGoalEvents.length;
+           pData.assists += playerAssistEvents.length;
+        } else {
+           pData.goals += (stat.goals || 0) + (stat.freeKickGoals || 0) + (stat.penaltyGoals || 0);
+           pData.assists += (stat.assists || 0);
+        }
+
         if ((stat.matchTime || 0) > 0) pData.matchesPlayed += 1;
       });
     });

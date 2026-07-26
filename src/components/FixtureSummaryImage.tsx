@@ -22,6 +22,16 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
       matches = matches.filter((m: any) => m.round === selectedRound);
     }
 
+    matches.sort((a: any, b: any) => {
+      const numA = parseInt((a.round || "").replace(/\D/g, '') || '0');
+      const numB = parseInt((b.round || "").replace(/\D/g, '') || '0');
+      if (numA !== numB) return numA - numB;
+      const timeA = a.matchDate ? new Date(a.matchDate).getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+      const timeB = b.matchDate ? new Date(b.matchDate).getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+      if (timeA !== timeB) return timeA - timeB;
+      return String(a.id).localeCompare(String(b.id));
+    });
+
     // Group by round
     const matchesByRound = matches.reduce((acc: any, m: any) => {
       const round = m.round || "Sin Etapa";
@@ -30,7 +40,12 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
       return acc;
     }, {});
 
-    const rounds = Object.keys(matchesByRound);
+    const rounds = Object.keys(matchesByRound).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, '') || '0');
+      const numB = parseInt(b.replace(/\D/g, '') || '0');
+      if (numA !== numB) return numA - numB;
+      return a.localeCompare(b);
+    });
 
     const theme = getThemeColors(themeColor);
 
