@@ -2,11 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import ProdeClient from "./ProdeClient";
 
-export default async function ProdeSection() {
+export default async function ProdeSection({ activeOnly = true }: { activeOnly?: boolean } = {}) {
   const session = await auth();
 
+  const whereClause: any = { showInProde: true };
+  if (activeOnly) {
+    whereClause.status = 'PENDING';
+  }
+
   const prodeMatches = await prisma.match.findMany({
-    where: { showInProde: true },
+    where: whereClause,
     include: {
       homeTeam: true,
       awayTeam: true,

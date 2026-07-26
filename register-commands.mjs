@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || process.env.DISCORD_TOKEN;
+const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || process.env.DISCORD_APPLICATION_ID;
 
 if (!DISCORD_BOT_TOKEN || !DISCORD_CLIENT_ID) {
   console.error("Faltan las variables DISCORD_BOT_TOKEN o DISCORD_CLIENT_ID en el archivo .env");
@@ -116,6 +116,42 @@ const commands = [
     name: "mercado_equipos",
     description: "Muestra los equipos que están buscando jugadores",
     type: 1
+  },
+  {
+    name: 'fichar',
+    description: 'Invita a un jugador a unirse a tu equipo (Solo para Capitanes)',
+    type: 1,
+    options: [{ name: 'usuario', description: 'El usuario de Discord que quieres fichar', type: 6, required: true }]
+  },
+  {
+    name: 'despedir',
+    description: 'Despide a un jugador de tu equipo y le quita el rol (Solo Capitanes)',
+    type: 1,
+    options: [{ name: 'usuario', description: 'El jugador al que le quieres quitar el rol', type: 6, required: true }]
+  },
+  {
+    name: 'dejar_club',
+    description: 'Renuncia a tu equipo actual y pierde el rol',
+    type: 1,
+    options: [{ name: 'equipo', description: 'Nombre del equipo que quieres abandonar', type: 3, required: true }]
+  },
+  {
+    name: 'convocar',
+    description: 'Invita a un jugador a unirse a tu selección (Solo para Capitanes de Selección)',
+    type: 1,
+    options: [{ name: 'usuario', description: 'El usuario de Discord que quieres convocar', type: 6, required: true }]
+  },
+  {
+    name: 'desconvocar',
+    description: 'Quita a un jugador de tu selección y le quita el rol (Solo Capitanes de Selección)',
+    type: 1,
+    options: [{ name: 'usuario', description: 'El jugador al que quieres desconvocar', type: 6, required: true }]
+  },
+  {
+    name: 'renunciar_seleccion',
+    description: 'Renuncia a una selección a la que fuiste convocado',
+    type: 1,
+    options: [{ name: 'seleccion', description: 'Nombre de la selección a la que quieres renunciar', type: 3, required: true }]
   }
 ];
 

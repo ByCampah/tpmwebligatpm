@@ -38,6 +38,7 @@ export default function ClientNavbar() {
 
   const links: { name: string; href: string; comingSoon?: boolean }[] = [
     { name: t.nav.home, href: '/' },
+    { name: "Prode", href: '/prode' },
     { name: t.nav.news, href: '/noticias' },
     { name: t.nav.league, href: '/liga' },
     { name: t.nav.history, href: '/historial' },
