@@ -557,6 +557,223 @@ export async function POST(req: NextRequest) {
             data: { content: `❌ Hubo un error al intentar sacarle el rol: ${e.message}`, flags: 64 }
           });
         }
+      } else if (name === 'dejar_club') {
+        const teamName = options?.find((opt: any) => opt.name === 'equipo')?.value;
+
+        if (!teamName) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Debes especificar el nombre del equipo.', flags: 64 },
+          });
+        }
+
+        const roles = await getGuildRoles(interaction.guild_id);
+        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+
+        if (!teamRole) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ No se encontró el rol del equipo **${teamName}** en el servidor.`, flags: 64 },
+          });
+        }
+
+        const memberRoleIds = interaction.member?.roles || [];
+        if (!memberRoleIds.includes(teamRole.id)) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ No tenés el rol del equipo **${teamName}**, por lo que no puedes dejarlo.`, flags: 64 },
+          });
+        }
+
+        try {
+          await removeRoleFromMember(interaction.guild_id, interaction.member.user.id, teamRole.id);
+          
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `✅ Has abandonado **${teamName}** exitosamente y se te ha quitado el rol.` } // Public message? Let's make it ephemeral? Usually leaving a club could be public or ephemeral. The user didn't specify. I'll leave flags: 0 so it's public. Wait, let's keep it ephemeral maybe? "flags: 64"
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Hubo un error al intentar quitarte el rol: ${e.message}`, flags: 64 }
+          });
+        }
+      } else if (name === 'convocar') {
+        const targetUserId = options?.find((opt: any) => opt.name === 'usuario')?.value;
+
+        if (!targetUserId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Debes seleccionar a un usuario.', flags: 64 },
+          });
+        }
+
+        const roles = await getGuildRoles(interaction.guild_id);
+        let teamName = null;
+        const memberRoleIds = interaction.member?.roles || [];
+        
+        for (const roleId of memberRoleIds) {
+          const role = roles.find((r: any) => r.id === roleId);
+          if (role) {
+            const roleName = role.name.toLowerCase();
+            if (roleName.startsWith('capsel ')) {
+              teamName = role.name.substring(7).trim();
+              break;
+            }
+          }
+        }
+
+        if (!teamName) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ No tenés ningún rol de "CapSel <Seleccion>". Asegurate de tener el rol correcto.', flags: 64 },
+          });
+        }
+
+        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName!.toLowerCase());
+        
+        if (!teamRole) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Sos capitán de **${teamName}**, pero no existe el rol de la selección "${teamName}" en el servidor.`, flags: 64 },
+          });
+        }
+
+        const customIdAccept = `convocar_accept_${interaction.guild_id}_${teamRole.id}_${targetUserId}`;
+        const customIdReject = `convocar_reject_${interaction.guild_id}_${targetUserId}`;
+
+        try {
+          await sendDirectMessageWithComponents(targetUserId, `📣 ¡Hola! El DT <@${interaction.member.user.id}> te convocó para unirte a la selección de **${teamName}** en Liga TPM Sudamérica. ¿Aceptas la convocatoria?`, [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  label: '✅ Aceptar Convocatoria',
+                  style: 3,
+                  custom_id: customIdAccept
+                },
+                {
+                  type: 2,
+                  label: '❌ Rechazar',
+                  style: 4,
+                  custom_id: customIdReject
+                }
+              ]
+            }
+          ]);
+
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `✅ Le he enviado un mensaje privado a <@${targetUserId}> con la convocatoria.`, flags: 64 },
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Error al enviar MD a <@${targetUserId}>. Es posible que el usuario tenga los mensajes privados desactivados para este servidor.`, flags: 64 },
+          });
+        }
+      } else if (name === 'desconvocar') {
+        const targetUserId = options?.find((opt: any) => opt.name === 'usuario')?.value;
+
+        if (!targetUserId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Debes seleccionar a un usuario.', flags: 64 },
+          });
+        }
+
+        const roles = await getGuildRoles(interaction.guild_id);
+        let teamName = null;
+        const memberRoleIds = interaction.member?.roles || [];
+        
+        for (const roleId of memberRoleIds) {
+          const role = roles.find((r: any) => r.id === roleId);
+          if (role) {
+            const roleName = role.name.toLowerCase();
+            if (roleName.startsWith('capsel ')) {
+              teamName = role.name.substring(7).trim();
+              break;
+            }
+          }
+        }
+
+        if (!teamName) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ No tenés ningún rol de "CapSel <Seleccion>".', flags: 64 },
+          });
+        }
+
+        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName!.toLowerCase());
+        
+        if (!teamRole) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ No se encontró el rol de la selección **${teamName}** en el servidor.`, flags: 64 },
+          });
+        }
+
+        try {
+          await removeRoleFromMember(interaction.guild_id, targetUserId, teamRole.id);
+          
+          try {
+            await sendDirectMessage(targetUserId, `ℹ️ Has sido desconvocado de **${teamName}** por el DT <@${interaction.member.user.id}> y ya no formas parte del plantel.`);
+          } catch (dmErr) {
+            console.error("No se pudo enviar MD de despido:", dmErr);
+          }
+
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `✅ <@${targetUserId}> ha sido desconvocado de **${teamName}** y se le notificó por mensaje privado.`, flags: 64 }
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Hubo un error al intentar sacarle el rol: ${e.message}`, flags: 64 }
+          });
+        }
+      } else if (name === 'renunciar_seleccion') {
+        const teamName = options?.find((opt: any) => opt.name === 'seleccion')?.value;
+
+        if (!teamName) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Debes especificar el nombre de la selección.', flags: 64 },
+          });
+        }
+
+        const roles = await getGuildRoles(interaction.guild_id);
+        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+
+        if (!teamRole) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ No se encontró el rol de la selección **${teamName}** en el servidor.`, flags: 64 },
+          });
+        }
+
+        const memberRoleIds = interaction.member?.roles || [];
+        if (!memberRoleIds.includes(teamRole.id)) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ No tenés el rol de la selección **${teamName}**, por lo que no puedes renunciar.`, flags: 64 },
+          });
+        }
+
+        try {
+          await removeRoleFromMember(interaction.guild_id, interaction.member.user.id, teamRole.id);
+          
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `✅ Has renunciado a la selección de **${teamName}** exitosamente y se te ha quitado el rol.` }
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Hubo un error al intentar quitarte el rol: ${e.message}`, flags: 64 }
+          });
+        }
       }
     }
 
@@ -611,6 +828,57 @@ export async function POST(req: NextRequest) {
           type: InteractionResponseType.UPDATE_MESSAGE,
           data: {
             content: `❌ <@${targetId}> ha rechazado la oferta de fichaje.`,
+            components: []
+          }
+        });
+      }
+
+      if (customId.startsWith('convocar_accept_')) {
+        const parts = customId.split('_');
+        const guildId = parts[2];
+        const roleId = parts[3];
+        const targetId = parts[4];
+
+        if (clickerId !== targetId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Solo el jugador convocado puede aceptar.', flags: 64 }
+          });
+        }
+
+        try {
+          await addRoleToMember(guildId, targetId, roleId);
+          return NextResponse.json({
+            type: InteractionResponseType.UPDATE_MESSAGE,
+            data: {
+              content: `✅ ¡Convocatoria confirmada! <@${targetId}> ha aceptado la convocatoria y ya tiene el rol de la selección.`,
+              components: [] 
+            }
+          });
+        } catch (e: any) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: `❌ Hubo un error al asignar el rol (¿El rol del bot está por encima del rol de la selección?): ${e.message}`, flags: 64 }
+          });
+        }
+      }
+
+      if (customId.startsWith('convocar_reject_')) {
+        const parts = customId.split('_');
+        const guildId = parts[2];
+        const targetId = parts[3];
+
+        if (clickerId !== targetId) {
+          return NextResponse.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { content: '❌ Solo el jugador convocado puede rechazar.', flags: 64 }
+          });
+        }
+
+        return NextResponse.json({
+          type: InteractionResponseType.UPDATE_MESSAGE,
+          data: {
+            content: `❌ <@${targetId}> ha rechazado la convocatoria.`,
             components: []
           }
         });

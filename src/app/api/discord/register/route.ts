@@ -64,6 +64,26 @@ const commands = [
     name: 'despedir',
     description: 'Despide a un jugador de tu equipo y le quita el rol (Solo Capitanes)',
     options: [{ name: 'usuario', description: 'El jugador al que le quieres quitar el rol', type: 6, required: true }]
+  },
+  {
+    name: 'dejar_club',
+    description: 'Renuncia a tu equipo actual y pierde el rol',
+    options: [{ name: 'equipo', description: 'Nombre del equipo que quieres abandonar', type: 3, required: true }]
+  },
+  {
+    name: 'convocar',
+    description: 'Invita a un jugador a unirse a tu selección (Solo para Capitanes de Selección)',
+    options: [{ name: 'usuario', description: 'El usuario de Discord que quieres convocar', type: 6, required: true }]
+  },
+  {
+    name: 'desconvocar',
+    description: 'Quita a un jugador de tu selección y le quita el rol (Solo Capitanes de Selección)',
+    options: [{ name: 'usuario', description: 'El jugador al que quieres desconvocar', type: 6, required: true }]
+  },
+  {
+    name: 'renunciar_seleccion',
+    description: 'Renuncia a una selección a la que fuiste convocado',
+    options: [{ name: 'seleccion', description: 'Nombre de la selección a la que quieres renunciar', type: 3, required: true }]
   }
 ];
 
