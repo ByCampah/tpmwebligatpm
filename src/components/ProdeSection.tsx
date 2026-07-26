@@ -7,7 +7,7 @@ export default async function ProdeSection({ activeOnly = true }: { activeOnly?:
 
   const whereClause: any = { showInProde: true };
   if (activeOnly) {
-    whereClause.status = 'PENDING';
+    whereClause.status = 'SCHEDULED';
   }
 
   const prodeMatches = await prisma.match.findMany({
