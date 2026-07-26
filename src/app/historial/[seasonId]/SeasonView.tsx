@@ -123,9 +123,22 @@ export default function SeasonView({ season, tournaments, dictionary }: SeasonVi
   // Deduplicate matches just in case
   let uniqueTournamentMatches = Array.from(new Map(allTournamentMatches.map(m => [m.id, m])).values());
   
+  const getRoundWeight = (r: string) => {
+    if (!r) return 0;
+    const lower = r.toLowerCase();
+    if (lower.includes("dieciseis")) return 1000;
+    if (lower.includes("octavo")) return 1001;
+    if (lower.includes("cuarto")) return 1002;
+    if (lower.includes("semi")) return 1003;
+    if (lower.includes("tercer") || lower.includes("3er") || lower.includes("3ro")) return 1004;
+    if (lower.includes("final")) return 1005;
+    const num = parseInt(r.replace(/\D/g, '') || '0');
+    return num;
+  };
+
   uniqueTournamentMatches.sort((a: any, b: any) => {
-    const numA = parseInt(a.round?.replace(/\D/g, '') || '0');
-    const numB = parseInt(b.round?.replace(/\D/g, '') || '0');
+    const numA = getRoundWeight(a.round || "");
+    const numB = getRoundWeight(b.round || "");
     if (numA !== numB) return numA - numB;
     const timeA = a.matchDate ? new Date(a.matchDate).getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
     const timeB = b.matchDate ? new Date(b.matchDate).getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);

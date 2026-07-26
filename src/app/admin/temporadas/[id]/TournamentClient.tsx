@@ -985,119 +985,144 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                                   Este equipo no tiene jugadores en el plantel. Ve a la pestaña "Equipos y Planteles" para agregarlos.
                                 </p>
                               ) : (
-                                <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
-                                  <table className="w-full text-sm text-center">
-                                    <thead className="bg-secondary/80 text-secondary-foreground border-b border-border">
-                                      <tr>
-                                        <th className="p-3 text-left w-48 sticky left-0 bg-secondary z-10 border-r border-border">Jugador</th>
-                                        <th className="p-3" title="Minutos Jugados">MIN</th>
-                                        <th className="p-3 text-red-500 font-black" title="Tarjetas Rojas">🟥 R</th>
-                                        <th className="p-3 text-primary" title="Goles de Jugada (Normales)">G</th>
-                                        <th className="p-3 text-yellow-500" title="Goles de Tiro Libre">TL</th>
-                                        <th className="p-3 text-blue-500" title="Goles de Penal">PEN</th>
-                                        <th className="p-3 text-primary" title="Asistencias">A</th>
-                                        <th className="p-3 text-cyan-400" title="Minutos GK">M.GK</th>
-                                        <th className="p-3" title="Valla Invicta">🛡️ VI</th>
-                                        <th className="p-3 text-yellow-500" title="Tiros al Arco / Totales">Tiros</th>
-                                        <th className="p-3 text-blue-400" title="Pases Correctos / Totales">Pases</th>
-                                        <th className="p-3 text-green-500" title="Quites">Quites</th>
-                                        <th className="p-3 text-red-400" title="Pérdidas">Pérdidas</th>
-                                        <th className="p-3 text-orange-400" title="Faltas Hechas">Faltas H</th>
-                                        <th className="p-3 text-purple-400" title="Faltas Recibidas">Faltas R</th>
-                                        <th className="p-3" title="Offsides">Offside</th>
-                                        <th className="p-3" title="Barridas Correctas / Totales">Barridas</th>
-                                        <th className="p-3" title="Cabezazos Correctos / Totales">Cabezazos</th>
-                                        <th className="p-3 text-cyan-400" title="Atajadas / Totales (Arqueros)">Atajadas</th>
-                                        <th className="p-3 text-green-400" title="Penales Atajados">P. Atj</th>
-                                        <th className="p-3 text-red-400" title="Penales Recibidos">P. Rec</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-border">
-                                      {tData.roster.map((r: any) => {
-                                        const ps = m.stats?.find((s: any) => s.playerId === r.playerId) || {};
-                                        return (
-                                        <tr key={r.playerId} className="hover:bg-white/5 transition-colors">
-                                          <td className="p-3 font-bold text-left sticky left-0 bg-card z-10 border-r border-border">
-                                            {r.player.nick}
-                                          </td>
+                                <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+                                  {tData.roster.map((r: any) => {
+                                    const ps = m.stats?.find((s: any) => s.playerId === r.playerId) || {};
+                                    return (
+                                      <div key={r.playerId} className="bg-card border border-border rounded-xl p-4 shadow-lg flex flex-col gap-4">
+                                        
+                                        {/* NICK JUGADOR */}
+                                        <div className="text-center pb-2 border-b border-border">
+                                          <span className="font-black text-lg text-primary uppercase tracking-wider">{r.player.nick}</span>
+                                        </div>
+
+                                        {/* TOP SECTION: Goals and Assists */}
+                                        <div className="flex justify-between items-start gap-4">
+                                          <div className="flex flex-col gap-2 flex-1">
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold">Gol</span>
+                                              <input type="number" name={`stats[${r.playerId}][goals]`} min="0" defaultValue={ps.goals ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center font-bold text-primary focus:border-primary" />
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-yellow-500">Gol Freekick</span>
+                                              <input type="number" name={`stats[${r.playerId}][freeKickGoals]`} min="0" defaultValue={ps.freeKickGoals ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center font-bold text-yellow-500 focus:border-yellow-500" />
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-blue-500">Gol Penal</span>
+                                              <input type="number" name={`stats[${r.playerId}][penaltyGoals]`} min="0" defaultValue={ps.penaltyGoals ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center font-bold text-blue-500 focus:border-blue-500" />
+                                            </div>
+                                          </div>
                                           
-                                          {/* MINUTOS Y ROJAS */}
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][matchTime]`} min="0" defaultValue={ps.matchTime ?? (m.status === 'PLAYED' ? "0" : "90")} className="w-14 bg-black border border-border rounded p-1.5 text-center focus:border-primary" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][redCards]`} min="0" defaultValue={ps.redCards ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-red-500 font-bold text-red-500" /></td>
+                                          <div className="flex flex-col flex-1 items-center justify-center pt-2">
+                                            <span className="text-sm font-bold mb-1">Asistencia</span>
+                                            <input type="number" name={`stats[${r.playerId}][assists]`} min="0" defaultValue={ps.assists ?? "0"} className="w-16 h-10 bg-black border border-border rounded p-1 text-center font-bold text-primary focus:border-primary text-lg" />
+                                          </div>
+                                        </div>
+
+                                        {/* MIDDLE SECTION: 2 Columns */}
+                                        <div className="grid grid-cols-2 gap-4 mt-2">
                                           
-                                          {/* G, TL, PEN, A */}
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][goals]`} min="0" defaultValue={ps.goals ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][freeKickGoals]`} min="0" defaultValue={ps.freeKickGoals ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-yellow-500 font-bold text-yellow-500" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][penaltyGoals]`} min="0" defaultValue={ps.penaltyGoals ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-blue-500 font-bold text-blue-500" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][assists]`} min="0" defaultValue={ps.assists ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center focus:border-primary font-bold text-primary" /></td>
-                                          
-                                          {/* GK TIME */}
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][gkTime]`} min="0" defaultValue={ps.gkTime ?? "0"} className="w-14 bg-black border border-border rounded p-1.5 text-center focus:border-cyan-400 font-bold text-cyan-400" /></td>
-
-                                          {/* VALLA INVICTA */}
-                                          <td className="p-2">
-                                            <input type="checkbox" name={`stats[${r.playerId}][cleanSheet]`} defaultChecked={ps.cleanSheet} className="w-5 h-5 accent-primary cursor-pointer" />
-                                          </td>
-
-                                          {/* TIROS (Arco / Total) */}
-                                          <td className="p-2">
-                                            <div className="flex items-center justify-center gap-1">
-                                              <input type="number" name={`stats[${r.playerId}][shotsMade]`} min="0" defaultValue={ps.shotsMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
-                                              <span className="text-muted-foreground">/</span>
-                                              <input type="number" name={`stats[${r.playerId}][shotsTotal]`} min="0" defaultValue={ps.shotsTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                          {/* Left Column */}
+                                          <div className="flex flex-col gap-2">
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold">Match time:</span>
+                                              <input type="number" name={`stats[${r.playerId}][matchTime]`} min="0" defaultValue={ps.matchTime ?? (m.status === 'PLAYED' ? "0" : "90")} className="w-12 bg-black border border-border rounded p-1 text-center" />
                                             </div>
-                                          </td>
-
-                                          {/* PASES (Correctos / Total) */}
-                                          <td className="p-2">
-                                            <div className="flex items-center justify-center gap-1">
-                                              <input type="number" name={`stats[${r.playerId}][passesMade]`} min="0" defaultValue={ps.passesMade ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center text-xs" />
-                                              <span className="text-muted-foreground">/</span>
-                                              <input type="number" name={`stats[${r.playerId}][passesTotal]`} min="0" defaultValue={ps.passesTotal ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center text-xs" />
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold">Passes:</span>
+                                              <div className="flex gap-1">
+                                                <input type="number" name={`stats[${r.playerId}][passesMade]`} min="0" defaultValue={ps.passesMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                                <input type="number" name={`stats[${r.playerId}][passesTotal]`} min="0" defaultValue={ps.passesTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                              </div>
                                             </div>
-                                          </td>
-
-                                          {/* QUITES / PERDIDAS */}
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][tacklesWon]`} min="0" defaultValue={ps.tacklesWon ?? "0"} className="w-12 bg-black border border-border rounded p-1.5 text-center" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][ballLosses]`} min="0" defaultValue={ps.ballLosses ?? "0"} className="w-12 bg-black border border-border rounded p-1.5 text-center" /></td>
-
-                                          {/* FALTAS / OFFSIDE */}
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][fouls]`} min="0" defaultValue={ps.fouls ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][fouled]`} min="0" defaultValue={ps.fouled ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][offsides]`} min="0" defaultValue={ps.offsides ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" /></td>
-
-                                          {/* BARRIDAS Y CABEZAZOS */}
-                                          <td className="p-2">
-                                            <div className="flex items-center justify-center gap-1">
-                                              <input type="number" name={`stats[${r.playerId}][slidingMade]`} min="0" defaultValue={ps.slidingMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
-                                              <span className="text-muted-foreground">/</span>
-                                              <input type="number" name={`stats[${r.playerId}][slidingTotal]`} min="0" defaultValue={ps.slidingTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold">Sliding:</span>
+                                              <div className="flex gap-1">
+                                                <input type="number" name={`stats[${r.playerId}][slidingMade]`} min="0" defaultValue={ps.slidingMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                                <input type="number" name={`stats[${r.playerId}][slidingTotal]`} min="0" defaultValue={ps.slidingTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                              </div>
                                             </div>
-                                          </td>
-                                          <td className="p-2">
-                                            <div className="flex items-center justify-center gap-1">
-                                              <input type="number" name={`stats[${r.playerId}][headersMade]`} min="0" defaultValue={ps.headersMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
-                                              <span className="text-muted-foreground">/</span>
-                                              <input type="number" name={`stats[${r.playerId}][headersTotal]`} min="0" defaultValue={ps.headersTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-orange-400">Fouls:</span>
+                                              <input type="number" name={`stats[${r.playerId}][fouls]`} min="0" defaultValue={ps.fouls ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center" />
                                             </div>
-                                          </td>
-
-                                          {/* ATAJADAS Y PENALES */}
-                                          <td className="p-2">
-                                            <div className="flex items-center justify-center gap-1 bg-cyan-900/10 p-1 rounded">
-                                              <input type="number" name={`stats[${r.playerId}][savesMade]`} min="0" defaultValue={ps.savesMade ?? "0"} className="w-10 bg-black border border-cyan-900/50 rounded p-1 text-center text-xs focus:border-cyan-400" />
-                                              <span className="text-muted-foreground">/</span>
-                                              <input type="number" name={`stats[${r.playerId}][savesTotal]`} min="0" defaultValue={ps.savesTotal ?? "0"} className="w-10 bg-black border border-cyan-900/50 rounded p-1 text-center text-xs focus:border-cyan-400" />
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-red-400">Ball losses:</span>
+                                              <input type="number" name={`stats[${r.playerId}][ballLosses]`} min="0" defaultValue={ps.ballLosses ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center" />
                                             </div>
-                                          </td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][penaltiesSaved]`} min="0" defaultValue={ps.penaltiesSaved ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center text-xs" /></td>
-                                          <td className="p-2"><input type="number" name={`stats[${r.playerId}][penaltiesConceded]`} min="0" defaultValue={ps.penaltiesConceded ?? "0"} className="w-10 bg-black border border-border rounded p-1.5 text-center text-xs" /></td>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-cyan-400">Gk time:</span>
+                                              <input type="number" name={`stats[${r.playerId}][gkTime]`} min="0" defaultValue={ps.gkTime ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center text-cyan-400 font-bold" />
+                                            </div>
+                                          </div>
 
-                                        </tr>
-                                        );
-                                      })}
-                                    </tbody>
-                                  </table>
+                                          {/* Right Column */}
+                                          <div className="flex flex-col gap-2">
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-yellow-500 text-right leading-tight">Shot<br/>accuracy:</span>
+                                              <div className="flex gap-1">
+                                                <input type="number" name={`stats[${r.playerId}][shotsMade]`} min="0" defaultValue={ps.shotsMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                                <input type="number" name={`stats[${r.playerId}][shotsTotal]`} min="0" defaultValue={ps.shotsTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                              </div>
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-right leading-tight">Header<br/>duels:</span>
+                                              <div className="flex gap-1">
+                                                <input type="number" name={`stats[${r.playerId}][headersMade]`} min="0" defaultValue={ps.headersMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                                <input type="number" name={`stats[${r.playerId}][headersTotal]`} min="0" defaultValue={ps.headersTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                              </div>
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-green-500">Tackles won:</span>
+                                              <input type="number" name={`stats[${r.playerId}][tacklesWon]`} min="0" defaultValue={ps.tacklesWon ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center" />
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-purple-400">Fouled:</span>
+                                              <input type="number" name={`stats[${r.playerId}][fouled]`} min="0" defaultValue={ps.fouled ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center" />
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold">Offsides:</span>
+                                              <input type="number" name={`stats[${r.playerId}][offsides]`} min="0" defaultValue={ps.offsides ?? "0"} className="w-12 bg-black border border-border rounded p-1 text-center" />
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 rounded px-2 py-1">
+                                              <span className="text-sm font-bold text-cyan-400">Saves:</span>
+                                              <div className="flex gap-1">
+                                                <input type="number" name={`stats[${r.playerId}][savesMade]`} min="0" defaultValue={ps.savesMade ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                                <input type="number" name={`stats[${r.playerId}][savesTotal]`} min="0" defaultValue={ps.savesTotal ?? "0"} className="w-10 bg-black border border-border rounded p-1 text-center text-xs" />
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                        </div>
+
+                                        {/* BOTTOM SECTION: Extras */}
+                                        <div className="mt-2 pt-3 border-t border-border">
+                                          <span className="text-xs font-black tracking-widest text-muted-foreground uppercase block mb-2">EXTRAS</span>
+                                          <div className="grid grid-cols-4 gap-2">
+                                            <div className="flex flex-col items-center bg-white/5 rounded p-2">
+                                              <span className="text-[10px] font-bold text-red-500 mb-1">🟥 Rojas</span>
+                                              <input type="number" name={`stats[${r.playerId}][redCards]`} min="0" defaultValue={ps.redCards ?? "0"} className="w-full bg-black border border-border rounded p-1 text-center font-bold text-red-500" />
+                                            </div>
+                                            <div className="flex flex-col items-center bg-white/5 rounded p-2">
+                                              <span className="text-[10px] font-bold mb-1">🛡️ V. Invicta</span>
+                                              <div className="flex-1 flex items-center justify-center h-[34px]">
+                                                <input type="checkbox" name={`stats[${r.playerId}][cleanSheet]`} defaultChecked={ps.cleanSheet} className="w-5 h-5 accent-primary cursor-pointer" />
+                                              </div>
+                                            </div>
+                                            <div className="flex flex-col items-center bg-white/5 rounded p-2">
+                                              <span className="text-[10px] font-bold text-green-400 mb-1">P. Atj</span>
+                                              <input type="number" name={`stats[${r.playerId}][penaltiesSaved]`} min="0" defaultValue={ps.penaltiesSaved ?? "0"} className="w-full bg-black border border-border rounded p-1 text-center" />
+                                            </div>
+                                            <div className="flex flex-col items-center bg-white/5 rounded p-2">
+                                              <span className="text-[10px] font-bold text-red-400 mb-1">P. Rec</span>
+                                              <input type="number" name={`stats[${r.playerId}][penaltiesConceded]`} min="0" defaultValue={ps.penaltiesConceded ?? "0"} className="w-full bg-black border border-border rounded p-1 text-center" />
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </div>
@@ -1598,7 +1623,26 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                         className="bg-black border border-border rounded-lg p-3 font-bold focus:border-primary focus:outline-none"
                     >
                         <option value="ALL">Todo el Fixture</option>
-                        {Array.from(new Set(tournament.matches.map((m:any) => m.round || "Sin Etapa"))).filter((r: any) => !["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(r)).map((round: any) => (
+                        {Array.from(new Set(tournament.matches.map((m:any) => m.round || "Sin Etapa")))
+                            .filter((r: any) => !["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(r))
+                            .sort((a: any, b: any) => {
+                                const getRoundWeight = (r: string) => {
+                                    if (!r) return 0;
+                                    const lower = r.toLowerCase();
+                                    if (lower.includes("dieciseis")) return 1000;
+                                    if (lower.includes("octavo")) return 1001;
+                                    if (lower.includes("cuarto")) return 1002;
+                                    if (lower.includes("semi")) return 1003;
+                                    if (lower.includes("tercer") || lower.includes("3er") || lower.includes("3ro")) return 1004;
+                                    if (lower.includes("final")) return 1005;
+                                    return parseInt(r.replace(/\D/g, '') || '0');
+                                };
+                                const numA = getRoundWeight(a);
+                                const numB = getRoundWeight(b);
+                                if (numA !== numB) return numA - numB;
+                                return a.localeCompare(b);
+                            })
+                            .map((round: any) => (
                             <option key={round} value={round}>{round}</option>
                         ))}
                     </select>
