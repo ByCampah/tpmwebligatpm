@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyKey } from 'discord-interactions';
 import { prisma } from '@/lib/prisma';
+
+const normalizeRoleName = (name: string) => name.toLowerCase().replace(/[\s\-–_]/g, '');
+
 import { getSeasonFromOptions, getStandings, getPlayerStats } from './utils';
 
 import { getGuildRoles, addRoleToMember, removeRoleFromMember, sendDirectMessage, sendDirectMessageWithComponents } from './discordApi';
@@ -450,7 +453,7 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+        const teamRole = roles.find((r: any) => normalizeRoleName(r.name) === normalizeRoleName(teamName));
         
         if (!teamRole) {
           return NextResponse.json({
@@ -529,7 +532,7 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+        const teamRole = roles.find((r: any) => normalizeRoleName(r.name) === normalizeRoleName(teamName));
         
         if (!teamRole) {
           return NextResponse.json({
@@ -568,7 +571,7 @@ export async function POST(req: NextRequest) {
         }
 
         const roles = await getGuildRoles(interaction.guild_id);
-        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+        const teamRole = roles.find((r: any) => normalizeRoleName(r.name) === normalizeRoleName(teamName));
 
         if (!teamRole) {
           return NextResponse.json({
@@ -630,7 +633,7 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName!.toLowerCase());
+        const teamRole = roles.find((r: any) => normalizeRoleName(r.name) === normalizeRoleName(teamName!));
         
         if (!teamRole) {
           return NextResponse.json({
@@ -705,7 +708,7 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName!.toLowerCase());
+        const teamRole = roles.find((r: any) => normalizeRoleName(r.name) === normalizeRoleName(teamName!));
         
         if (!teamRole) {
           return NextResponse.json({
@@ -744,7 +747,7 @@ export async function POST(req: NextRequest) {
         }
 
         const roles = await getGuildRoles(interaction.guild_id);
-        const teamRole = roles.find((r: any) => r.name.toLowerCase() === teamName.toLowerCase());
+        const teamRole = roles.find((r: any) => normalizeRoleName(r.name) === normalizeRoleName(teamName));
 
         if (!teamRole) {
           return NextResponse.json({
