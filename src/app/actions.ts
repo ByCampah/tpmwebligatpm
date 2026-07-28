@@ -973,11 +973,44 @@ export async function assignTournamentPodium(formData: FormData) {
 
 export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boolean) {
   const session = await auth();
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
-    return { success: false, error: "No autorizado" };
+  if (!session?.user) {
+    return { success: false, error: "No autenticado" };
   }
 
   try {
+    const player = await prisma.player.findUnique({
+      where: { id: playerId }
+    });
+
+    if (!player) {
+      return { success: false, error: "Jugador no encontrado" };
+    }
+
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    
+    // Normalize nationality to find the team
+    const normalizeText = (str: string) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+    
+    let isDT = false;
+    
+    if (!isAdmin) {
+      // Find team with this nationality where the user is the captain
+      const allNationalTeams = await prisma.team.findMany({
+        where: { isNationalTeam: true, captainId: session.user.id }
+      });
+      
+      for (const team of allNationalTeams) {
+        if (normalizeText(team.name) === normalizeText(player.nationality)) {
+          isDT = true;
+          break;
+        }
+      }
+    }
+
+    if (!isAdmin && !isDT) {
+      return { success: false, error: "No autorizado. Solo el DT o Administrador puede hacer esto." };
+    }
+
     await prisma.player.update({
       where: { id: playerId },
       data: { isNationalTeamCalledUp: isCalledUp }
@@ -985,7 +1018,7 @@ export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boo
     
     await createAdminLog(
       isCalledUp ? "Convocó a jugador" : "Desconvocó a jugador",
-      `Jugador ID: ${playerId}`
+      `Jugador ID: ${playerId} - DT/Admin: ${session.user.name}`
     );
     
     revalidatePath("/admin/selecciones");

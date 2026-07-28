@@ -1,0 +1,248 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import * as htmlToImage from "html-to-image";
+
+export default function NationalTeamGraphicModal({ isOpen, onClose, team, players, allClubs }: { isOpen: boolean, onClose: () => void, team: any, players: any[], allClubs: any[] }) {
+  const [config, setConfig] = useState<Record<string, any>>({});
+  const [showDiscord, setShowDiscord] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const graphicRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Initialize default config
+    const initialConfig: Record<string, any> = {};
+    players.forEach(p => {
+      initialConfig[p.id] = {
+        group: "ALAS", // Default group
+        customText: p.primaryPosition && p.primaryPosition !== "Ninguna" ? p.primaryPosition : "",
+        clubId: ""
+      };
+    });
+    setConfig(initialConfig);
+  }, [players]);
+
+  if (!isOpen) return null;
+
+  const updatePlayer = (id: string, field: string, value: any) => {
+    setConfig(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value }
+    }));
+  };
+
+  const handleDownload = async () => {
+    if (!graphicRef.current) return;
+    setIsGenerating(true);
+    
+    try {
+      const dataUrl = await htmlToImage.toPng(graphicRef.current, {
+        quality: 1.0,
+        pixelRatio: 2,
+        backgroundColor: "#082226", // Dark teal background
+      });
+      
+      const link = document.createElement("a");
+      link.download = `convocatoria_${team.name}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Error generating image", err);
+      alert("Hubo un error al generar la imagen.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Group players
+  const gk = players.filter(p => config[p.id]?.group === "GK");
+  const def = players.filter(p => config[p.id]?.group === "DEF");
+  const mid = players.filter(p => config[p.id]?.group === "ALAS");
+  const atk = players.filter(p => config[p.id]?.group === "ATK");
+
+  const PlayerRow = ({ p, index }: { p: any, index: number }) => {
+    const pConf = config[p.id] || {};
+    const club = allClubs.find(c => c.id === pConf.clubId);
+    
+    return (
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[#00d0e6] font-bold text-xl w-6">{(index + 1).toString().padStart(2, "0")}.</span>
+        {club && club.logoUrl && <img src={club.logoUrl} className="w-5 h-5 object-contain" alt="club" />}
+        <span className="text-white font-bold text-xl uppercase tracking-wide">
+          {p.nick} {showDiscord && p.user?.name && <span className="text-xs text-white/50 lowercase font-normal ml-1">(@{p.user.name})</span>}
+        </span>
+        {pConf.customText && (
+          <span className="text-[#00d0e6] text-sm ml-2 font-bold">[{pConf.customText}]</span>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[999] flex flex-col md:flex-row overflow-hidden">
+      {/* Editor Sidebar */}
+      <div className="w-full md:w-[400px] bg-card border-r border-border h-full flex flex-col">
+        <div className="p-4 border-b border-border flex justify-between items-center bg-secondary/30">
+          <h2 className="font-bold text-lg text-white">Configurar Gráfica</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-white text-xl">✕</button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+          <div className="bg-secondary/20 p-4 rounded-lg border border-border">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" checked={showDiscord} onChange={e => setShowDiscord(e.target.checked)} className="w-4 h-4 accent-primary" />
+              <span className="font-bold text-sm">Mostrar Tag de Discord</span>
+            </label>
+          </div>
+          
+          <div className="flex flex-col gap-4">
+            <h3 className="font-black text-primary uppercase">Jugadores ({players.length})</h3>
+            {players.map(p => (
+              <div key={p.id} className="bg-black/40 border border-border p-3 rounded-lg flex flex-col gap-3">
+                <div className="font-bold text-white text-lg">{p.nick}</div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-muted-foreground font-bold mb-1 block">Grupo</label>
+                    <select 
+                      value={config[p.id]?.group || "ALAS"} 
+                      onChange={e => updatePlayer(p.id, "group", e.target.value)}
+                      className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+                    >
+                      <option value="GK">Arqueros</option>
+                      <option value="DEF">Defensores</option>
+                      <option value="ALAS">Mediocampistas</option>
+                      <option value="ATK">Delanteros</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-bold mb-1 block">Posición Extra (MCD..)</label>
+                    <input 
+                      type="text" 
+                      placeholder="Ej: MCD" 
+                      value={config[p.id]?.customText || ""}
+                      onChange={e => updatePlayer(p.id, "customText", e.target.value)}
+                      className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Club (Escudo)</label>
+                  <select 
+                      value={config[p.id]?.clubId || ""} 
+                      onChange={e => updatePlayer(p.id, "clubId", e.target.value)}
+                      className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+                    >
+                      <option value="">-- Sin club --</option>
+                      {allClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <div className="p-4 border-t border-border bg-card">
+          <button 
+            disabled={isGenerating}
+            onClick={handleDownload}
+            className="w-full bg-primary text-primary-foreground font-black py-3 rounded-lg hover:bg-primary/90 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+          >
+            {isGenerating ? "GENERANDO..." : "DESCARGAR IMAGEN"}
+          </button>
+        </div>
+      </div>
+      
+      {/* Preview Area */}
+      <div className="flex-1 bg-black/95 p-4 flex items-center justify-center overflow-auto">
+        {/* The Graphic - Fixed size for consistent rendering (1920x1080 scaled down for preview) */}
+        <div 
+          className="relative overflow-hidden shrink-0 shadow-2xl" 
+          style={{ width: "1920px", height: "1080px", transform: "scale(0.40)", transformOrigin: "center center", backgroundColor: "#082226" }}
+          ref={graphicRef}
+        >
+          {/* Background Elements */}
+          {team.logoUrl && (
+            <img 
+              src={team.logoUrl} 
+              alt="Background" 
+              className="absolute inset-0 m-auto w-[1600px] h-[1600px] object-contain opacity-10" 
+              style={{ filter: "blur(2px)", transform: "scale(1.2)" }}
+            />
+          )}
+          
+          {/* Content Wrapper */}
+          <div className="relative z-10 w-full h-full flex flex-col p-[100px] pt-[80px]">
+            
+            {/* Headers */}
+            <div className="flex flex-col items-center mb-16">
+              <div className="bg-black/30 border border-[#00d0e6]/30 px-12 py-4 mb-4" style={{ transform: "skewX(-10deg)" }}>
+                <h1 className="text-7xl font-black text-[#00d0e6] uppercase tracking-tighter" style={{ transform: "skewX(10deg)" }}>
+                  SELECCION {team.name} TPM
+                </h1>
+              </div>
+              <div className="bg-[#00d0e6] px-10 py-3" style={{ transform: "skewX(-10deg)" }}>
+                <h2 className="text-5xl font-black text-black uppercase tracking-tight" style={{ transform: "skewX(10deg)" }}>
+                  CONVOCADOS PARA {team.name}
+                </h2>
+              </div>
+            </div>
+            
+            {/* Columns */}
+            <div className="flex-1 grid grid-cols-3 gap-16 px-16">
+              
+              {/* Column 1: GK + ZAG */}
+              <div className="flex flex-col gap-12">
+                <div>
+                  <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
+                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>GK/ARQUEROS</h3>
+                  </div>
+                  <div className="flex flex-col gap-3 ml-4">
+                    {gk.map((p, i) => <PlayerRow key={p.id} p={p} index={i} />)}
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
+                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ZAGUEROS/DEFENSORES</h3>
+                  </div>
+                  <div className="flex flex-col gap-3 ml-4">
+                    {def.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + i} />)}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Column 2: ALAS */}
+              <div className="flex flex-col">
+                <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
+                  <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ALAS/MEDIOCAMPISTAS</h3>
+                </div>
+                <div className="flex flex-col gap-3 ml-4">
+                  {mid.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + i} />)}
+                </div>
+              </div>
+              
+              {/* Column 3: ATK */}
+              <div className="flex flex-col">
+                <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
+                  <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ATK/DELANTEROS</h3>
+                </div>
+                <div className="flex flex-col gap-3 ml-4">
+                  {atk.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + mid.length + i} />)}
+                </div>
+              </div>
+              
+            </div>
+            
+            {/* Footer */}
+            <div className="absolute bottom-[40px] right-[60px] flex items-center gap-4">
+              <span className="text-[#00d0e6]/50 font-bold tracking-widest uppercase">LIGA TPM SUDAMERICA</span>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  );
+}

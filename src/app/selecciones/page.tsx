@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import NationalTeamsClient from "./NationalTeamsClient";
+import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function SeleccionesPage() {
+  const session = await auth();
+  
   const nationalTeams = await prisma.team.findMany({
     where: { isNationalTeam: true },
     include: {
@@ -28,6 +31,11 @@ export default async function SeleccionesPage() {
     },
     orderBy: { nick: "asc" }
   });
+  
+  const allClubs = await prisma.team.findMany({
+    where: { isNationalTeam: false },
+    orderBy: { name: "asc" }
+  });
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-8">
@@ -38,7 +46,12 @@ export default async function SeleccionesPage() {
         </p>
       </header>
 
-      <NationalTeamsClient nationalTeams={nationalTeams} allPlayers={allPlayers} />
+      <NationalTeamsClient 
+        nationalTeams={nationalTeams} 
+        allPlayers={allPlayers} 
+        allClubs={allClubs} 
+        session={session} 
+      />
     </div>
   );
 }
