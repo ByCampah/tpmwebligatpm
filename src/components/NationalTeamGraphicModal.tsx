@@ -19,6 +19,9 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
   const [bgUrl, setBgUrl] = useState("");
   const [canvasWidth, setCanvasWidth] = useState(1920);
   const [canvasHeight, setCanvasHeight] = useState(1080);
+  const [titleSize, setTitleSize] = useState(100);
+  const [playerSize, setPlayerSize] = useState(100);
+  const [clubLogoSize, setClubLogoSize] = useState(100);
   const [logoSize, setLogoSize] = useState(100);
 
   const graphicRef = useRef<HTMLDivElement>(null);
@@ -110,13 +113,13 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
     
     return (
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[#00d0e6] font-bold text-4xl w-12">{(index + 1).toString().padStart(2, "0")}.</span>
-        {club && club.logoUrl && <img src={club.logoUrl} className="w-12 h-12 object-contain" alt="club" />}
-        <span className="text-white font-bold text-4xl uppercase tracking-wide">
-          {p.nick} {showDiscord && p.user?.name && <span className="text-2xl text-white/50 lowercase font-normal ml-1">(@{p.user.name})</span>}
+        <span className="text-[#00d0e6] font-bold w-12" style={{ fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>{(index + 1).toString().padStart(2, "0")}.</span>
+        {club && club.logoUrl && <img src={club.logoUrl} className="object-contain" style={{ width: `${48 * (clubLogoSize / 100)}px`, height: `${48 * (clubLogoSize / 100)}px` }} alt="club" />}
+        <span className="text-white font-bold uppercase tracking-wide" style={{ fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>
+          {p.nick} {showDiscord && p.user?.name && <span className="text-white/50 lowercase font-normal ml-1" style={{ fontSize: `${24 * (playerSize / 100)}px` }}>(@{p.user.name})</span>}
         </span>
         {pConf.customText && (
-          <span className="text-[#00d0e6] text-2xl ml-4 font-bold">[{pConf.customText}]</span>
+          <span className="text-[#00d0e6] ml-4 font-bold" style={{ fontSize: `${24 * (playerSize / 100)}px` }}>[{pConf.customText}]</span>
         )}
       </div>
     );
@@ -245,11 +248,25 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 </div>
               </div>
               
-              <div className="mt-2">
-                <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Logos Inferiores (%)</label>
-                <div className="flex gap-2 items-center">
-                  <input type="range" min="50" max="250" value={logoSize} onChange={e => setLogoSize(Number(e.target.value))} className="flex-1 accent-primary" />
-                  <span className="text-xs text-muted-foreground w-8">{logoSize}%</span>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Títulos (%)</label>
+                  <input type="range" min="50" max="250" value={titleSize} onChange={e => setTitleSize(Number(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Jugadores (%)</label>
+                  <input type="range" min="50" max="250" value={playerSize} onChange={e => setPlayerSize(Number(e.target.value))} className="w-full accent-primary" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Logos Clubes (%)</label>
+                  <input type="range" min="50" max="250" value={clubLogoSize} onChange={e => setClubLogoSize(Number(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Logos Inferiores (%)</label>
+                  <input type="range" min="50" max="250" value={logoSize} onChange={e => setLogoSize(Number(e.target.value))} className="w-full accent-primary" />
                 </div>
               </div>
               
@@ -337,12 +354,12 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
             {/* Headers */}
             <div className="flex flex-col items-center mb-16">
               <div className="bg-black/30 border border-[#00d0e6]/30 px-12 py-4 mb-4" style={{ transform: "skewX(-10deg)" }}>
-                <h1 className="text-[90px] font-black text-[#00d0e6] uppercase tracking-tighter" style={{ transform: "skewX(10deg)" }}>
+                <h1 className="font-black text-[#00d0e6] uppercase tracking-tighter" style={{ fontSize: `${90 * (titleSize / 100)}px`, transform: "skewX(10deg)" }}>
                   SELECCION {team.name} TPM
                 </h1>
               </div>
               <div className="bg-[#00d0e6] px-10 py-3" style={{ transform: "skewX(-10deg)" }}>
-                <h2 className="text-[60px] font-black text-black uppercase tracking-tight" style={{ transform: "skewX(10deg)" }}>
+                <h2 className="font-black text-black uppercase tracking-tight" style={{ fontSize: `${60 * (titleSize / 100)}px`, transform: "skewX(10deg)" }}>
                   CONVOCADOS PARA {team.name}
                 </h2>
               </div>
@@ -356,7 +373,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 <div className="flex flex-col gap-12">
                   <div>
                     <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                      <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>GK/ARQUEROS</h3>
+                      <h3 className="font-black text-black tracking-tight" style={{ fontSize: `${48 * (titleSize / 100)}px`, transform: "skewX(10deg)" }}>GK/ARQUEROS</h3>
                     </div>
                     <div className="flex flex-col gap-6 ml-4">
                       {gk.map((p, i) => <PlayerRow key={p.id} p={p} index={i} />)}
@@ -365,7 +382,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                   
                   <div>
                     <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                      <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ZAGUEROS/DEFENSORES</h3>
+                      <h3 className="font-black text-black tracking-tight" style={{ fontSize: `${48 * (titleSize / 100)}px`, transform: "skewX(10deg)" }}>ZAGUEROS/DEFENSORES</h3>
                     </div>
                     <div className="flex flex-col gap-6 ml-4">
                       {def.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + i} />)}
@@ -376,7 +393,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 {/* Column 2: ALAS */}
                 <div className="flex flex-col">
                   <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                    <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ALAS/MEDIOCAMPISTAS</h3>
+                    <h3 className="font-black text-black tracking-tight" style={{ fontSize: `${48 * (titleSize / 100)}px`, transform: "skewX(10deg)" }}>ALAS/MEDIOCAMPISTAS</h3>
                   </div>
                   <div className="flex flex-col gap-6 ml-4">
                     {mid.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + i} />)}
@@ -386,7 +403,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 {/* Column 3: ATK */}
                 <div className="flex flex-col">
                   <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                    <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ATK/DELANTEROS</h3>
+                    <h3 className="font-black text-black tracking-tight" style={{ fontSize: `${48 * (titleSize / 100)}px`, transform: "skewX(10deg)" }}>ATK/DELANTEROS</h3>
                   </div>
                   <div className="flex flex-col gap-6 ml-4">
                     {atk.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + mid.length + i} />)}
