@@ -7,6 +7,11 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
   const [config, setConfig] = useState<Record<string, any>>({});
   const [showDiscord, setShowDiscord] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Manual players state
+  const [manualPlayers, setManualPlayers] = useState<any[]>([]);
+  const [newManualNick, setNewManualNick] = useState("");
+
   const graphicRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,6 +34,30 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
       ...prev,
       [id]: { ...prev[id], [field]: value }
     }));
+  };
+  
+  const addManualPlayer = () => {
+    if (!newManualNick.trim()) return;
+    const newId = `manual-${Date.now()}`;
+    setManualPlayers(prev => [...prev, { id: newId, nick: newManualNick.trim() }]);
+    setConfig(prev => ({
+      ...prev,
+      [newId]: {
+        group: "ALAS",
+        customText: "",
+        clubId: ""
+      }
+    }));
+    setNewManualNick("");
+  };
+  
+  const removeManualPlayer = (id: string) => {
+    setManualPlayers(prev => prev.filter(p => p.id !== id));
+    setConfig(prev => {
+      const newConf = { ...prev };
+      delete newConf[id];
+      return newConf;
+    });
   };
 
   const handleDownload = async () => {
@@ -54,11 +83,13 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
     }
   };
 
+  const allRenderPlayers = [...players, ...manualPlayers];
+
   // Group players
-  const gk = players.filter(p => config[p.id]?.group === "GK");
-  const def = players.filter(p => config[p.id]?.group === "DEF");
-  const mid = players.filter(p => config[p.id]?.group === "ALAS");
-  const atk = players.filter(p => config[p.id]?.group === "ATK");
+  const gk = allRenderPlayers.filter(p => config[p.id]?.group === "GK");
+  const def = allRenderPlayers.filter(p => config[p.id]?.group === "DEF");
+  const mid = allRenderPlayers.filter(p => config[p.id]?.group === "ALAS");
+  const atk = allRenderPlayers.filter(p => config[p.id]?.group === "ATK");
 
   const PlayerRow = ({ p, index }: { p: any, index: number }) => {
     const pConf = config[p.id] || {};
@@ -77,6 +108,53 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
       </div>
     );
   };
+  
+  const renderEditorCard = (p: any, isManual: boolean) => (
+    <div key={p.id} className="bg-black/40 border border-border p-3 rounded-lg flex flex-col gap-3 relative">
+      <div className="font-bold text-white text-lg pr-8">{p.nick} {isManual && <span className="text-xs bg-primary/20 text-primary px-1 rounded ml-2 uppercase">Manual</span>}</div>
+      {isManual && (
+        <button onClick={() => removeManualPlayer(p.id)} className="absolute top-3 right-3 text-destructive hover:text-red-400 font-bold text-xl">✕</button>
+      )}
+      
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-xs text-muted-foreground font-bold mb-1 block">Grupo</label>
+          <select 
+            value={config[p.id]?.group || "ALAS"} 
+            onChange={e => updatePlayer(p.id, "group", e.target.value)}
+            className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+          >
+            <option value="GK">Arqueros</option>
+            <option value="DEF">Defensores</option>
+            <option value="ALAS">Mediocampistas</option>
+            <option value="ATK">Delanteros</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-muted-foreground font-bold mb-1 block">Posición (MCD..)</label>
+          <input 
+            type="text" 
+            placeholder="Ej: MCD" 
+            value={config[p.id]?.customText || ""}
+            onChange={e => updatePlayer(p.id, "customText", e.target.value)}
+            className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <label className="text-xs text-muted-foreground font-bold mb-1 block">Club (Escudo)</label>
+        <select 
+            value={config[p.id]?.clubId || ""} 
+            onChange={e => updatePlayer(p.id, "clubId", e.target.value)}
+            className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+          >
+            <option value="">-- Sin club --</option>
+            {allClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+      </div>
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[999] flex flex-col md:flex-row overflow-hidden">
@@ -96,50 +174,29 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
           </div>
           
           <div className="flex flex-col gap-4">
-            <h3 className="font-black text-primary uppercase">Jugadores ({players.length})</h3>
-            {players.map(p => (
-              <div key={p.id} className="bg-black/40 border border-border p-3 rounded-lg flex flex-col gap-3">
-                <div className="font-bold text-white text-lg">{p.nick}</div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs text-muted-foreground font-bold mb-1 block">Grupo</label>
-                    <select 
-                      value={config[p.id]?.group || "ALAS"} 
-                      onChange={e => updatePlayer(p.id, "group", e.target.value)}
-                      className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
-                    >
-                      <option value="GK">Arqueros</option>
-                      <option value="DEF">Defensores</option>
-                      <option value="ALAS">Mediocampistas</option>
-                      <option value="ATK">Delanteros</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground font-bold mb-1 block">Posición Extra (MCD..)</label>
-                    <input 
-                      type="text" 
-                      placeholder="Ej: MCD" 
-                      value={config[p.id]?.customText || ""}
-                      onChange={e => updatePlayer(p.id, "customText", e.target.value)}
-                      className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Club (Escudo)</label>
-                  <select 
-                      value={config[p.id]?.clubId || ""} 
-                      onChange={e => updatePlayer(p.id, "clubId", e.target.value)}
-                      className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
-                    >
-                      <option value="">-- Sin club --</option>
-                      {allClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                </div>
-              </div>
-            ))}
+            <h3 className="font-black text-primary uppercase">Agregar Jugador Manual</h3>
+            <div className="flex gap-2">
+              <input 
+                type="text"
+                placeholder="Nickname del jugador..."
+                value={newManualNick}
+                onChange={e => setNewManualNick(e.target.value)}
+                onKeyDown={e => { if(e.key === 'Enter') addManualPlayer(); }}
+                className="flex-1 bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+              />
+              <button 
+                onClick={addManualPlayer}
+                className="bg-primary text-primary-foreground font-bold px-4 rounded text-sm hover:bg-primary/80"
+              >
+                Añadir
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-4">
+            <h3 className="font-black text-primary uppercase">Jugadores ({allRenderPlayers.length})</h3>
+            {players.map(p => renderEditorCard(p, false))}
+            {manualPlayers.map(p => renderEditorCard(p, true))}
           </div>
         </div>
         
