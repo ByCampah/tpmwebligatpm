@@ -12,6 +12,12 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
   const [manualPlayers, setManualPlayers] = useState<any[]>([]);
   const [newManualNick, setNewManualNick] = useState("");
 
+  // Appearance state
+  const [layoutMode, setLayoutMode] = useState<"grupos" | "lista">("grupos");
+  const [bgMode, setBgMode] = useState<"logo" | "color" | "image">("logo");
+  const [bgColor, setBgColor] = useState("#082226");
+  const [bgUrl, setBgUrl] = useState("");
+
   const graphicRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,7 +74,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
       const dataUrl = await htmlToImage.toPng(graphicRef.current, {
         quality: 1.0,
         pixelRatio: 2,
-        backgroundColor: "#082226", // Dark teal background
+        backgroundColor: bgMode === "color" || bgMode === "logo" ? bgColor : "#000000",
       });
       
       const link = document.createElement("a");
@@ -77,7 +83,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
       link.click();
     } catch (err) {
       console.error("Error generating image", err);
-      alert("Hubo un error al generar la imagen.");
+      alert("Hubo un error al generar la imagen. Asegúrate de que las URLs de imágenes (si usas una propia) permitan CORS.");
     } finally {
       setIsGenerating(false);
     }
@@ -116,7 +122,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
         <button onClick={() => removeManualPlayer(p.id)} className="absolute top-3 right-3 text-destructive hover:text-red-400 font-bold text-xl">✕</button>
       )}
       
-      <div className="grid grid-cols-2 gap-2">
+      {layoutMode === "grupos" && (
         <div>
           <label className="text-xs text-muted-foreground font-bold mb-1 block">Grupo</label>
           <select 
@@ -130,6 +136,9 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
             <option value="ATK">Delanteros</option>
           </select>
         </div>
+      )}
+      
+      <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="text-xs text-muted-foreground font-bold mb-1 block">Posición (MCD..)</label>
           <input 
@@ -140,21 +149,26 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
             className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
           />
         </div>
-      </div>
-      
-      <div>
-        <label className="text-xs text-muted-foreground font-bold mb-1 block">Club (Escudo)</label>
-        <select 
-            value={config[p.id]?.clubId || ""} 
-            onChange={e => updatePlayer(p.id, "clubId", e.target.value)}
-            className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
-          >
-            <option value="">-- Sin club --</option>
-            {allClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+        <div>
+          <label className="text-xs text-muted-foreground font-bold mb-1 block">Club (Escudo)</label>
+          <select 
+              value={config[p.id]?.clubId || ""} 
+              onChange={e => updatePlayer(p.id, "clubId", e.target.value)}
+              className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+            >
+              <option value="">-- Sin club --</option>
+              {allClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+        </div>
       </div>
     </div>
   );
+
+  // Divide players into 3 columns for "lista" layout
+  const cols = [[], [], []] as any[][];
+  allRenderPlayers.forEach((p, i) => {
+    cols[i % 3].push(p);
+  });
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[999] flex flex-col md:flex-row overflow-hidden">
@@ -166,11 +180,58 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
         </div>
         
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
-          <div className="bg-secondary/20 p-4 rounded-lg border border-border">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" checked={showDiscord} onChange={e => setShowDiscord(e.target.checked)} className="w-4 h-4 accent-primary" />
-              <span className="font-bold text-sm">Mostrar Tag de Discord</span>
-            </label>
+          
+          <div className="flex flex-col gap-4">
+            <h3 className="font-black text-primary uppercase">Apariencia</h3>
+            
+            <div className="bg-secondary/20 p-4 rounded-lg border border-border flex flex-col gap-4">
+              <div>
+                <label className="text-xs text-muted-foreground font-bold mb-1 block">Modo de Layout</label>
+                <div className="flex gap-2">
+                  <button onClick={() => setLayoutMode("grupos")} className={`flex-1 p-2 rounded text-sm font-bold border transition-colors ${layoutMode === "grupos" ? "bg-primary border-primary text-primary-foreground" : "bg-secondary border-border text-white hover:bg-secondary/80"}`}>
+                    Por Grupos
+                  </button>
+                  <button onClick={() => setLayoutMode("lista")} className={`flex-1 p-2 rounded text-sm font-bold border transition-colors ${layoutMode === "lista" ? "bg-primary border-primary text-primary-foreground" : "bg-secondary border-border text-white hover:bg-secondary/80"}`}>
+                    Por Lista
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-xs text-muted-foreground font-bold mb-1 block">Fondo</label>
+                <select 
+                  value={bgMode} 
+                  onChange={e => setBgMode(e.target.value as any)}
+                  className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none mb-2"
+                >
+                  <option value="logo">Escudo del Equipo</option>
+                  <option value="color">Color Sólido</option>
+                  <option value="image">Imagen Personalizada (URL)</option>
+                </select>
+                
+                {(bgMode === "logo" || bgMode === "color") && (
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-8 h-8 rounded cursor-pointer" />
+                    <span className="text-xs text-muted-foreground">Color Base</span>
+                  </div>
+                )}
+                
+                {bgMode === "image" && (
+                  <input 
+                    type="text" 
+                    placeholder="https://ejemplo.com/fondo.jpg" 
+                    value={bgUrl}
+                    onChange={e => setBgUrl(e.target.value)}
+                    className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+                  />
+                )}
+              </div>
+              
+              <label className="flex items-center gap-3 cursor-pointer pt-2 border-t border-border/50">
+                <input type="checkbox" checked={showDiscord} onChange={e => setShowDiscord(e.target.checked)} className="w-4 h-4 accent-primary" />
+                <span className="font-bold text-sm">Mostrar Tag de Discord</span>
+              </label>
+            </div>
           </div>
           
           <div className="flex flex-col gap-4">
@@ -216,16 +277,31 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
         {/* The Graphic - Fixed size for consistent rendering (1920x1080 scaled down for preview) */}
         <div 
           className="relative overflow-hidden shrink-0 shadow-2xl" 
-          style={{ width: "1920px", height: "1080px", transform: "scale(0.40)", transformOrigin: "center center", backgroundColor: "#082226" }}
+          style={{ 
+            width: "1920px", 
+            height: "1080px", 
+            transform: "scale(0.40)", 
+            transformOrigin: "center center", 
+            backgroundColor: bgMode === "color" || bgMode === "logo" ? bgColor : "#000000" 
+          }}
           ref={graphicRef}
         >
           {/* Background Elements */}
-          {team.logoUrl && (
+          {bgMode === "logo" && team.logoUrl && (
             <img 
               src={team.logoUrl} 
               alt="Background" 
               className="absolute inset-0 m-auto w-[1600px] h-[1600px] object-contain opacity-10" 
               style={{ filter: "blur(2px)", transform: "scale(1.2)" }}
+            />
+          )}
+          
+          {bgMode === "image" && bgUrl && (
+            <img 
+              src={bgUrl} 
+              crossOrigin="anonymous"
+              alt="Background Image" 
+              className="absolute inset-0 w-full h-full object-cover opacity-60" 
             />
           )}
           
@@ -247,54 +323,69 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
             </div>
             
             {/* Columns */}
-            <div className="flex-1 grid grid-cols-3 gap-16 px-16">
-              
-              {/* Column 1: GK + ZAG */}
-              <div className="flex flex-col gap-12">
-                <div>
-                  <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>GK/ARQUEROS</h3>
+            {layoutMode === "grupos" ? (
+              <div className="flex-1 grid grid-cols-3 gap-16 px-16">
+                
+                {/* Column 1: GK + ZAG */}
+                <div className="flex flex-col gap-12">
+                  <div>
+                    <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
+                      <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>GK/ARQUEROS</h3>
+                    </div>
+                    <div className="flex flex-col gap-3 ml-4">
+                      {gk.map((p, i) => <PlayerRow key={p.id} p={p} index={i} />)}
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-3 ml-4">
-                    {gk.map((p, i) => <PlayerRow key={p.id} p={p} index={i} />)}
+                  
+                  <div>
+                    <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
+                      <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ZAGUEROS/DEFENSORES</h3>
+                    </div>
+                    <div className="flex flex-col gap-3 ml-4">
+                      {def.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + i} />)}
+                    </div>
                   </div>
                 </div>
                 
-                <div>
+                {/* Column 2: ALAS */}
+                <div className="flex flex-col">
                   <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ZAGUEROS/DEFENSORES</h3>
+                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ALAS/MEDIOCAMPISTAS</h3>
                   </div>
                   <div className="flex flex-col gap-3 ml-4">
-                    {def.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + i} />)}
+                    {mid.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + i} />)}
                   </div>
                 </div>
+                
+                {/* Column 3: ATK */}
+                <div className="flex flex-col">
+                  <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
+                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ATK/DELANTEROS</h3>
+                  </div>
+                  <div className="flex flex-col gap-3 ml-4">
+                    {atk.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + mid.length + i} />)}
+                  </div>
+                </div>
+                
               </div>
-              
-              {/* Column 2: ALAS */}
-              <div className="flex flex-col">
-                <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                  <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ALAS/MEDIOCAMPISTAS</h3>
+            ) : (
+              <div className="flex-1 grid grid-cols-3 gap-16 px-16">
+                <div className="flex flex-col gap-3">
+                  {cols[0].map((p, i) => <PlayerRow key={p.id} p={p} index={i} />)}
                 </div>
-                <div className="flex flex-col gap-3 ml-4">
-                  {mid.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + i} />)}
+                <div className="flex flex-col gap-3">
+                  {cols[1].map((p, i) => <PlayerRow key={p.id} p={p} index={cols[0].length + i} />)}
                 </div>
-              </div>
-              
-              {/* Column 3: ATK */}
-              <div className="flex flex-col">
-                <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                  <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ATK/DELANTEROS</h3>
-                </div>
-                <div className="flex flex-col gap-3 ml-4">
-                  {atk.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + mid.length + i} />)}
+                <div className="flex flex-col gap-3">
+                  {cols[2].map((p, i) => <PlayerRow key={p.id} p={p} index={cols[0].length + cols[1].length + i} />)}
                 </div>
               </div>
-              
-            </div>
+            )}
             
             {/* Footer */}
-            <div className="absolute bottom-[40px] right-[60px] flex items-center gap-4">
-              <span className="text-[#00d0e6]/50 font-bold tracking-widest uppercase">LIGA TPM SUDAMERICA</span>
+            <div className="absolute bottom-[40px] right-[60px] flex items-center gap-6">
+              <img src="/img/logos/LogoTPM.png" className="h-16 object-contain" alt="TPM" />
+              <img src="/img/logos/ByCampah3.png" className="h-12 object-contain opacity-80" alt="ByCampah" />
             </div>
           </div>
           
