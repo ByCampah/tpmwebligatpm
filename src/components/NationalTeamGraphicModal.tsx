@@ -17,6 +17,9 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
   const [bgMode, setBgMode] = useState<"logo" | "color" | "image">("logo");
   const [bgColor, setBgColor] = useState("#082226");
   const [bgUrl, setBgUrl] = useState("");
+  const [canvasWidth, setCanvasWidth] = useState(1920);
+  const [canvasHeight, setCanvasHeight] = useState(1080);
+  const [logoSize, setLogoSize] = useState(100);
 
   const graphicRef = useRef<HTMLDivElement>(null);
 
@@ -231,6 +234,25 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 )}
               </div>
               
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Ancho Canvas (px)</label>
+                  <input type="number" value={canvasWidth} onChange={e => setCanvasWidth(Number(e.target.value))} className="w-full bg-secondary border border-border rounded p-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Alto Canvas (px)</label>
+                  <input type="number" value={canvasHeight} onChange={e => setCanvasHeight(Number(e.target.value))} className="w-full bg-secondary border border-border rounded p-2 text-sm text-white" />
+                </div>
+              </div>
+              
+              <div className="mt-2">
+                <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Logos Inferiores (%)</label>
+                <div className="flex gap-2 items-center">
+                  <input type="range" min="50" max="250" value={logoSize} onChange={e => setLogoSize(Number(e.target.value))} className="flex-1 accent-primary" />
+                  <span className="text-xs text-muted-foreground w-8">{logoSize}%</span>
+                </div>
+              </div>
+              
               <label className="flex items-center gap-3 cursor-pointer pt-2 border-t border-border/50">
                 <input type="checkbox" checked={showDiscord} onChange={e => setShowDiscord(e.target.checked)} className="w-4 h-4 accent-primary" />
                 <span className="font-bold text-sm">Mostrar Tag de Discord</span>
@@ -278,13 +300,13 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
       
       {/* Preview Area */}
       <div className="flex-1 bg-black/95 p-4 flex items-center justify-center overflow-auto">
-        {/* The Graphic - Fixed size for consistent rendering (1920x1080 scaled down for preview) */}
+        {/* The Graphic - Fixed size for consistent rendering */}
         <div 
           className="relative overflow-hidden shrink-0 shadow-2xl" 
           style={{ 
-            width: "1920px", 
-            height: "1080px", 
-            transform: "scale(0.40)", 
+            width: `${canvasWidth}px`, 
+            height: `${canvasHeight}px`, 
+            transform: `scale(${Math.min(1000 / canvasWidth, 700 / canvasHeight, 0.45)})`, 
             transformOrigin: "center center", 
             backgroundColor: bgMode === "color" || bgMode === "logo" ? bgColor : "#000000" 
           }}
@@ -388,12 +410,20 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
             
             {/* Footer */}
             <div className="absolute bottom-[40px] left-[60px] flex items-center">
-              <span className="text-[#00d0e6]/50 font-black text-4xl tracking-widest uppercase">LIGA TPM SUDAMERICA</span>
+              <span 
+                className="font-black text-4xl tracking-[0.2em] uppercase"
+                style={{ 
+                  color: "#00d0e6",
+                  textShadow: "0 0 10px rgba(0,208,230,0.8), 0 0 20px rgba(0,208,230,0.4)"
+                }}
+              >
+                LIGA TPM SUDAMERICA
+              </span>
             </div>
             
             <div className="absolute bottom-[40px] right-[60px] flex items-center gap-6">
-              <img src="/img/logos/LogoTPM.png" className="h-32 object-contain" alt="TPM" />
-              <img src="/img/logos/ByCampah3.png" className="h-24 object-contain opacity-80" alt="ByCampah" />
+              <img src="/img/logos/LogoTPM.png" className="object-contain" style={{ height: `${128 * (logoSize / 100)}px` }} alt="TPM" />
+              <img src="/img/logos/ByCampah3.png" className="object-contain opacity-80" style={{ height: `${96 * (logoSize / 100)}px` }} alt="ByCampah" />
             </div>
           </div>
           
