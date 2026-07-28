@@ -75,6 +75,10 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
         quality: 1.0,
         pixelRatio: 2,
         backgroundColor: bgMode === "color" || bgMode === "logo" ? bgColor : "#000000",
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left"
+        }
       });
       
       const link = document.createElement("a");
@@ -103,13 +107,13 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
     
     return (
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[#00d0e6] font-bold text-xl w-6">{(index + 1).toString().padStart(2, "0")}.</span>
-        {club && club.logoUrl && <img src={club.logoUrl} className="w-5 h-5 object-contain" alt="club" />}
-        <span className="text-white font-bold text-xl uppercase tracking-wide">
-          {p.nick} {showDiscord && p.user?.name && <span className="text-xs text-white/50 lowercase font-normal ml-1">(@{p.user.name})</span>}
+        <span className="text-[#00d0e6] font-bold text-4xl w-12">{(index + 1).toString().padStart(2, "0")}.</span>
+        {club && club.logoUrl && <img src={club.logoUrl} className="w-12 h-12 object-contain" alt="club" />}
+        <span className="text-white font-bold text-4xl uppercase tracking-wide">
+          {p.nick} {showDiscord && p.user?.name && <span className="text-2xl text-white/50 lowercase font-normal ml-1">(@{p.user.name})</span>}
         </span>
         {pConf.customText && (
-          <span className="text-[#00d0e6] text-sm ml-2 font-bold">[{pConf.customText}]</span>
+          <span className="text-[#00d0e6] text-2xl ml-4 font-bold">[{pConf.customText}]</span>
         )}
       </div>
     );
@@ -311,12 +315,12 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
             {/* Headers */}
             <div className="flex flex-col items-center mb-16">
               <div className="bg-black/30 border border-[#00d0e6]/30 px-12 py-4 mb-4" style={{ transform: "skewX(-10deg)" }}>
-                <h1 className="text-7xl font-black text-[#00d0e6] uppercase tracking-tighter" style={{ transform: "skewX(10deg)" }}>
+                <h1 className="text-[90px] font-black text-[#00d0e6] uppercase tracking-tighter" style={{ transform: "skewX(10deg)" }}>
                   SELECCION {team.name} TPM
                 </h1>
               </div>
               <div className="bg-[#00d0e6] px-10 py-3" style={{ transform: "skewX(-10deg)" }}>
-                <h2 className="text-5xl font-black text-black uppercase tracking-tight" style={{ transform: "skewX(10deg)" }}>
+                <h2 className="text-[60px] font-black text-black uppercase tracking-tight" style={{ transform: "skewX(10deg)" }}>
                   CONVOCADOS PARA {team.name}
                 </h2>
               </div>
@@ -330,18 +334,18 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 <div className="flex flex-col gap-12">
                   <div>
                     <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                      <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>GK/ARQUEROS</h3>
+                      <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>GK/ARQUEROS</h3>
                     </div>
-                    <div className="flex flex-col gap-3 ml-4">
+                    <div className="flex flex-col gap-6 ml-4">
                       {gk.map((p, i) => <PlayerRow key={p.id} p={p} index={i} />)}
                     </div>
                   </div>
                   
                   <div>
                     <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                      <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ZAGUEROS/DEFENSORES</h3>
+                      <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ZAGUEROS/DEFENSORES</h3>
                     </div>
-                    <div className="flex flex-col gap-3 ml-4">
+                    <div className="flex flex-col gap-6 ml-4">
                       {def.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + i} />)}
                     </div>
                   </div>
@@ -350,9 +354,9 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 {/* Column 2: ALAS */}
                 <div className="flex flex-col">
                   <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ALAS/MEDIOCAMPISTAS</h3>
+                    <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ALAS/MEDIOCAMPISTAS</h3>
                   </div>
-                  <div className="flex flex-col gap-3 ml-4">
+                  <div className="flex flex-col gap-6 ml-4">
                     {mid.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + i} />)}
                   </div>
                 </div>
@@ -360,9 +364,9 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 {/* Column 3: ATK */}
                 <div className="flex flex-col">
                   <div className="bg-[#00d0e6] px-6 py-2 mb-6 w-fit" style={{ transform: "skewX(-10deg)" }}>
-                    <h3 className="text-3xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ATK/DELANTEROS</h3>
+                    <h3 className="text-5xl font-black text-black tracking-tight" style={{ transform: "skewX(10deg)" }}>ATK/DELANTEROS</h3>
                   </div>
-                  <div className="flex flex-col gap-3 ml-4">
+                  <div className="flex flex-col gap-6 ml-4">
                     {atk.map((p, i) => <PlayerRow key={p.id} p={p} index={gk.length + def.length + mid.length + i} />)}
                   </div>
                 </div>
@@ -370,22 +374,26 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
               </div>
             ) : (
               <div className="flex-1 grid grid-cols-3 gap-16 px-16">
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-6">
                   {cols[0].map((p, i) => <PlayerRow key={p.id} p={p} index={i} />)}
                 </div>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-6">
                   {cols[1].map((p, i) => <PlayerRow key={p.id} p={p} index={cols[0].length + i} />)}
                 </div>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-6">
                   {cols[2].map((p, i) => <PlayerRow key={p.id} p={p} index={cols[0].length + cols[1].length + i} />)}
                 </div>
               </div>
             )}
             
             {/* Footer */}
+            <div className="absolute bottom-[40px] left-[60px] flex items-center">
+              <span className="text-[#00d0e6]/50 font-black text-4xl tracking-widest uppercase">LIGA TPM SUDAMERICA</span>
+            </div>
+            
             <div className="absolute bottom-[40px] right-[60px] flex items-center gap-6">
-              <img src="/img/logos/LogoTPM.png" className="h-16 object-contain" alt="TPM" />
-              <img src="/img/logos/ByCampah3.png" className="h-12 object-contain opacity-80" alt="ByCampah" />
+              <img src="/img/logos/LogoTPM.png" className="h-32 object-contain" alt="TPM" />
+              <img src="/img/logos/ByCampah3.png" className="h-24 object-contain opacity-80" alt="ByCampah" />
             </div>
           </div>
           
