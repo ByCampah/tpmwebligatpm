@@ -1,4 +1,4 @@
-﻿
+
 "use client";
 
 import { useState, useTransition } from "react";
@@ -23,7 +23,12 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers, allClub
 
   // Find players that match the active team's name as their nationality
   const normalizeText = (str: string) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
-  const availablePlayers = allPlayers.filter(p => normalizeText(p.nationality) === normalizeText(activeTeam?.name));
+  const availablePlayers = allPlayers.filter(p => {
+    if (!p.nationality) return false;
+    const teamName = normalizeText(activeTeam?.name);
+    const nat = normalizeText(p.nationality);
+    return teamName.includes(nat) || nat.includes(teamName);
+  });
 
   // Check if they are currently called up via the isNationalTeamCalledUp boolean
   const calledUpPlayerIds = new Set<string>();

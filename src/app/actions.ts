@@ -1000,7 +1000,9 @@ export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boo
       });
       
       for (const team of allNationalTeams) {
-        if (normalizeText(team.name) === normalizeText(player.nationality)) {
+        const teamName = normalizeText(team.name);
+        const nat = normalizeText(player.nationality);
+        if (teamName.includes(nat) || nat.includes(teamName)) {
           isDT = true;
           break;
         }
