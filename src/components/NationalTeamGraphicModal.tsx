@@ -428,22 +428,22 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
               
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <div>
-                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Títulos (%)</label>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Títulos ({titleSize}%)</label>
                   <input type="range" min="50" max="250" value={titleSize} onChange={e => setTitleSize(Number(e.target.value))} className="w-full accent-primary" />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Jugadores (%)</label>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Tamaño Jugadores ({playerSize}%)</label>
                   <input type="range" min="50" max="250" value={playerSize} onChange={e => setPlayerSize(Number(e.target.value))} className="w-full accent-primary" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <div>
-                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Logos Clubes (%)</label>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Logos Clubes ({clubLogoSize}%)</label>
                   <input type="range" min="50" max="250" value={clubLogoSize} onChange={e => setClubLogoSize(Number(e.target.value))} className="w-full accent-primary" />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Logos Inferiores (%)</label>
+                  <label className="text-xs text-muted-foreground font-bold mb-1 block">Logos Inferiores ({logoSize}%)</label>
                   <input type="range" min="50" max="250" value={logoSize} onChange={e => setLogoSize(Number(e.target.value))} className="w-full accent-primary" />
                 </div>
               </div>
@@ -477,8 +477,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
           
           <div className="flex flex-col gap-4">
             <h3 className="font-black text-primary uppercase">Jugadores ({allRenderPlayers.length})</h3>
-            {players.map(p => renderEditorCard(p, false))}
-            {manualPlayers.map(p => renderEditorCard(p, true))}
+            {allRenderPlayers.map(p => renderEditorCard(p, manualPlayers.some(mp => mp.id === p.id)))}
           </div>
         </div>
         
