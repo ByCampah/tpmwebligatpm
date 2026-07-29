@@ -248,27 +248,31 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         <div className={`absolute -top-40 -right-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[${theme.primary}]/30 via-[${theme.primary}]/10 to-transparent rounded-full`}></div>
         <div className={`absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[${theme.secondary}]/20 via-[${theme.secondary}]/5 to-transparent rounded-full`}></div>
 
-        {/* HEADER */}
-        <div className="flex flex-col items-center mt-16 z-10 w-full px-16">
-          <div className="flex items-center justify-between w-full">
-            <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
-            <div className="flex flex-col items-end text-right">
-              <h2 className="text-4xl font-bold tracking-widest uppercase mb-3" style={{ color: theme.secondary }}>
-                RESUMEN DE TEMPORADA
-              </h2>
-              <h1 className="text-6xl font-black uppercase max-w-3xl text-white leading-tight" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
-                {tournament.name}
-              </h1>
-            </div>
-          </div>
-          <div className="h-1 w-full mt-8 rounded-full" style={{ background: `linear-gradient(to right, transparent, ${theme.primary}, transparent)` }}></div>
-        </div>
-        
-        {/* CONTENT LAYOUT */}
+        {/* ENVOLTORIO ESCALABLE */}
         <div 
-          className={`w-full ${layout === "square" ? "max-w-[1800px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row items-start justify-center" : "flex-col"} gap-12 z-10 ${layout === "square" ? "" : "flex-1"}`}
-          style={{ transform: layout === "square" ? `scale(${contentScale / 100})` : undefined, transformOrigin: "top center" }}
+          className="flex flex-col items-center w-full z-10"
+          style={{ transform: layout === "square" ? `scale(${contentScale / 100})` : undefined, transformOrigin: "center center" }}
         >
+          {/* HEADER */}
+          <div className="flex flex-col items-center mt-16 w-full px-16">
+            <div className="flex items-center justify-between w-full">
+              <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
+              <div className="flex flex-col items-end text-right">
+                <h2 className="text-4xl font-bold tracking-widest uppercase mb-3" style={{ color: theme.secondary }}>
+                  RESUMEN DE TEMPORADA
+                </h2>
+                <h1 className="text-6xl font-black uppercase max-w-3xl text-white leading-tight" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
+                  {tournament.name}
+                </h1>
+              </div>
+            </div>
+            <div className="h-1 w-full mt-8 rounded-full" style={{ background: `linear-gradient(to right, transparent, ${theme.primary}, transparent)` }}></div>
+          </div>
+          
+          {/* CONTENT LAYOUT */}
+          <div 
+            className={`w-full ${layout === "square" ? "max-w-[1800px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row items-start justify-center" : "flex-col"} gap-12 ${layout === "square" ? "" : "flex-1"}`}
+          >
           
           <div className={`flex flex-col gap-12 ${layout === "square" ? "flex-1" : "w-full"}`}>
             {/* EL CAMPEÓN */}
@@ -548,11 +552,13 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         </div>
 
         {/* FOOTER */}
-        <div className="w-full mt-16 py-6 border-t border-white/5 text-center z-10 flex flex-col items-center justify-center gap-2">
+        <div className="w-full mt-16 py-6 border-t border-white/5 text-center flex flex-col items-center justify-center gap-2">
             <span className="text-zinc-500 font-bold tracking-widest uppercase text-sm">
                 LIGA TPM SUDAMÉRICA
             </span>
             <img src="/img/logos/ByCampah3.png" alt="By Campah" className="w-40 h-auto opacity-80 mt-2" />
+        </div>
+        
         </div>
       </div>
     );
