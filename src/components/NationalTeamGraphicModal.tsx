@@ -26,18 +26,78 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
 
   const graphicRef = useRef<HTMLDivElement>(null);
 
+  const LOCAL_STORAGE_KEY = `tpm_nt_graphic_${team?.id || "default"}`;
+  
+  // New States
+  const [order, setOrder] = useState<string[]>([]);
+  const [listPrefixType, setListPrefixType] = useState<"numbers" | "dash" | "none">("numbers");
+  const [clubSearch, setClubSearch] = useState<Record<string, string>>({}); // Search text per player
+
   useEffect(() => {
-    // Initialize default config
+    // Load from local storage on mount
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.config) setConfig(parsed.config);
+        if (parsed.manualPlayers) setManualPlayers(parsed.manualPlayers);
+        if (parsed.order) setOrder(parsed.order);
+        if (parsed.listPrefixType) setListPrefixType(parsed.listPrefixType);
+        
+        // Merge new players that aren't in config
+        const newConf = { ...parsed.config };
+        const newOrder = [...parsed.order];
+        let changed = false;
+        players.forEach(p => {
+          if (!newConf[p.id]) {
+            newConf[p.id] = {
+              group: "ALAS",
+              customText: p.primaryPosition && p.primaryPosition !== "Ninguna" ? p.primaryPosition : "",
+              clubId: "",
+              posColor: "cyan"
+            };
+            changed = true;
+          }
+          if (!newOrder.includes(p.id)) {
+            newOrder.push(p.id);
+            changed = true;
+          }
+        });
+        if (changed) {
+          setConfig(newConf);
+          setOrder(newOrder);
+        }
+        return;
+      }
+    } catch (e) { console.error("Error loading graphic config", e); }
+
+    // Fallback: Initialize default config if no local storage
     const initialConfig: Record<string, any> = {};
+    const initialOrder: string[] = [];
     players.forEach(p => {
       initialConfig[p.id] = {
         group: "ALAS", // Default group
         customText: p.primaryPosition && p.primaryPosition !== "Ninguna" ? p.primaryPosition : "",
-        clubId: ""
+        clubId: "",
+        posColor: "cyan"
       };
+      initialOrder.push(p.id);
     });
     setConfig(initialConfig);
-  }, [players]);
+    setOrder(initialOrder);
+  }, [players, team]);
+
+  // Save to local storage whenever relevant state changes
+  useEffect(() => {
+    if (Object.keys(config).length > 0) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+        config,
+        manualPlayers,
+        order,
+        listPrefixType
+      }));
+    }
+  }, [config, manualPlayers, order, listPrefixType, LOCAL_STORAGE_KEY]);
 
   if (!isOpen) return null;
 
@@ -57,9 +117,11 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
       [newId]: {
         group: "ALAS",
         customText: "",
-        clubId: ""
+        clubId: "",
+        posColor: "cyan"
       }
     }));
+    setOrder(prev => [...prev, newId]);
     setNewManualNick("");
   };
   
@@ -69,6 +131,21 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
       const newConf = { ...prev };
       delete newConf[id];
       return newConf;
+    });
+    setOrder(prev => prev.filter(pid => pid !== id));
+  };
+  
+  const movePlayer = (id: string, dir: -1 | 1) => {
+    setOrder(prev => {
+      const idx = prev.indexOf(id);
+      if (idx === -1) return prev;
+      if (dir === -1 && idx === 0) return prev;
+      if (dir === 1 && idx === prev.length - 1) return prev;
+      const newArr = [...prev];
+      const temp = newArr[idx];
+      newArr[idx] = newArr[idx + dir];
+      newArr[idx + dir] = temp;
+      return newArr;
     });
   };
 
@@ -99,7 +176,14 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
     }
   };
 
-  const allRenderPlayers = [...players, ...manualPlayers];
+  const allRenderPlayers = [...players, ...manualPlayers].sort((a, b) => {
+    const idxA = order.indexOf(a.id);
+    const idxB = order.indexOf(b.id);
+    if (idxA === -1 && idxB === -1) return 0;
+    if (idxA === -1) return 1;
+    if (idxB === -1) return -1;
+    return idxA - idxB;
+  });
 
   // Group players
   const gk = allRenderPlayers.filter(p => config[p.id]?.group === "GK");
@@ -111,68 +195,119 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
     const pConf = config[p.id] || {};
     const club = allClubs.find(c => c.id === pConf.clubId);
     
+    let prefixText = "";
+    if (listPrefixType === "numbers") prefixText = `${(index + 1).toString().padStart(2, "0")}.`;
+    else if (listPrefixType === "dash") prefixText = "-";
+    
+    let posColorHex = "#00d0e6"; // cyan
+    if (pConf.posColor === "yellow") posColorHex = "#eab308";
+    else if (pConf.posColor === "blue") posColorHex = "#3b82f6";
+    else if (pConf.posColor === "green") posColorHex = "#22c55e";
+    else if (pConf.posColor === "red") posColorHex = "#ef4444";
+    
     return (
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[#00d0e6] font-bold w-12" style={{ fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>{(index + 1).toString().padStart(2, "0")}.</span>
+        {prefixText && <span className="font-bold w-12" style={{ color: posColorHex, fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>{prefixText}</span>}
         {club && club.logoUrl && <img src={club.logoUrl} className="object-contain" style={{ width: `${48 * (clubLogoSize / 100)}px`, height: `${48 * (clubLogoSize / 100)}px` }} alt="club" />}
         <span className="text-white font-bold uppercase tracking-wide" style={{ fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>
           {p.nick} {showDiscord && p.user?.name && <span className="text-white/50 lowercase font-normal ml-1" style={{ fontSize: `${24 * (playerSize / 100)}px` }}>(@{p.user.name})</span>}
         </span>
         {pConf.customText && (
-          <span className="text-[#00d0e6] ml-4 font-bold" style={{ fontSize: `${24 * (playerSize / 100)}px` }}>[{pConf.customText}]</span>
+          <span className="ml-4 font-bold" style={{ color: posColorHex, fontSize: `${24 * (playerSize / 100)}px` }}>[{pConf.customText}]</span>
         )}
       </div>
     );
   };
   
-  const renderEditorCard = (p: any, isManual: boolean) => (
-    <div key={p.id} className="bg-black/40 border border-border p-3 rounded-lg flex flex-col gap-3 relative">
-      <div className="font-bold text-white text-lg pr-8">{p.nick} {isManual && <span className="text-xs bg-primary/20 text-primary px-1 rounded ml-2 uppercase">Manual</span>}</div>
-      {isManual && (
-        <button onClick={() => removeManualPlayer(p.id)} className="absolute top-3 right-3 text-destructive hover:text-red-400 font-bold text-xl">✕</button>
-      )}
-      
-      {layoutMode === "grupos" && (
-        <div>
-          <label className="text-xs text-muted-foreground font-bold mb-1 block">Grupo</label>
-          <select 
-            value={config[p.id]?.group || "ALAS"} 
-            onChange={e => updatePlayer(p.id, "group", e.target.value)}
-            className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
-          >
-            <option value="GK">Arqueros</option>
-            <option value="DEF">Defensores</option>
-            <option value="ALAS">Mediocampistas</option>
-            <option value="ATK">Delanteros</option>
-          </select>
+  const renderEditorCard = (p: any, isManual: boolean) => {
+    const filteredClubs = allClubs.filter(c => !clubSearch[p.id] || c.name.toLowerCase().includes(clubSearch[p.id].toLowerCase()));
+    const currentIndex = order.indexOf(p.id);
+    
+    return (
+      <div key={p.id} className="bg-black/40 border border-border p-3 rounded-lg flex flex-col gap-3 relative">
+        <div className="flex justify-between items-center pr-8">
+          <div className="font-bold text-white text-lg">
+            {p.nick} {isManual && <span className="text-xs bg-primary/20 text-primary px-1 rounded ml-2 uppercase">Manual</span>}
+          </div>
+          <div className="flex gap-1">
+            <button onClick={() => movePlayer(p.id, -1)} disabled={currentIndex <= 0} className="text-muted-foreground hover:text-white disabled:opacity-20 px-1 bg-white/5 rounded">↑</button>
+            <button onClick={() => movePlayer(p.id, 1)} disabled={currentIndex >= allRenderPlayers.length - 1} className="text-muted-foreground hover:text-white disabled:opacity-20 px-1 bg-white/5 rounded">↓</button>
+          </div>
         </div>
-      )}
-      
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="text-xs text-muted-foreground font-bold mb-1 block">Posición (MCD..)</label>
-          <input 
-            type="text" 
-            placeholder="Ej: MCD" 
-            value={config[p.id]?.customText || ""}
-            onChange={e => updatePlayer(p.id, "customText", e.target.value)}
-            className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground font-bold mb-1 block">Club (Escudo)</label>
-          <select 
-              value={config[p.id]?.clubId || ""} 
-              onChange={e => updatePlayer(p.id, "clubId", e.target.value)}
+        {isManual && (
+          <button onClick={() => removeManualPlayer(p.id)} className="absolute top-3 right-3 text-destructive hover:text-red-400 font-bold text-xl">✕</button>
+        )}
+        
+        {layoutMode === "grupos" && (
+          <div>
+            <label className="text-xs text-muted-foreground font-bold mb-1 block">Grupo</label>
+            <select 
+              value={config[p.id]?.group || "ALAS"} 
+              onChange={e => updatePlayer(p.id, "group", e.target.value)}
               className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
             >
-              <option value="">-- Sin club --</option>
-              {allClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              <option value="GK">Arqueros</option>
+              <option value="DEF">Defensores</option>
+              <option value="ALAS">Mediocampistas</option>
+              <option value="ATK">Delanteros</option>
             </select>
+          </div>
+        )}
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-2">
+            <div>
+              <label className="text-xs text-muted-foreground font-bold mb-1 block">Posición (MCD..)</label>
+              <input 
+                type="text" 
+                placeholder="Ej: MCD" 
+                value={config[p.id]?.customText || ""}
+                onChange={e => updatePlayer(p.id, "customText", e.target.value)}
+                className="w-full bg-secondary border border-border rounded p-1 text-sm text-white focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground font-bold mb-1 block">Color Posición</label>
+              <select 
+                value={config[p.id]?.posColor || "cyan"} 
+                onChange={e => updatePlayer(p.id, "posColor", e.target.value)}
+                className="w-full bg-secondary border border-border rounded p-1 text-sm text-white focus:outline-none"
+              >
+                <option value="cyan">Cyan (Defecto)</option>
+                <option value="yellow">Amarillo (GK)</option>
+                <option value="blue">Azul (DEF)</option>
+                <option value="green">Verde (ALA)</option>
+                <option value="red">Rojo (ATK)</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div>
+              <label className="text-xs text-muted-foreground font-bold mb-1 block">Buscar Club</label>
+              <input 
+                type="text" 
+                placeholder="Ej: Boca" 
+                value={clubSearch[p.id] || ""}
+                onChange={e => setClubSearch(prev => ({ ...prev, [p.id]: e.target.value }))}
+                className="w-full bg-secondary border border-border rounded p-1 text-sm text-white focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground font-bold mb-1 block">Club (Escudo)</label>
+              <select 
+                  value={config[p.id]?.clubId || ""} 
+                  onChange={e => updatePlayer(p.id, "clubId", e.target.value)}
+                  className="w-full bg-secondary border border-border rounded p-1 text-sm text-white focus:outline-none"
+                >
+                  <option value="">-- Sin club --</option>
+                  {filteredClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Divide players into 3 columns for "lista" layout
   const cols = [[], [], []] as any[][];
@@ -205,6 +340,19 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                     Por Lista
                   </button>
                 </div>
+              </div>
+              
+              <div>
+                <label className="text-xs text-muted-foreground font-bold mb-1 block">Prefijo de Lista</label>
+                <select 
+                  value={listPrefixType} 
+                  onChange={e => setListPrefixType(e.target.value as any)}
+                  className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+                >
+                  <option value="numbers">Números (01. 02.)</option>
+                  <option value="dash">Guiones (-)</option>
+                  <option value="none">Sin Prefijo</option>
+                </select>
               </div>
               
               <div>
