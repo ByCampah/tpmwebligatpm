@@ -30,7 +30,8 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
   
   // New States
   const [order, setOrder] = useState<string[]>([]);
-  const [listPrefixType, setListPrefixType] = useState<"numbers" | "dash" | "none">("numbers");
+  const [listPrefixType, setListPrefixType] = useState<"numbers" | "dash" | "none" | "custom">("numbers");
+  const [customPrefix, setCustomPrefix] = useState("-");
   const [clubSearch, setClubSearch] = useState<Record<string, string>>({}); // Search text per player
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
         if (parsed.manualPlayers) setManualPlayers(parsed.manualPlayers);
         if (parsed.order) setOrder(parsed.order);
         if (parsed.listPrefixType) setListPrefixType(parsed.listPrefixType);
+        if (parsed.customPrefix) setCustomPrefix(parsed.customPrefix);
         
         // Merge new players that aren't in config
         const newConf = { ...parsed.config };
@@ -94,10 +96,11 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
         config,
         manualPlayers,
         order,
-        listPrefixType
+        listPrefixType,
+        customPrefix
       }));
     }
-  }, [config, manualPlayers, order, listPrefixType, LOCAL_STORAGE_KEY]);
+  }, [config, manualPlayers, order, listPrefixType, customPrefix, LOCAL_STORAGE_KEY]);
 
   if (!isOpen) return null;
 
@@ -196,24 +199,39 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
     const club = allClubs.find(c => c.id === pConf.clubId);
     
     let prefixText = "";
-    if (listPrefixType === "numbers") prefixText = `${(index + 1).toString().padStart(2, "0")}.`;
+    if (listPrefixType === "numbers") prefixText = `${index + 1} -`;
     else if (listPrefixType === "dash") prefixText = "-";
+    else if (listPrefixType === "custom") prefixText = customPrefix;
     
-    let posColorHex = "#00d0e6"; // cyan
-    if (pConf.posColor === "yellow") posColorHex = "#eab308";
-    else if (pConf.posColor === "blue") posColorHex = "#3b82f6";
-    else if (pConf.posColor === "green") posColorHex = "#22c55e";
-    else if (pConf.posColor === "red") posColorHex = "#ef4444";
+    // Fallback if positions is missing but customText exists
+    const posArray: string[] = pConf.positions || (pConf.customText ? [pConf.customText] : []);
+    
+    const getPosColor = (pos: string) => {
+      if (pos === "GK") return "#eab308";
+      if (pos === "DEF") return "#3b82f6";
+      if (pos === "ALA") return "#22c55e";
+      if (pos === "ATK") return "#ef4444";
+      return "#00d0e6";
+    };
     
     return (
       <div className="flex items-center gap-2 mb-2">
-        {prefixText && <span className="font-bold w-12" style={{ color: posColorHex, fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>{prefixText}</span>}
+        {prefixText && <span className="font-bold w-12" style={{ color: "#00d0e6", fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>{prefixText}</span>}
         {club && club.logoUrl && <img src={club.logoUrl} className="object-contain" style={{ width: `${48 * (clubLogoSize / 100)}px`, height: `${48 * (clubLogoSize / 100)}px` }} alt="club" />}
         <span className="text-white font-bold uppercase tracking-wide" style={{ fontSize: `${36 * (playerSize / 100)}px`, lineHeight: 1 }}>
           {p.nick} {showDiscord && p.user?.name && <span className="text-white/50 lowercase font-normal ml-1" style={{ fontSize: `${24 * (playerSize / 100)}px` }}>(@{p.user.name})</span>}
         </span>
-        {pConf.customText && (
-          <span className="ml-4 font-bold" style={{ color: posColorHex, fontSize: `${24 * (playerSize / 100)}px` }}>[{pConf.customText}]</span>
+        {posArray.length > 0 && (
+          <span className="ml-4 font-bold" style={{ fontSize: `${24 * (playerSize / 100)}px` }}>
+            <span style={{ color: "#00d0e6" }}>[</span>
+            {posArray.map((pos, i) => (
+              <span key={i}>
+                <span style={{ color: getPosColor(pos) }}>{pos}</span>
+                {i < posArray.length - 1 && <span style={{ color: "#00d0e6" }}> - </span>}
+              </span>
+            ))}
+            <span style={{ color: "#00d0e6" }}>]</span>
+          </span>
         )}
       </div>
     );
@@ -257,28 +275,30 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
         <div className="grid grid-cols-2 gap-2">
           <div className="flex flex-col gap-2">
             <div>
-              <label className="text-xs text-muted-foreground font-bold mb-1 block">Posición (MCD..)</label>
-              <input 
-                type="text" 
-                placeholder="Ej: MCD" 
-                value={config[p.id]?.customText || ""}
-                onChange={e => updatePlayer(p.id, "customText", e.target.value)}
-                className="w-full bg-secondary border border-border rounded p-1 text-sm text-white focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground font-bold mb-1 block">Color Posición</label>
-              <select 
-                value={config[p.id]?.posColor || "cyan"} 
-                onChange={e => updatePlayer(p.id, "posColor", e.target.value)}
-                className="w-full bg-secondary border border-border rounded p-1 text-sm text-white focus:outline-none"
-              >
-                <option value="cyan">Cyan (Defecto)</option>
-                <option value="yellow">Amarillo (GK)</option>
-                <option value="blue">Azul (DEF)</option>
-                <option value="green">Verde (ALA)</option>
-                <option value="red">Rojo (ATK)</option>
-              </select>
+              <label className="text-xs text-muted-foreground font-bold mb-1 block">Posiciones (Multicolor)</label>
+              <div className="grid grid-cols-2 gap-1 text-xs font-bold bg-black/30 p-2 rounded border border-border">
+                {["GK", "DEF", "ALA", "ATK"].map(pos => {
+                  const currentPositions: string[] = config[p.id]?.positions || (config[p.id]?.customText ? [config[p.id].customText] : []);
+                  const isChecked = currentPositions.includes(pos);
+                  return (
+                    <label key={pos} className={`flex items-center gap-2 p-1 rounded cursor-pointer ${isChecked ? "bg-primary/20 text-white" : "text-muted-foreground hover:bg-secondary"}`}>
+                      <input 
+                        type="checkbox" 
+                        className="rounded bg-secondary border-border"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          const newPositions = e.target.checked 
+                            ? [...currentPositions, pos] 
+                            : currentPositions.filter(p => p !== pos);
+                          updatePlayer(p.id, "positions", newPositions);
+                          updatePlayer(p.id, "customText", ""); // Clear legacy field
+                        }}
+                      />
+                      {pos}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-2">
@@ -347,12 +367,22 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
                 <select 
                   value={listPrefixType} 
                   onChange={e => setListPrefixType(e.target.value as any)}
-                  className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+                  className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none mb-2"
                 >
-                  <option value="numbers">Números (01. 02.)</option>
+                  <option value="numbers">Números (1 - 2 -)</option>
                   <option value="dash">Guiones (-)</option>
                   <option value="none">Sin Prefijo</option>
+                  <option value="custom">Personalizado...</option>
                 </select>
+                {listPrefixType === "custom" && (
+                  <input 
+                    type="text" 
+                    value={customPrefix}
+                    onChange={e => setCustomPrefix(e.target.value)}
+                    placeholder="Ej: #"
+                    className="w-full bg-secondary border border-border rounded p-2 text-sm text-white focus:outline-none"
+                  />
+                )}
               </div>
               
               <div>
