@@ -25,7 +25,8 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   
   const [exportType, setExportType] = useState<"SEASON" | "FIXTURE" | "STANDINGS" | "BRACKET" | "PLANTEL">("FIXTURE");
   const [selectedRound, setSelectedRound] = useState<string>("ALL");
-  const [imageLayout, setImageLayout] = useState<"vertical" | "square">("vertical");
+  const [imageLayout, setImageLayout] = useState<"vertical" | "square">("square");
+  const [contentScale, setContentScale] = useState(100);
   const [themeColor, setThemeColor] = useState<string>("emerald");
   
   const [plantelTeam, setPlantelTeam] = useState("ALL");
@@ -1604,13 +1605,19 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             </div>
             
             {exportType === "SEASON" && (
-                <div className="flex items-center gap-4 mt-2">
-                <button 
-                    onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
-                    className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex items-center gap-2"
-                >
-                    {imageLayout === "vertical" ? "🔄 Formato Cuadrado" : "🔄 Formato Vertical"}
-                </button>
+                <div className="flex flex-col gap-4 mt-2 bg-black/40 p-4 rounded-xl border border-white/5 w-full max-w-md">
+                    <button 
+                        onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
+                        className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex justify-center items-center gap-2"
+                    >
+                        {imageLayout === "vertical" ? "🔄 Formato Cuadrado" : "🔄 Formato Vertical"}
+                    </button>
+                    {imageLayout === "square" && (
+                        <div>
+                            <label className="text-xs text-muted-foreground font-bold mb-1 block">Escala del Contenido (%)</label>
+                            <input type="range" min="50" max="150" value={contentScale} onChange={e => setContentScale(Number(e.target.value))} className="w-full accent-primary" />
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -1713,7 +1720,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
           <div className="w-full overflow-x-auto p-4 bg-black/50 border border-border rounded-xl">
             {/* The hidden/scaled container to capture */}
             <div style={{ width: exportType === "SEASON" ? (imageLayout === "square" ? "1280px" : "1080px") : (exportType === "BRACKET" ? "1920px" : (exportType === "PLANTEL" && plantelTeam === "ALL" ? "1600px" : (exportType === "PLANTEL" ? "800px" : "1200px"))), margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
-              {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} limitGoalsTo4={limitGoalsTo4} />}
+              {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} limitGoalsTo4={limitGoalsTo4} contentScale={contentScale} />}
               {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} themeColor={themeColor} />}
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} />}

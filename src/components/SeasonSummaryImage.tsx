@@ -9,12 +9,13 @@ interface SeasonSummaryImageProps {
   layout?: "vertical" | "square";
   themeColor?: string;
   limitGoalsTo4?: boolean;
+  contentScale?: number;
 }
 
 import { getThemeColors } from '@/lib/themeColors';
 
 export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageProps>(
-  ({ tournament, layout = "vertical", themeColor = "emerald", limitGoalsTo4 = false }, ref) => {
+  ({ tournament, layout = "square", themeColor = "emerald", limitGoalsTo4 = false, contentScale = 100 }, ref) => {
     // 1. Calcular Goleadores, Asistidores, GK
     const playerStats = new Map<string, any>();
     
@@ -264,7 +265,10 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
         </div>
         
         {/* CONTENT LAYOUT */}
-        <div className={`w-full ${layout === "square" ? "max-w-[1800px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row items-center justify-center" : "flex-col"} gap-12 z-10 ${layout === "square" ? "" : "flex-1"}`}>
+        <div 
+          className={`w-full ${layout === "square" ? "max-w-[1800px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row items-start justify-center" : "flex-col"} gap-12 z-10 ${layout === "square" ? "" : "flex-1"}`}
+          style={{ transform: layout === "square" ? `scale(${contentScale / 100})` : undefined, transformOrigin: "top center" }}
+        >
           
           <div className={`flex flex-col gap-12 ${layout === "square" ? "flex-1" : "w-full"}`}>
             {/* EL CAMPEÓN */}
