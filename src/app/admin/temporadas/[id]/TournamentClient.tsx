@@ -699,22 +699,28 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                       <div key={m.id} className={`bg-card border rounded-xl overflow-hidden transition-colors ${isEditing ? 'border-primary' : 'border-border'}`}>
                   
                   {/* BARRA DEL PARTIDO */}
-                  <div className="p-4 flex justify-between items-center text-lg bg-black/20">
-                    <div className="flex-1 flex justify-end items-center gap-4">
-                      <span className="font-bold">{m.homeTeam.name}</span>
-                      {m.homeTeam.logoUrl && <img src={m.homeTeam.logoUrl} className="h-8 object-contain" alt="" />}
-                      <span className="text-3xl font-black w-10 text-center">{m.status === 'PLAYED' ? m.homeScore : '-'}</span>
-                    </div>
-                    <span className="mx-6 text-muted-foreground text-sm font-bold">VS</span>
-                    <div className="flex-1 flex justify-start items-center gap-4">
-                      <span className="text-3xl font-black w-10 text-center">{m.status === 'PLAYED' ? m.awayScore : '-'}</span>
-                      {m.awayTeam.logoUrl && <img src={m.awayTeam.logoUrl} className="h-8 object-contain" alt="" />}
-                      <span className="font-bold">{m.awayTeam.name}</span>
+                  <div className="p-4 flex justify-between items-center text-lg bg-black/20 gap-4">
+                    
+                    {/* INFO DEL PARTIDO */}
+                    <div className="flex-1 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                      <div className="flex justify-end items-center gap-4 text-right">
+                        <span className="font-bold leading-tight max-w-[150px] sm:max-w-[200px] break-words">{m.homeTeam.name}</span>
+                        {m.homeTeam.logoUrl && <img src={m.homeTeam.logoUrl} className="h-8 w-8 object-contain shrink-0" alt="" />}
+                        <span className="text-3xl font-black w-10 text-center shrink-0">{m.status === 'PLAYED' ? m.homeScore : '-'}</span>
+                      </div>
+                      <span className="text-muted-foreground text-sm font-bold shrink-0 w-8 text-center">VS</span>
+                      <div className="flex justify-start items-center gap-4 text-left">
+                        <span className="text-3xl font-black w-10 text-center shrink-0">{m.status === 'PLAYED' ? m.awayScore : '-'}</span>
+                        {m.awayTeam.logoUrl && <img src={m.awayTeam.logoUrl} className="h-8 w-8 object-contain shrink-0" alt="" />}
+                        <span className="font-bold leading-tight max-w-[150px] sm:max-w-[200px] break-words">{m.awayTeam.name}</span>
+                      </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 ml-4">
-                      <div className="flex gap-2">
-                        <button
+                    {/* CONTROLES Y ACCIONES (FIJOS) */}
+                    <div className="flex items-center gap-4 shrink-0 justify-end border-l border-white/10 pl-6 w-[420px]">
+                      <div className="flex flex-col gap-2 flex-1">
+                        <div className="flex gap-2 justify-end">
+                          <button
                           onClick={() => handleToggleProde(m.id, !m.showInProde, m.prodeLocked)}
                           className={`text-xs font-bold px-3 py-1 rounded transition-colors ${m.showInProde ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}
                           title="Mostrar en Portada para Prode"
@@ -788,10 +794,11 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                         setEditingMatch(isEditing ? null : m);
                         setEditingEvents(m.events ? (typeof m.events === 'string' ? JSON.parse(m.events) : m.events) : []);
                       }}
-                      className={`ml-4 text-sm font-black px-6 py-3 rounded transition-colors ${isEditing ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80' : 'bg-primary text-primary-foreground hover:bg-primary/80 shadow-[0_0_10px_rgba(var(--primary),0.2)]'}`}
+                      className={`shrink-0 w-[180px] text-sm font-black px-4 py-3 rounded transition-colors text-center ${isEditing ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80' : 'bg-primary text-primary-foreground hover:bg-primary/80 shadow-[0_0_10px_rgba(var(--primary),0.2)]'}`}
                     >
                       {isEditing ? 'CERRAR PLANILLA' : (m.status === 'PLAYED' ? 'EDITAR RESULTADO' : 'CARGAR RESULTADO')}
                     </button>
+                    </div>
                   </div>
 
                   {/* PLANILLA DE CARGA GIGANTE */}
