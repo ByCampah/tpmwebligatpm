@@ -157,7 +157,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   };
 
   const getGridCols = () => {
-    if (layout === "vertical") return "grid-cols-2";
+    if (layout === "vertical") return "grid-cols-3";
     if (selectedStats.length <= 2) return "grid-cols-2";
     if (selectedStats.length <= 4) return "grid-cols-2";
     if (selectedStats.length <= 6) return "grid-cols-3";
@@ -168,7 +168,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   return (
     <div 
       ref={ref} 
-      className={`${layout === "square" ? "w-[2400px] aspect-square" : "w-[1200px] min-h-[1200px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans shadow-2xl justify-start pb-16`}
+      className={`${layout === "square" ? "w-[2400px] aspect-square" : "w-[2400px] min-h-[2400px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans shadow-2xl justify-start pb-16`}
       style={{
         backgroundImage: theme.bgGradient,
       }}
@@ -203,7 +203,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
         </div>
 
         {/* STATS GRID */}
-        <div className={`w-full ${layout === "square" ? "max-w-[2200px]" : "max-w-[1100px]"} px-12 grid ${getGridCols()} gap-8 items-start flex-1 mb-16 content-center`}>
+        <div className={`w-full max-w-[2200px] px-12 grid ${getGridCols()} gap-8 items-start flex-1 mb-16 content-center`}>
           {selectedStats.map(statKey => {
             const config = STAT_CONFIG[statKey];
             if (!config) return null;
