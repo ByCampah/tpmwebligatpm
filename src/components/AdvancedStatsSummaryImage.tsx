@@ -157,6 +157,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   };
 
   const getGridCols = () => {
+    if (layout === "vertical") return "grid-cols-2";
     if (selectedStats.length <= 2) return "grid-cols-2";
     if (selectedStats.length <= 4) return "grid-cols-2";
     if (selectedStats.length <= 6) return "grid-cols-3";
@@ -167,7 +168,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   return (
     <div 
       ref={ref} 
-      className="w-[2400px] aspect-square bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans shadow-2xl justify-center"
+      className={`${layout === "square" ? "w-[2400px] aspect-square" : "w-[1200px] min-h-[1200px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans shadow-2xl justify-start pb-16`}
       style={{
         backgroundImage: theme.bgGradient,
       }}
@@ -202,7 +203,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
         </div>
 
         {/* STATS GRID */}
-        <div className={`w-full max-w-[2200px] px-12 grid ${getGridCols()} gap-12 items-start flex-1 mb-16 content-center`}>
+        <div className={`w-full ${layout === "square" ? "max-w-[2200px]" : "max-w-[1100px]"} px-12 grid ${getGridCols()} gap-8 items-start flex-1 mb-16 content-center`}>
           {selectedStats.map(statKey => {
             const config = STAT_CONFIG[statKey];
             if (!config) return null;
@@ -213,12 +214,12 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50"></div>
                 
                 <div className="flex items-center justify-center gap-4 mb-10 border-b border-white/10 pb-6">
-                  <span className="text-6xl">{config.emoji}</span>
-                  <h3 className="text-4xl font-black text-center tracking-wider">{config.label}</h3>
+                  <span className="text-5xl">{config.emoji}</span>
+                  <h3 className="text-3xl font-black text-center tracking-wider">{config.label}</h3>
                 </div>
 
                 {top5.length > 0 ? (
-                  <div className="flex flex-col gap-6 flex-1 justify-center">
+                  <div className="flex flex-col gap-4 flex-1 justify-center">
                     {top5.map((p, index) => (
                       <div key={p.id} className="flex items-center gap-6 bg-white/5 rounded-2xl p-4 border border-white/5">
                         <span className={`text-4xl font-black ${index === 0 ? theme.accentColor : 'text-white/40'} w-12 text-center`}>
@@ -226,22 +227,22 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
                         </span>
                         {p.teamLogo ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.teamLogo} alt={p.teamName} className="w-16 h-16 object-contain drop-shadow-md" crossOrigin="anonymous" />
+                          <img src={p.teamLogo} alt={p.teamName} className="w-12 h-12 object-contain drop-shadow-md" crossOrigin="anonymous" />
                         ) : (
-                          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-xl font-bold">
+                          <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-lg font-bold">
                             {p.teamName.substring(0, 2).toUpperCase()}
                           </div>
                         )}
                         <div className="flex flex-col flex-1 min-w-0">
-                          <span className="text-3xl font-bold truncate">{p.nick}</span>
-                          <span className="text-xl text-white/50 truncate uppercase tracking-wider">{p.teamName}</span>
+                          <span className="text-2xl font-bold truncate pr-2" title={p.nick}>{p.nick}</span>
+                          <span className="text-lg text-white/50 truncate uppercase tracking-wider">{p.teamName}</span>
                         </div>
-                        <div className="flex flex-col items-end min-w-[80px]">
-                          <span className={`text-5xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none`}>
+                        <div className="flex flex-col items-end min-w-[70px]">
+                          <span className={`text-4xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none`}>
                             {config.getValue(p)}
                           </span>
                           {config.getTotal && config.getTotal(p) > 0 && (
-                            <span className="text-xl text-white/60 font-bold mt-2 tabular-nums whitespace-nowrap">
+                            <span className="text-sm text-white/60 font-bold mt-2 tabular-nums whitespace-nowrap">
                               {config.getValue(p)}/{config.getTotal(p)} <span className="text-white/40">({Math.round((config.getValue(p) / config.getTotal(p)) * 100)}%)</span>
                             </span>
                           )}
@@ -250,8 +251,8 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
                     ))}
                   </div>
                 ) : (
-                  <div className="flex-1 flex items-center justify-center py-20">
-                    <span className="text-2xl text-white/30 font-bold uppercase tracking-wider text-center">Sin datos registrados</span>
+                  <div className="flex-1 flex items-center justify-center py-12">
+                    <span className="text-xl text-white/30 font-bold uppercase tracking-wider text-center">Sin datos registrados</span>
                   </div>
                 )}
               </div>
