@@ -6,6 +6,7 @@ interface Props {
   themeColor: string;
   selectedStats: string[];
   contentScale?: number;
+  layout?: "square" | "vertical";
 }
 
 export const STAT_CONFIG: Record<string, { label: string, emoji: string, getValue: (p: any) => number, getTotal?: (p: any) => number }> = {
@@ -31,7 +32,8 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   tournament,
   themeColor,
   selectedStats,
-  contentScale = 100
+  contentScale = 100,
+  layout = "square"
 }, ref) => {
   const getThemeStyles = () => {
     switch (themeColor) {
