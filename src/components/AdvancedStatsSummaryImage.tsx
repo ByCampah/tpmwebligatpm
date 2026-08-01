@@ -7,20 +7,20 @@ interface Props {
   selectedStats: string[];
 }
 
-export const STAT_CONFIG: Record<string, { label: string, emoji: string, getValue: (p: any) => number }> = {
+export const STAT_CONFIG: Record<string, { label: string, emoji: string, getValue: (p: any) => number, getTotal?: (p: any) => number }> = {
   goals: { label: "Goleadores", emoji: "⚽", getValue: p => p.goals },
   assists: { label: "Asistencias", emoji: "👟", getValue: p => p.assists },
-  passesMade: { label: "Pases Completados", emoji: "🎯", getValue: p => p.passesMade },
-  shotsMade: { label: "Tiros al Arco", emoji: "🥅", getValue: p => p.shotsMade },
-  headersMade: { label: "Duelos de Cabeza", emoji: "🦅", getValue: p => p.headersMade },
-  slidingMade: { label: "Barridas (Sliding)", emoji: "🥾", getValue: p => p.slidingMade },
+  passesMade: { label: "Pases Completados", emoji: "🎯", getValue: p => p.passesMade, getTotal: p => p.passesTotal },
+  shotsMade: { label: "Tiros al Arco", emoji: "🥅", getValue: p => p.shotsMade, getTotal: p => p.shotsTotal },
+  headersMade: { label: "Duelos de Cabeza", emoji: "🦅", getValue: p => p.headersMade, getTotal: p => p.headersTotal },
+  slidingMade: { label: "Barridas (Sliding)", emoji: "🥾", getValue: p => p.slidingMade, getTotal: p => p.slidingTotal },
   tacklesWon: { label: "Quites / Duelos", emoji: "🛡️", getValue: p => p.tacklesWon },
   fouls: { label: "Faltas Cometidas", emoji: "⚠️", getValue: p => p.fouls },
   fouled: { label: "Faltas Recibidas", emoji: "🤕", getValue: p => p.fouled },
   offsides: { label: "Fueras de Juego", emoji: "🚩", getValue: p => p.offsides },
   ballLosses: { label: "Pérdidas de Balón", emoji: "📉", getValue: p => p.ballLosses },
   redCards: { label: "Tarjetas Rojas", emoji: "🟥", getValue: p => p.redCards },
-  savesMade: { label: "Atajadas (GK)", emoji: "🧤", getValue: p => p.savesMade },
+  savesMade: { label: "Atajadas (GK)", emoji: "🧤", getValue: p => p.savesMade, getTotal: p => p.savesTotal },
   cleanSheets: { label: "Vallas Invictas", emoji: "🧱", getValue: p => p.cleanSheets },
   freeKickGoals: { label: "Goles Tiro Libre", emoji: "☄️", getValue: p => p.freeKickGoals },
   penaltyGoals: { label: "Goles de Penal", emoji: "🎯", getValue: p => p.penaltyGoals },
@@ -90,9 +90,13 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
           goals: 0,
           assists: 0,
           passesMade: 0,
+          passesTotal: 0,
           shotsMade: 0,
+          shotsTotal: 0,
           headersMade: 0,
+          headersTotal: 0,
           slidingMade: 0,
+          slidingTotal: 0,
           tacklesWon: 0,
           fouls: 0,
           fouled: 0,
@@ -100,6 +104,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
           ballLosses: 0,
           redCards: 0,
           savesMade: 0,
+          savesTotal: 0,
           cleanSheets: 0,
           freeKickGoals: 0,
           penaltyGoals: 0,
@@ -109,9 +114,13 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
       p.goals += s.goals || 0;
       p.assists += s.assists || 0;
       p.passesMade += s.passesMade || 0;
+      p.passesTotal += s.passesTotal || 0;
       p.shotsMade += s.shotsMade || 0;
+      p.shotsTotal += s.shotsTotal || 0;
       p.headersMade += s.headersMade || 0;
+      p.headersTotal += s.headersTotal || 0;
       p.slidingMade += s.slidingMade || 0;
+      p.slidingTotal += s.slidingTotal || 0;
       p.tacklesWon += s.tacklesWon || 0;
       p.fouls += s.fouls || 0;
       p.fouled += s.fouled || 0;
@@ -119,6 +128,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
       p.ballLosses += s.ballLosses || 0;
       p.redCards += s.redCards || 0;
       p.savesMade += s.savesMade || 0;
+      p.savesTotal += s.savesTotal || 0;
       if (s.cleanSheet) p.cleanSheets += 1;
       p.freeKickGoals += s.freeKickGoals || 0;
       p.penaltyGoals += s.penaltyGoals || 0;
@@ -212,9 +222,16 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
                         <span className="text-3xl font-bold truncate">{p.nick}</span>
                         <span className="text-xl text-white/50 truncate uppercase tracking-wider">{p.teamName}</span>
                       </div>
-                      <span className={`text-5xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right`}>
-                        {config.getValue(p)}
-                      </span>
+                      <div className="flex flex-col items-end min-w-[80px]">
+                        <span className={`text-5xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none`}>
+                          {config.getValue(p)}
+                        </span>
+                        {config.getTotal && config.getTotal(p) > 0 && (
+                          <span className="text-xl text-white/60 font-bold mt-2 tabular-nums whitespace-nowrap">
+                            {config.getValue(p)}/{config.getTotal(p)} <span className="text-white/40">({Math.round((config.getValue(p) / config.getTotal(p)) * 100)}%)</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
