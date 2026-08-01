@@ -36,6 +36,9 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   const [limitGoalsTo4, setLimitGoalsTo4] = useState(false);
   
   const [selectedStats, setSelectedStats] = useState<string[]>(Object.keys(STAT_CONFIG));
+  const [advStatsWidth, setAdvStatsWidth] = useState(2400);
+  const [advStatsHeight, setAdvStatsHeight] = useState(2400);
+  const [advStatsCols, setAdvStatsCols] = useState(4);
   
   const summaryRef = useRef<HTMLDivElement>(null);
   const fixtureRef = useRef<HTMLDivElement>(null);
@@ -1634,6 +1637,30 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                             {imageLayout === "vertical" ? "🔄 Formato Cuadrado" : "🔄 Formato Vertical"}
                         </button>
                     )}
+                    {exportType === "ADVANCED_STATS" && (
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="flex flex-col w-full">
+                                    <label className="text-xs text-muted-foreground font-bold mb-1">Ancho (px)</label>
+                                    <input type="number" value={advStatsWidth} onChange={e => setAdvStatsWidth(Number(e.target.value))} className="bg-black border border-border rounded-lg p-2 font-bold text-center" />
+                                </div>
+                                <span className="text-xl font-black text-muted-foreground mt-4">X</span>
+                                <div className="flex flex-col w-full">
+                                    <label className="text-xs text-muted-foreground font-bold mb-1">Alto (px)</label>
+                                    <input type="number" value={advStatsHeight} onChange={e => setAdvStatsHeight(Number(e.target.value))} className="bg-black border border-border rounded-lg p-2 font-bold text-center" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col w-full mt-2">
+                                <label className="text-xs text-muted-foreground font-bold mb-1">Columnas de Estadísticas</label>
+                                <select value={advStatsCols} onChange={e => setAdvStatsCols(Number(e.target.value))} className="bg-black border border-border rounded-lg p-2 font-bold text-center">
+                                    <option value={2}>2 Columnas</option>
+                                    <option value={3}>3 Columnas</option>
+                                    <option value={4}>4 Columnas</option>
+                                    <option value={5}>5 Columnas</option>
+                                </select>
+                            </div>
+                        </div>
+                    )}
                     {(imageLayout === "square" || exportType === "ADVANCED_STATS") && (
                         <div>
                             <label className="text-xs text-muted-foreground font-bold mb-1 block">Escala del Contenido: {contentScale}%</label>
@@ -1765,10 +1792,10 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             {/* The hidden/scaled container to capture */}
             <div 
               style={{ 
-                width: exportType === "SEASON" ? (imageLayout === "square" ? "2400px" : "1080px") : (exportType === "ADVANCED_STATS" ? "2400px" : (exportType === "BRACKET" ? "1920px" : (exportType === "PLANTEL" && plantelTeam === "ALL" ? "1600px" : (exportType === "PLANTEL" ? "800px" : "1200px")))), 
+                width: exportType === "SEASON" ? (imageLayout === "square" ? "2400px" : "1080px") : (exportType === "ADVANCED_STATS" ? `${advStatsWidth}px` : (exportType === "BRACKET" ? "1920px" : (exportType === "PLANTEL" && plantelTeam === "ALL" ? "1600px" : (exportType === "PLANTEL" ? "800px" : "1200px")))), 
                 transform: `scale(${exportType === "ADVANCED_STATS" ? 0.35 : (exportType === "SEASON" ? (imageLayout === "square" ? 0.35 : 0.7) : (exportType === "BRACKET" ? 0.5 : 0.7))})`, 
                 transformOrigin: "top center",
-                marginBottom: exportType === "ADVANCED_STATS" && imageLayout === "vertical" ? "-50%" : "-30%" // approximate negative margin to reduce empty space
+                marginBottom: exportType === "ADVANCED_STATS" ? "-30%" : "-30%" // approximate negative margin to reduce empty space
               }}
             >
               {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} limitGoalsTo4={limitGoalsTo4} contentScale={contentScale} />}
@@ -1776,7 +1803,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} showAvatar={showAvatar} limitGoalsTo4={limitGoalsTo4} />}
-              {exportType === "ADVANCED_STATS" && <AdvancedStatsSummaryImage ref={advancedStatsRef} tournament={tournament} themeColor={themeColor} selectedStats={selectedStats} contentScale={contentScale} />}
+              {exportType === "ADVANCED_STATS" && <AdvancedStatsSummaryImage ref={advancedStatsRef} tournament={tournament} themeColor={themeColor} selectedStats={selectedStats} contentScale={contentScale} customWidth={advStatsWidth} customHeight={advStatsHeight} customCols={advStatsCols} />}
             </div>
           </div>
         </div>

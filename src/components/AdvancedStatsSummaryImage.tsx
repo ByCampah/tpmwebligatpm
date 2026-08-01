@@ -7,6 +7,9 @@ interface Props {
   selectedStats: string[];
   contentScale?: number;
   layout?: "square" | "vertical";
+  customWidth?: number;
+  customHeight?: number;
+  customCols?: number;
 }
 
 export const STAT_CONFIG: Record<string, { label: string, emoji: string, getValue: (p: any) => number, getTotal?: (p: any) => number }> = {
@@ -33,7 +36,10 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   themeColor,
   selectedStats,
   contentScale = 100,
-  layout = "square"
+  layout = "square",
+  customWidth = 2400,
+  customHeight = 2400,
+  customCols = 4
 }, ref) => {
   const getThemeStyles = () => {
     switch (themeColor) {
@@ -159,20 +165,17 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   };
 
   const getGridCols = () => {
-    if (layout === "vertical") return "grid-cols-3";
-    if (selectedStats.length <= 2) return "grid-cols-2";
-    if (selectedStats.length <= 4) return "grid-cols-2";
-    if (selectedStats.length <= 6) return "grid-cols-3";
-    if (selectedStats.length <= 8) return "grid-cols-4";
-    return "grid-cols-4";
+    return `grid-cols-${customCols}`;
   };
 
   return (
     <div 
       ref={ref} 
-      className={`${layout === "square" ? "w-[2400px] aspect-square" : "w-[2400px] min-h-[2400px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans shadow-2xl justify-start pb-16`}
+      className={`bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans shadow-2xl justify-start pb-16`}
       style={{
         backgroundImage: theme.bgGradient,
+        width: `${customWidth}px`,
+        height: `${customHeight}px`
       }}
     >
       {/* BACKGROUND EFFECTS */}
@@ -181,11 +184,11 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
 
       {/* ENVOLTORIO ESCALABLE */}
       <div 
-        className="flex flex-col items-center w-full z-10 flex-1"
+        className="flex flex-col items-center w-full z-10 flex-1 px-12"
         style={{ transform: `scale(${contentScale / 100})`, transformOrigin: "center center" }}
       >
         {/* HEADER */}
-        <div className="flex flex-col items-center mt-16 w-full px-16 mb-16">
+        <div className="flex flex-col items-center mt-16 w-full mb-16">
           <div className="flex items-center justify-between w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
@@ -205,7 +208,7 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
         </div>
 
         {/* STATS GRID */}
-        <div className={`w-full max-w-[2200px] px-12 grid ${getGridCols()} gap-8 items-start flex-1 mb-16 content-center`}>
+        <div className={`w-full grid ${getGridCols()} gap-8 items-start flex-1 mb-16 content-center`}>
           {selectedStats.map(statKey => {
             const config = STAT_CONFIG[statKey];
             if (!config) return null;
