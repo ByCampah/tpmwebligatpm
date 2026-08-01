@@ -1624,18 +1624,20 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 <button onClick={() => { setExportType("ADVANCED_STATS"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "ADVANCED_STATS" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Estadísticas Avanzadas</button>
             </div>
             
-            {exportType === "SEASON" && (
+            {(exportType === "SEASON" || exportType === "ADVANCED_STATS") && (
                 <div className="flex flex-col gap-4 mt-2 bg-black/40 p-4 rounded-xl border border-white/5 w-full max-w-md">
-                    <button 
-                        onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
-                        className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex justify-center items-center gap-2"
-                    >
-                        {imageLayout === "vertical" ? "🔄 Formato Cuadrado" : "🔄 Formato Vertical"}
-                    </button>
-                    {imageLayout === "square" && (
+                    {exportType === "SEASON" && (
+                        <button 
+                            onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
+                            className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex justify-center items-center gap-2"
+                        >
+                            {imageLayout === "vertical" ? "🔄 Formato Cuadrado" : "🔄 Formato Vertical"}
+                        </button>
+                    )}
+                    {(imageLayout === "square" || exportType === "ADVANCED_STATS") && (
                         <div>
-                            <label className="text-xs text-muted-foreground font-bold mb-1 block">Escala del Contenido (%)</label>
-                            <input type="range" min="50" max="150" value={contentScale} onChange={e => setContentScale(Number(e.target.value))} className="w-full accent-primary" />
+                            <label className="text-xs text-muted-foreground font-bold mb-1 block">Escala del Contenido: {contentScale}%</label>
+                            <input type="range" min="30" max="150" value={contentScale} onChange={e => setContentScale(Number(e.target.value))} className="w-full accent-primary" />
                         </div>
                     )}
                 </div>
@@ -1767,7 +1769,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} showAvatar={showAvatar} limitGoalsTo4={limitGoalsTo4} />}
-              {exportType === "ADVANCED_STATS" && <AdvancedStatsSummaryImage ref={advancedStatsRef} tournament={tournament} themeColor={themeColor} selectedStats={selectedStats} />}
+              {exportType === "ADVANCED_STATS" && <AdvancedStatsSummaryImage ref={advancedStatsRef} tournament={tournament} themeColor={themeColor} selectedStats={selectedStats} contentScale={contentScale} />}
             </div>
           </div>
         </div>

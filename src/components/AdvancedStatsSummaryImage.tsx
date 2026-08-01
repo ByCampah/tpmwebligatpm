@@ -5,6 +5,7 @@ interface Props {
   tournament: any;
   themeColor: string;
   selectedStats: string[];
+  contentScale?: number;
 }
 
 export const STAT_CONFIG: Record<string, { label: string, emoji: string, getValue: (p: any) => number, getTotal?: (p: any) => number }> = {
@@ -29,7 +30,8 @@ export const STAT_CONFIG: Record<string, { label: string, emoji: string, getValu
 export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
   tournament,
   themeColor,
-  selectedStats
+  selectedStats,
+  contentScale = 100
 }, ref) => {
   const getThemeStyles = () => {
     switch (themeColor) {
@@ -174,75 +176,97 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
       <div className="absolute top-[-200px] left-[-200px] w-[800px] h-[800px] bg-white/5 rounded-full blur-[150px]"></div>
       <div className="absolute bottom-[-200px] right-[-200px] w-[800px] h-[800px] bg-white/5 rounded-full blur-[150px]"></div>
 
-      {/* HEADER */}
-      <div className="flex flex-col items-center text-center gap-6 mb-16 z-10 w-full mt-16">
-        <span className={`text-4xl font-black uppercase tracking-[0.3em] ${theme.badgeBg} px-8 py-3 rounded-full border ${theme.borderColor}`}>
-          {tournament.season?.name || "Torneo Extra"}
-        </span>
-        <h1 className="text-8xl font-black tracking-tight drop-shadow-2xl max-w-[2000px] leading-tight text-center px-12">
-          {tournament.name}
-        </h1>
-        <h2 className={`text-5xl font-black uppercase tracking-[0.2em] ${theme.accentColor}`}>
-          TOP ESTADÍSTICAS AVANZADAS
-        </h2>
-      </div>
-
-      {/* STATS GRID */}
-      <div className={`w-full max-w-[2200px] px-12 grid ${getGridCols()} gap-12 z-10 items-start flex-1 mb-16 content-center`}>
-        {selectedStats.map(statKey => {
-          const config = STAT_CONFIG[statKey];
-          if (!config) return null;
-          const top5 = getTop5(statKey);
-
-          return (
-            <div key={statKey} className={`bg-black/60 border ${theme.borderColor} rounded-3xl p-10 flex flex-col shadow-2xl backdrop-blur-sm relative overflow-hidden h-full`}>
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50"></div>
-              
-              <div className="flex items-center justify-center gap-4 mb-10 border-b border-white/10 pb-6">
-                <span className="text-6xl">{config.emoji}</span>
-                <h3 className="text-4xl font-black text-center tracking-wider">{config.label}</h3>
-              </div>
-
-              {top5.length > 0 ? (
-                <div className="flex flex-col gap-6 flex-1 justify-center">
-                  {top5.map((p, index) => (
-                    <div key={p.id} className="flex items-center gap-6 bg-white/5 rounded-2xl p-4 border border-white/5">
-                      <span className={`text-4xl font-black ${index === 0 ? theme.accentColor : 'text-white/40'} w-12 text-center`}>
-                        {index + 1}
-                      </span>
-                      {p.teamLogo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.teamLogo} alt={p.teamName} className="w-16 h-16 object-contain drop-shadow-md" crossOrigin="anonymous" />
-                      ) : (
-                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-xl font-bold">
-                          {p.teamName.substring(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                      <div className="flex flex-col flex-1 min-w-0">
-                        <span className="text-3xl font-bold truncate">{p.nick}</span>
-                        <span className="text-xl text-white/50 truncate uppercase tracking-wider">{p.teamName}</span>
-                      </div>
-                      <div className="flex flex-col items-end min-w-[80px]">
-                        <span className={`text-5xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none`}>
-                          {config.getValue(p)}
-                        </span>
-                        {config.getTotal && config.getTotal(p) > 0 && (
-                          <span className="text-xl text-white/60 font-bold mt-2 tabular-nums whitespace-nowrap">
-                            {config.getValue(p)}/{config.getTotal(p)} <span className="text-white/40">({Math.round((config.getValue(p) / config.getTotal(p)) * 100)}%)</span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex-1 flex items-center justify-center py-20">
-                  <span className="text-2xl text-white/30 font-bold uppercase tracking-wider text-center">Sin datos registrados</span>
-                </div>
-              )}
+      {/* ENVOLTORIO ESCALABLE */}
+      <div 
+        className="flex flex-col items-center w-full z-10 flex-1"
+        style={{ transform: `scale(${contentScale / 100})`, transformOrigin: "center center" }}
+      >
+        {/* HEADER */}
+        <div className="flex flex-col items-center mt-16 w-full px-16 mb-16">
+          <div className="flex items-center justify-between w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/img/logos/LogoTPM.png" alt="TPM Sudamerica" className="w-40 h-auto" />
+            <div className="flex flex-col items-end text-right">
+              <span className={`text-4xl font-black uppercase tracking-[0.3em] ${theme.badgeBg} px-8 py-3 rounded-full border ${theme.borderColor} mb-6`}>
+                {tournament.season?.name || "Torneo Extra"}
+              </span>
+              <h2 className={`text-5xl font-black uppercase tracking-[0.2em] ${theme.accentColor} mb-2`}>
+                TOP ESTADÍSTICAS AVANZADAS
+              </h2>
+              <h1 className="text-6xl font-black uppercase max-w-3xl text-white leading-tight" style={{ textShadow: "0 4px 10px rgba(0,0,0,0.5)" }}>
+                {tournament.name}
+              </h1>
             </div>
-          );
-        })}
+          </div>
+          <div className={`h-1 w-full mt-8 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent`}></div>
+        </div>
+
+        {/* STATS GRID */}
+        <div className={`w-full max-w-[2200px] px-12 grid ${getGridCols()} gap-12 items-start flex-1 mb-16 content-center`}>
+          {selectedStats.map(statKey => {
+            const config = STAT_CONFIG[statKey];
+            if (!config) return null;
+            const top5 = getTop5(statKey);
+
+            return (
+              <div key={statKey} className={`bg-black/60 border ${theme.borderColor} rounded-3xl p-10 flex flex-col shadow-2xl backdrop-blur-sm relative overflow-hidden h-full`}>
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50"></div>
+                
+                <div className="flex items-center justify-center gap-4 mb-10 border-b border-white/10 pb-6">
+                  <span className="text-6xl">{config.emoji}</span>
+                  <h3 className="text-4xl font-black text-center tracking-wider">{config.label}</h3>
+                </div>
+
+                {top5.length > 0 ? (
+                  <div className="flex flex-col gap-6 flex-1 justify-center">
+                    {top5.map((p, index) => (
+                      <div key={p.id} className="flex items-center gap-6 bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <span className={`text-4xl font-black ${index === 0 ? theme.accentColor : 'text-white/40'} w-12 text-center`}>
+                          {index + 1}
+                        </span>
+                        {p.teamLogo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.teamLogo} alt={p.teamName} className="w-16 h-16 object-contain drop-shadow-md" crossOrigin="anonymous" />
+                        ) : (
+                          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-xl font-bold">
+                            {p.teamName.substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="text-3xl font-bold truncate">{p.nick}</span>
+                          <span className="text-xl text-white/50 truncate uppercase tracking-wider">{p.teamName}</span>
+                        </div>
+                        <div className="flex flex-col items-end min-w-[80px]">
+                          <span className={`text-5xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none`}>
+                            {config.getValue(p)}
+                          </span>
+                          {config.getTotal && config.getTotal(p) > 0 && (
+                            <span className="text-xl text-white/60 font-bold mt-2 tabular-nums whitespace-nowrap">
+                              {config.getValue(p)}/{config.getTotal(p)} <span className="text-white/40">({Math.round((config.getValue(p) / config.getTotal(p)) * 100)}%)</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center py-20">
+                    <span className="text-2xl text-white/30 font-bold uppercase tracking-wider text-center">Sin datos registrados</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* FOOTER */}
+        <div className="w-full mt-auto py-8 border-t border-white/5 text-center flex flex-col items-center justify-center gap-2">
+            <span className="text-zinc-500 font-bold tracking-widest uppercase text-lg">
+                LIGA TPM SUDAMÉRICA
+            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/img/logos/ByCampah3.png" alt="By Campah" className="w-48 h-auto opacity-80 mt-2" />
+        </div>
       </div>
 
     </div>
