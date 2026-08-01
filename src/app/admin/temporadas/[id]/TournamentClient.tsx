@@ -10,6 +10,7 @@ import { FixtureSummaryImage } from "@/components/FixtureSummaryImage";
 import { StandingsSummaryImage } from "@/components/StandingsSummaryImage";
 import { BracketSummaryImage } from "@/components/BracketSummaryImage";
 import { PlantelSummaryImage } from "@/components/PlantelSummaryImage";
+import { AdvancedStatsSummaryImage, STAT_CONFIG } from "@/components/AdvancedStatsSummaryImage";
 
 import BracketBuilder from "./BracketBuilder";
 
@@ -23,7 +24,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"EQUIPOS" | "PARTIDOS" | "PREMIOS" | "LLAVES" | "GRUPOS" | "AJUSTES" | "GRAFICOS">(initialTab);
   
-  const [exportType, setExportType] = useState<"SEASON" | "FIXTURE" | "STANDINGS" | "BRACKET" | "PLANTEL">("FIXTURE");
+  const [exportType, setExportType] = useState<"SEASON" | "FIXTURE" | "STANDINGS" | "BRACKET" | "PLANTEL" | "ADVANCED_STATS">("FIXTURE");
   const [selectedRound, setSelectedRound] = useState<string>("ALL");
   const [imageLayout, setImageLayout] = useState<"vertical" | "square">("square");
   const [contentScale, setContentScale] = useState(100);
@@ -34,11 +35,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
   const [showAvatar, setShowAvatar] = useState(false);
   const [limitGoalsTo4, setLimitGoalsTo4] = useState(false);
   
+  const [selectedStats, setSelectedStats] = useState<string[]>(["passesMade", "shotsMade", "tacklesWon", "savesMade"]);
+  
   const summaryRef = useRef<HTMLDivElement>(null);
   const fixtureRef = useRef<HTMLDivElement>(null);
   const standingsRef = useRef<HTMLDivElement>(null);
   const bracketRef = useRef<HTMLDivElement>(null);
   const plantelRef = useRef<HTMLDivElement>(null);
+  const advancedStatsRef = useRef<HTMLDivElement>(null);
 
   const downloadSummary = useCallback(() => {
     let targetRef = summaryRef;
@@ -56,11 +60,14 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
     } else if (exportType === "PLANTEL") {
         targetRef = plantelRef;
         fileName = `planteles-${tournament.name}.png`;
+    } else if (exportType === "ADVANCED_STATS") {
+        targetRef = advancedStatsRef;
+        fileName = `estadisticas-avanzadas-${tournament.name}.png`;
     }
 
     if (targetRef.current === null) return;
     setLoading(true);
-    toPng(targetRef.current, { cacheBust: true, quality: 1, backgroundColor: '#0a0a0a' })
+    toPng(targetRef.current, { cacheBust: true, quality: 1, backgroundColor: '#0a0a0a', pixelRatio: 3 })
       .then((dataUrl) => {
         const link = document.createElement('a');
         link.download = fileName;
@@ -73,7 +80,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
         setError("No se pudo generar la imagen.");
         setLoading(false);
       });
-  }, [summaryRef, fixtureRef, standingsRef, bracketRef, exportType, tournament.name, tournament.id, plantelTeam, showDiscord, themeColor]);
+  }, [summaryRef, fixtureRef, standingsRef, bracketRef, plantelRef, advancedStatsRef, exportType, tournament.name, tournament.id, plantelTeam, showDiscord, themeColor]);
   
   // States for search/filters
   const [teamSearch, setTeamSearch] = useState("");
@@ -1614,6 +1621,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 <button onClick={() => { setExportType("BRACKET"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "BRACKET" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Llaves (Bracket)</button>
                 <button onClick={() => { setExportType("SEASON"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "SEASON" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Resumen Completo</button>
                 <button onClick={() => { setExportType("PLANTEL"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "PLANTEL" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Planteles (Equipos)</button>
+                <button onClick={() => { setExportType("ADVANCED_STATS"); }} className={`px-6 py-3 rounded-lg font-bold transition-all ${exportType === "ADVANCED_STATS" ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-transparent text-muted-foreground hover:bg-white/5"}`}>Estadísticas Avanzadas</button>
             </div>
             
             {exportType === "SEASON" && (
@@ -1696,6 +1704,28 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
                 </div>
             )}
 
+            {exportType === "ADVANCED_STATS" && (
+                <div className="flex flex-col gap-4 mt-2 bg-black/50 p-4 rounded-xl border border-border w-full max-w-3xl">
+                    <label className="font-bold text-primary text-sm text-center">Selecciona las Estadísticas para mostrar en la gráfica (Se recomienda 4 o 6 para mejor distribución)</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-left">
+                        {Object.entries(STAT_CONFIG).map(([statKey, config]) => (
+                            <label key={statKey} className="flex items-center gap-2 cursor-pointer bg-white/5 p-2 rounded border border-white/10 hover:border-primary/50 transition-colors">
+                                <input 
+                                    type="checkbox" 
+                                    checked={selectedStats.includes(statKey)} 
+                                    onChange={e => {
+                                        if (e.target.checked) setSelectedStats(prev => [...prev, statKey]);
+                                        else setSelectedStats(prev => prev.filter(s => s !== statKey));
+                                    }} 
+                                    className="w-4 h-4 accent-primary" 
+                                />
+                                <span className="text-xs font-bold truncate" title={config.label}>{config.emoji} {config.label}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="flex items-center gap-4 mt-4 bg-black/40 p-3 rounded-xl border border-white/5">
                 <span className="font-bold text-muted-foreground">Color de Fondo:</span>
                 <select 
@@ -1731,12 +1761,13 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
 
           <div className="w-full overflow-x-auto p-4 bg-black/50 border border-border rounded-xl">
             {/* The hidden/scaled container to capture */}
-            <div style={{ width: exportType === "SEASON" ? (imageLayout === "square" ? "1280px" : "1080px") : (exportType === "BRACKET" ? "1920px" : (exportType === "PLANTEL" && plantelTeam === "ALL" ? "1600px" : (exportType === "PLANTEL" ? "800px" : "1200px"))), margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
+            <div style={{ width: exportType === "SEASON" ? (imageLayout === "square" ? "2400px" : "1080px") : (exportType === "ADVANCED_STATS" ? "2400px" : (exportType === "BRACKET" ? "1920px" : (exportType === "PLANTEL" && plantelTeam === "ALL" ? "1600px" : (exportType === "PLANTEL" ? "800px" : "1200px")))), margin: "0 auto", transform: "scale(0.7)", transformOrigin: "top center" }}>
               {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} limitGoalsTo4={limitGoalsTo4} contentScale={contentScale} />}
               {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} themeColor={themeColor} />}
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} />}
               {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} showAvatar={showAvatar} limitGoalsTo4={limitGoalsTo4} />}
+              {exportType === "ADVANCED_STATS" && <AdvancedStatsSummaryImage ref={advancedStatsRef} tournament={tournament} themeColor={themeColor} selectedStats={selectedStats} />}
             </div>
           </div>
         </div>

@@ -238,7 +238,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
     return (
       <div 
         ref={ref} 
-        className={`${layout === "square" ? "w-[1920px] aspect-square justify-center" : "w-[1200px] min-h-[1200px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl`}
+        className={`${layout === "square" ? "w-[2400px] aspect-square justify-center" : "w-[1200px] min-h-[1200px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl`}
         style={{
           backgroundImage: theme.bgGradient,
         }}
@@ -271,7 +271,7 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
           
           {/* CONTENT LAYOUT */}
           <div 
-            className={`w-full ${layout === "square" ? "max-w-[1800px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row items-start justify-center" : "flex-col"} gap-12 ${layout === "square" ? "" : "flex-1"}`}
+            className={`w-full ${layout === "square" ? "max-w-[2200px]" : "max-w-6xl"} px-12 mt-16 flex ${layout === "square" ? "flex-row items-start justify-center" : "flex-col"} gap-12 ${layout === "square" ? "" : "flex-1"}`}
           >
           
           <div className={`flex flex-col gap-12 ${layout === "square" ? "flex-1" : "w-full"}`}>

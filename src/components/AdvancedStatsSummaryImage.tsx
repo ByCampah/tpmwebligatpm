@@ -1,0 +1,235 @@
+import { forwardRef } from 'react';
+import Image from "next/image";
+
+interface Props {
+  tournament: any;
+  themeColor: string;
+  selectedStats: string[];
+}
+
+export const STAT_CONFIG: Record<string, { label: string, emoji: string, getValue: (p: any) => number }> = {
+  goals: { label: "Goleadores", emoji: "⚽", getValue: p => p.goals },
+  assists: { label: "Asistencias", emoji: "👟", getValue: p => p.assists },
+  passesMade: { label: "Pases Completados", emoji: "🎯", getValue: p => p.passesMade },
+  shotsMade: { label: "Tiros al Arco", emoji: "🥅", getValue: p => p.shotsMade },
+  headersMade: { label: "Duelos de Cabeza", emoji: "🦅", getValue: p => p.headersMade },
+  slidingMade: { label: "Barridas (Sliding)", emoji: "🥾", getValue: p => p.slidingMade },
+  tacklesWon: { label: "Quites / Duelos", emoji: "🛡️", getValue: p => p.tacklesWon },
+  fouls: { label: "Faltas Cometidas", emoji: "⚠️", getValue: p => p.fouls },
+  fouled: { label: "Faltas Recibidas", emoji: "🤕", getValue: p => p.fouled },
+  offsides: { label: "Fueras de Juego", emoji: "🚩", getValue: p => p.offsides },
+  ballLosses: { label: "Pérdidas de Balón", emoji: "📉", getValue: p => p.ballLosses },
+  redCards: { label: "Tarjetas Rojas", emoji: "🟥", getValue: p => p.redCards },
+  savesMade: { label: "Atajadas (GK)", emoji: "🧤", getValue: p => p.savesMade },
+  cleanSheets: { label: "Vallas Invictas", emoji: "🧱", getValue: p => p.cleanSheets },
+  freeKickGoals: { label: "Goles Tiro Libre", emoji: "☄️", getValue: p => p.freeKickGoals },
+  penaltyGoals: { label: "Goles de Penal", emoji: "🎯", getValue: p => p.penaltyGoals },
+};
+
+export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
+  tournament,
+  themeColor,
+  selectedStats
+}, ref) => {
+  const getThemeStyles = () => {
+    switch (themeColor) {
+      case 'red': return {
+        bgGradient: 'radial-gradient(circle at 50% 0%, #3a0000 0%, #0a0a0a 100%)',
+        accentColor: 'text-red-500',
+        borderColor: 'border-red-500/30',
+        badgeBg: 'bg-red-500/20 text-red-300'
+      };
+      case 'blue': return {
+        bgGradient: 'radial-gradient(circle at 50% 0%, #001a3a 0%, #0a0a0a 100%)',
+        accentColor: 'text-blue-500',
+        borderColor: 'border-blue-500/30',
+        badgeBg: 'bg-blue-500/20 text-blue-300'
+      };
+      case 'purple': return {
+        bgGradient: 'radial-gradient(circle at 50% 0%, #2a003a 0%, #0a0a0a 100%)',
+        accentColor: 'text-purple-500',
+        borderColor: 'border-purple-500/30',
+        badgeBg: 'bg-purple-500/20 text-purple-300'
+      };
+      case 'gold': return {
+        bgGradient: 'radial-gradient(circle at 50% 0%, #3a2e00 0%, #0a0a0a 100%)',
+        accentColor: 'text-yellow-500',
+        borderColor: 'border-yellow-500/30',
+        badgeBg: 'bg-yellow-500/20 text-yellow-300'
+      };
+      case 'emerald':
+      default: return {
+        bgGradient: 'radial-gradient(circle at 50% 0%, #002211 0%, #0a0a0a 100%)',
+        accentColor: 'text-emerald-500',
+        borderColor: 'border-emerald-500/30',
+        badgeBg: 'bg-emerald-500/20 text-emerald-300'
+      };
+    }
+  };
+
+  const theme = getThemeStyles();
+
+  // Aggregate stats from all matches
+  const playerMap = new Map<string, any>();
+
+  const enrolledTeamsData = tournament.teams || [];
+
+  tournament.matches?.forEach((m: any) => {
+    m.stats?.forEach((s: any) => {
+      const pId = s.playerId;
+      if (!playerMap.has(pId)) {
+        // Find player info
+        const rosterEntry = enrolledTeamsData.flatMap((t:any) => t.players).find((p:any) => p.playerId === pId);
+        const teamEntry = enrolledTeamsData.find((t:any) => t.players?.some((p:any) => p.playerId === pId));
+        
+        playerMap.set(pId, {
+          id: pId,
+          nick: rosterEntry?.player?.nick || rosterEntry?.player?.name || "Desconocido",
+          teamName: teamEntry?.team?.name || "Sin Equipo",
+          teamLogo: teamEntry?.team?.logoUrl || null,
+          goals: 0,
+          assists: 0,
+          passesMade: 0,
+          shotsMade: 0,
+          headersMade: 0,
+          slidingMade: 0,
+          tacklesWon: 0,
+          fouls: 0,
+          fouled: 0,
+          offsides: 0,
+          ballLosses: 0,
+          redCards: 0,
+          savesMade: 0,
+          cleanSheets: 0,
+          freeKickGoals: 0,
+          penaltyGoals: 0,
+        });
+      }
+      const p = playerMap.get(pId);
+      p.goals += s.goals || 0;
+      p.assists += s.assists || 0;
+      p.passesMade += s.passesMade || 0;
+      p.shotsMade += s.shotsMade || 0;
+      p.headersMade += s.headersMade || 0;
+      p.slidingMade += s.slidingMade || 0;
+      p.tacklesWon += s.tacklesWon || 0;
+      p.fouls += s.fouls || 0;
+      p.fouled += s.fouled || 0;
+      p.offsides += s.offsides || 0;
+      p.ballLosses += s.ballLosses || 0;
+      p.redCards += s.redCards || 0;
+      p.savesMade += s.savesMade || 0;
+      if (s.cleanSheet) p.cleanSheets += 1;
+      p.freeKickGoals += s.freeKickGoals || 0;
+      p.penaltyGoals += s.penaltyGoals || 0;
+    });
+  });
+
+  const allPlayers = Array.from(playerMap.values());
+
+  // Helper to get top 5
+  const getTop5 = (statKey: string) => {
+    const config = STAT_CONFIG[statKey];
+    if (!config) return [];
+    
+    // Sort descending by value, then alphabetically by nick
+    return [...allPlayers]
+      .filter(p => config.getValue(p) > 0)
+      .sort((a, b) => {
+        const valA = config.getValue(a);
+        const valB = config.getValue(b);
+        if (valB !== valA) return valB - valA;
+        return a.nick.localeCompare(b.nick);
+      })
+      .slice(0, 5);
+  };
+
+  const getGridCols = () => {
+    if (selectedStats.length <= 2) return "grid-cols-2";
+    if (selectedStats.length <= 4) return "grid-cols-2";
+    if (selectedStats.length <= 6) return "grid-cols-3";
+    if (selectedStats.length <= 8) return "grid-cols-4";
+    return "grid-cols-4";
+  };
+
+  return (
+    <div 
+      ref={ref} 
+      className="w-[2400px] aspect-square bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans shadow-2xl justify-center"
+      style={{
+        backgroundImage: theme.bgGradient,
+      }}
+    >
+      {/* BACKGROUND EFFECTS */}
+      <div className="absolute top-[-200px] left-[-200px] w-[800px] h-[800px] bg-white/5 rounded-full blur-[150px]"></div>
+      <div className="absolute bottom-[-200px] right-[-200px] w-[800px] h-[800px] bg-white/5 rounded-full blur-[150px]"></div>
+
+      {/* HEADER */}
+      <div className="flex flex-col items-center text-center gap-6 mb-16 z-10 w-full mt-16">
+        <span className={`text-4xl font-black uppercase tracking-[0.3em] ${theme.badgeBg} px-8 py-3 rounded-full border ${theme.borderColor}`}>
+          {tournament.season?.name || "Torneo Extra"}
+        </span>
+        <h1 className="text-8xl font-black tracking-tight drop-shadow-2xl max-w-[2000px] leading-tight text-center px-12">
+          {tournament.name}
+        </h1>
+        <h2 className={`text-5xl font-black uppercase tracking-[0.2em] ${theme.accentColor}`}>
+          TOP ESTADÍSTICAS AVANZADAS
+        </h2>
+      </div>
+
+      {/* STATS GRID */}
+      <div className={`w-full max-w-[2200px] px-12 grid ${getGridCols()} gap-12 z-10 items-start flex-1 mb-16 content-center`}>
+        {selectedStats.map(statKey => {
+          const config = STAT_CONFIG[statKey];
+          if (!config) return null;
+          const top5 = getTop5(statKey);
+
+          return (
+            <div key={statKey} className={`bg-black/60 border ${theme.borderColor} rounded-3xl p-10 flex flex-col shadow-2xl backdrop-blur-sm relative overflow-hidden h-full`}>
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50"></div>
+              
+              <div className="flex items-center justify-center gap-4 mb-10 border-b border-white/10 pb-6">
+                <span className="text-6xl">{config.emoji}</span>
+                <h3 className="text-4xl font-black text-center tracking-wider">{config.label}</h3>
+              </div>
+
+              {top5.length > 0 ? (
+                <div className="flex flex-col gap-6 flex-1 justify-center">
+                  {top5.map((p, index) => (
+                    <div key={p.id} className="flex items-center gap-6 bg-white/5 rounded-2xl p-4 border border-white/5">
+                      <span className={`text-4xl font-black ${index === 0 ? theme.accentColor : 'text-white/40'} w-12 text-center`}>
+                        {index + 1}
+                      </span>
+                      {p.teamLogo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.teamLogo} alt={p.teamName} className="w-16 h-16 object-contain drop-shadow-md" crossOrigin="anonymous" />
+                      ) : (
+                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-xl font-bold">
+                          {p.teamName.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="text-3xl font-bold truncate">{p.nick}</span>
+                        <span className="text-xl text-white/50 truncate uppercase tracking-wider">{p.teamName}</span>
+                      </div>
+                      <span className={`text-5xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right`}>
+                        {config.getValue(p)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center py-20">
+                  <span className="text-2xl text-white/30 font-bold uppercase tracking-wider text-center">Sin datos registrados</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+    </div>
+  );
+});
+
+AdvancedStatsSummaryImage.displayName = 'AdvancedStatsSummaryImage';
