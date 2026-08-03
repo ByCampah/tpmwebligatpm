@@ -146,6 +146,7 @@ model Team {
 
   // National Teams
   isNationalTeam Boolean @default(false)
+  graphicConfig  Json?
 
   createdAt DateTime @default(now())
 }

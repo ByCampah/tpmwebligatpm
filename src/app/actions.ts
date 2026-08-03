@@ -1351,3 +1351,33 @@ export async function createAntiDuLobbyFromMatch(matchId: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function saveTeamGraphicConfig(teamId: string, graphicConfig: any) {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "No autenticado" };
+
+  const team = await prisma.team.findUnique({
+    where: { id: teamId }
+  });
+
+  if (!team) return { success: false, error: "Equipo no encontrado" };
+
+  const isCaptain = team.captainId === session.user.id;
+  const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+
+  if (!isCaptain && !isAdmin) {
+    return { success: false, error: "No autorizado para guardar esta configuración" };
+  }
+
+  try {
+    await prisma.team.update({
+      where: { id: teamId },
+      data: {
+        graphicConfig
+      }
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

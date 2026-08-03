@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import * as htmlToImage from "html-to-image";
+import { saveTeamGraphicConfig } from "@/app/actions";
 
 export default function NationalTeamGraphicModal({ isOpen, onClose, team, players, allClubs }: { isOpen: boolean, onClose: () => void, team: any, players: any[], allClubs: any[] }) {
   const [config, setConfig] = useState<Record<string, any>>({});
@@ -26,7 +27,7 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
 
   const graphicRef = useRef<HTMLDivElement>(null);
 
-  const LOCAL_STORAGE_KEY = `tpm_nt_graphic_${team?.id || "default"}`;
+
   
   // New States
   const [order, setOrder] = useState<string[]>([]);
@@ -34,73 +35,104 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
   const [customPrefix, setCustomPrefix] = useState("-");
   const [clubSearch, setClubSearch] = useState<Record<string, string>>({}); // Search text per player
 
-  useEffect(() => {
-    // Load from local storage on mount
-    try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.config) setConfig(parsed.config);
-        if (parsed.manualPlayers) setManualPlayers(parsed.manualPlayers);
-        if (parsed.order) setOrder(parsed.order);
-        if (parsed.listPrefixType) setListPrefixType(parsed.listPrefixType);
-        if (parsed.customPrefix) setCustomPrefix(parsed.customPrefix);
-        
-        // Merge new players that aren't in config
-        const newConf = { ...parsed.config };
-        const newOrder = [...parsed.order];
-        let changed = false;
-        players.forEach(p => {
-          if (!newConf[p.id]) {
-            newConf[p.id] = {
-              group: "ALAS",
-              customText: p.primaryPosition && p.primaryPosition !== "Ninguna" ? p.primaryPosition : "",
-              clubId: "",
-              posColor: "cyan"
-            };
-            changed = true;
-          }
-          if (!newOrder.includes(p.id)) {
-            newOrder.push(p.id);
-            changed = true;
-          }
-        });
-        if (changed) {
-          setConfig(newConf);
-          setOrder(newOrder);
-        }
-        return;
-      }
-    } catch (e) { console.error("Error loading graphic config", e); }
+  const [isSaving, startSaving] = useTransition();
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-    // Fallback: Initialize default config if no local storage
-    const initialConfig: Record<string, any> = {};
-    const initialOrder: string[] = [];
-    players.forEach(p => {
-      initialConfig[p.id] = {
-        group: "ALAS", // Default group
-        customText: p.primaryPosition && p.primaryPosition !== "Ninguna" ? p.primaryPosition : "",
-        clubId: "",
-        posColor: "cyan"
-      };
-      initialOrder.push(p.id);
-    });
-    setConfig(initialConfig);
-    setOrder(initialOrder);
+  useEffect(() => {
+    // Load from DB
+    let parsed: any = null;
+    if (team.graphicConfig) {
+      parsed = typeof team.graphicConfig === 'string' ? JSON.parse(team.graphicConfig) : team.graphicConfig;
+    }
+
+    if (parsed && parsed.config) {
+      if (parsed.config) setConfig(parsed.config);
+      if (parsed.manualPlayers) setManualPlayers(parsed.manualPlayers);
+      if (parsed.order) setOrder(parsed.order);
+      if (parsed.listPrefixType) setListPrefixType(parsed.listPrefixType);
+      if (parsed.customPrefix) setCustomPrefix(parsed.customPrefix);
+      if (parsed.layoutMode) setLayoutMode(parsed.layoutMode);
+      if (parsed.bgMode) setBgMode(parsed.bgMode);
+      if (parsed.bgColor) setBgColor(parsed.bgColor);
+      if (parsed.bgUrl) setBgUrl(parsed.bgUrl);
+      if (parsed.canvasWidth) setCanvasWidth(parsed.canvasWidth);
+      if (parsed.canvasHeight) setCanvasHeight(parsed.canvasHeight);
+      if (parsed.titleSize) setTitleSize(parsed.titleSize);
+      if (parsed.playerSize) setPlayerSize(parsed.playerSize);
+      if (parsed.clubLogoSize) setClubLogoSize(parsed.clubLogoSize);
+      if (parsed.logoSize) setLogoSize(parsed.logoSize);
+      if (parsed.showDiscord !== undefined) setShowDiscord(parsed.showDiscord);
+
+      // Merge new players that aren't in config
+      const newConf = { ...parsed.config };
+      const newOrder = [...(parsed.order || [])];
+      let changed = false;
+      players.forEach(p => {
+        if (!newConf[p.id]) {
+          newConf[p.id] = {
+            group: "ALAS",
+            customText: p.primaryPosition && p.primaryPosition !== "Ninguna" ? p.primaryPosition : "",
+            clubId: "",
+            posColor: "cyan"
+          };
+          changed = true;
+        }
+        if (!newOrder.includes(p.id)) {
+          newOrder.push(p.id);
+          changed = true;
+        }
+      });
+      if (changed) {
+        setConfig(newConf);
+        setOrder(newOrder);
+      }
+    } else {
+      // Fallback: Initialize default config if no DB config
+      const initialConfig: Record<string, any> = {};
+      const initialOrder: string[] = [];
+      players.forEach(p => {
+        initialConfig[p.id] = {
+          group: "ALAS", // Default group
+          customText: p.primaryPosition && p.primaryPosition !== "Ninguna" ? p.primaryPosition : "",
+          clubId: "",
+          posColor: "cyan"
+        };
+        initialOrder.push(p.id);
+      });
+      setConfig(initialConfig);
+      setOrder(initialOrder);
+    }
   }, [players, team]);
 
-  // Save to local storage whenever relevant state changes
-  useEffect(() => {
-    if (Object.keys(config).length > 0) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+  const handleSaveToCloud = () => {
+    startSaving(async () => {
+      const payload = {
         config,
         manualPlayers,
         order,
         listPrefixType,
-        customPrefix
-      }));
-    }
-  }, [config, manualPlayers, order, listPrefixType, customPrefix, LOCAL_STORAGE_KEY]);
+        customPrefix,
+        layoutMode,
+        bgMode,
+        bgColor,
+        bgUrl,
+        canvasWidth,
+        canvasHeight,
+        titleSize,
+        playerSize,
+        clubLogoSize,
+        logoSize,
+        showDiscord
+      };
+      const res = await saveTeamGraphicConfig(team.id, payload);
+      if (res?.success) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        alert("Error al guardar: " + (res?.error || "Desconocido"));
+      }
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -481,7 +513,14 @@ export default function NationalTeamGraphicModal({ isOpen, onClose, team, player
           </div>
         </div>
         
-        <div className="p-4 border-t border-border bg-card">
+        <div className="p-4 border-t border-border bg-card flex flex-col gap-3">
+          <button 
+            disabled={isSaving}
+            onClick={handleSaveToCloud}
+            className="w-full bg-secondary text-secondary-foreground font-black py-3 rounded-lg hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2 border border-border"
+          >
+            {isSaving ? "GUARDANDO..." : saveSuccess ? "¡GUARDADO ✅!" : "GUARDAR EN LA NUBE ☁️"}
+          </button>
           <button 
             disabled={isGenerating}
             onClick={handleDownload}
