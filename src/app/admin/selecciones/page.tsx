@@ -7,7 +7,7 @@ export default async function AdminSeleccionesPage() {
   const teams = await prisma.team.findMany({
     where: { isNationalTeam: true },
     orderBy: { name: "asc" },
-    include: { captain: true }
+    include: { captain: true, calledUpPlayers: true }
   });
 
   const users = await prisma.user.findMany({

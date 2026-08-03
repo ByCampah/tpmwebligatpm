@@ -45,9 +45,9 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
     (document.getElementById('createTeamForm') as HTMLFormElement)?.reset();
   };
 
-  const handleToggleCallUp = async (playerId: string, currentStatus: boolean) => {
+  const handleToggleCallUp = async (playerId: string, teamId: string, currentStatus: boolean) => {
     setLoading(true);
-    const res = await toggleNationalTeamCallUp(playerId, !currentStatus);
+    const res = await toggleNationalTeamCallUp(playerId, teamId, !currentStatus);
     if (!res.success) {
       alert(res.error || "Error al cambiar estado");
     }
@@ -251,33 +251,37 @@ export default function NationalTeamsAdminClient({ teams, users, players }: { te
                     No se encontraron jugadores que coincidan con la búsqueda.
                   </div>
                 ) : (
-                  players.filter(p => normalizeText(p.nationality) === normalizeText(manageCallUps.name) && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).map(player => (
-                    <div key={player.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${player.isNationalTeamCalledUp ? 'bg-primary/10 border-primary/30' : 'bg-secondary/30 border-border hover:bg-secondary/50'}`}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-black/40 rounded flex items-center justify-center font-bold text-muted-foreground">
-                          {player.nick.charAt(0)}
+                  players.filter(p => normalizeText(p.nationality) === normalizeText(manageCallUps.name) && p.nick.toLowerCase().includes(callUpFilter.toLowerCase())).map(player => {
+                    const isCalledUp = manageCallUps.calledUpPlayers?.some((up: any) => up.id === player.id) || false;
+                    
+                    return (
+                      <div key={player.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${isCalledUp ? 'bg-primary/10 border-primary/30' : 'bg-secondary/30 border-border hover:bg-secondary/50'}`}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-black/40 rounded flex items-center justify-center font-bold text-muted-foreground">
+                            {player.nick.charAt(0)}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-white">{player.nick}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {player.primaryPosition || "Sin Posición"}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-white">{player.nick}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {player.primaryPosition || "Sin Posición"}
-                          </span>
-                        </div>
+                        
+                        <button
+                          onClick={() => handleToggleCallUp(player.id, manageCallUps.id, isCalledUp)}
+                          disabled={loading}
+                          className={`px-4 py-2 rounded font-bold text-sm transition-all ${
+                            isCalledUp 
+                              ? 'bg-primary text-primary-foreground shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
+                              : 'bg-secondary text-muted-foreground hover:bg-border'
+                          }`}
+                        >
+                          {loading ? "..." : (isCalledUp ? "CONVOCADO" : "CONVOCAR")}
+                        </button>
                       </div>
-                      
-                      <button
-                        onClick={() => handleToggleCallUp(player.id, player.isNationalTeamCalledUp)}
-                        disabled={loading}
-                        className={`px-4 py-2 rounded font-bold text-sm transition-all ${
-                          player.isNationalTeamCalledUp 
-                            ? 'bg-primary text-primary-foreground shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
-                            : 'bg-secondary text-muted-foreground hover:bg-border'
-                        }`}
-                      >
-                        {loading ? "..." : (player.isNationalTeamCalledUp ? "CONVOCADO" : "CONVOCAR")}
-                      </button>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

@@ -971,7 +971,7 @@ export async function assignTournamentPodium(formData: FormData) {
   }
 }
 
-export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boolean) {
+export async function toggleNationalTeamCallUp(playerId: string, teamId: string, isCalledUp: boolean) {
   const session = await auth();
   if (!session?.user) {
     return { success: false, error: "No autenticado" };
@@ -988,24 +988,15 @@ export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boo
 
     const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
     
-    // Normalize nationality to find the team
-    const normalizeText = (str: string) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
-    
     let isDT = false;
     
     if (!isAdmin) {
-      // Find team with this nationality where the user is the captain
-      const allNationalTeams = await prisma.team.findMany({
-        where: { isNationalTeam: true, captainId: session.user.id }
+      // Check if user is captain of THIS specific team
+      const team = await prisma.team.findUnique({
+        where: { id: teamId }
       });
-      
-      for (const team of allNationalTeams) {
-        const teamName = normalizeText(team.name);
-        const nat = normalizeText(player.nationality);
-        if (teamName.includes(nat) || nat.includes(teamName)) {
-          isDT = true;
-          break;
-        }
+      if (team && team.captainId === session.user.id) {
+        isDT = true;
       }
     }
 
@@ -1013,10 +1004,17 @@ export async function toggleNationalTeamCallUp(playerId: string, isCalledUp: boo
       return { success: false, error: "No autorizado. Solo el DT o Administrador puede hacer esto." };
     }
 
-    await prisma.player.update({
-      where: { id: playerId },
-      data: { isNationalTeamCalledUp: isCalledUp }
-    });
+    if (isCalledUp) {
+      await prisma.team.update({
+        where: { id: teamId },
+        data: { calledUpPlayers: { connect: { id: playerId } } }
+      });
+    } else {
+      await prisma.team.update({
+        where: { id: teamId },
+        data: { calledUpPlayers: { disconnect: { id: playerId } } }
+      });
+    }
     
     await createAdminLog(
       isCalledUp ? "Convocó a jugador" : "Desconvocó a jugador",

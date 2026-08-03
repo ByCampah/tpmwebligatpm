@@ -11,6 +11,7 @@ export default async function SeleccionesPage() {
     where: { isNationalTeam: true },
     include: {
       captain: true,
+      calledUpPlayers: true,
       tournaments: {
         where: {
           tournament: { season: { isActive: true } }

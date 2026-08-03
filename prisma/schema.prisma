@@ -115,7 +115,7 @@ model Player {
   marketDescription String?
 
   // National Teams
-  isNationalTeamCalledUp Boolean @default(false)
+  calledUpNationalTeams Team[] @relation("NationalTeamCallUps")
 
   createdAt DateTime @default(now())
 }
@@ -147,6 +147,7 @@ model Team {
   // National Teams
   isNationalTeam Boolean @default(false)
   graphicConfig  Json?
+  calledUpPlayers Player[] @relation("NationalTeamCallUps")
 
   createdAt DateTime @default(now())
 }

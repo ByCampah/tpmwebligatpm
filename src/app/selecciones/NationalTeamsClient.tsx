@@ -30,18 +30,21 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers, allClub
     return teamName.includes(nat) || nat.includes(teamName);
   });
 
-  // Check if they are currently called up via the isNationalTeamCalledUp boolean
+  // Check if they are currently called up in this specific active team
   const calledUpPlayerIds = new Set<string>();
-  availablePlayers.forEach(p => {
-    if (p.isNationalTeamCalledUp) calledUpPlayerIds.add(p.id);
-  });
+  if (activeTeam?.calledUpPlayers) {
+    activeTeam.calledUpPlayers.forEach((p: any) => {
+      calledUpPlayerIds.add(p.id);
+    });
+  }
 
   const calledUpPlayers = availablePlayers.filter(p => calledUpPlayerIds.has(p.id)).sort((a, b) => a.nick.localeCompare(b.nick));
   const availableOnlyPlayers = availablePlayers.filter(p => !calledUpPlayerIds.has(p.id)).sort((a, b) => a.nick.localeCompare(b.nick));
 
   const handleToggleCallUp = (playerId: string, isCalledUp: boolean) => {
+    if (!activeTeam) return;
     startTransition(async () => {
-      await toggleNationalTeamCallUp(playerId, isCalledUp);
+      await toggleNationalTeamCallUp(playerId, activeTeam.id, isCalledUp);
     });
   };
 
