@@ -140,7 +140,7 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers, allClub
                       <button 
                         disabled={isPending}
                         onClick={(e) => { e.preventDefault(); handleToggleCallUp(p.id, false); }}
-                        className="absolute right-2 top-2 bg-destructive text-destructive-foreground p-2 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                        className="absolute right-2 top-2 bg-destructive text-destructive-foreground p-2 rounded-lg text-xs font-bold opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity disabled:opacity-50"
                       >
                         Desconvocar
                       </button>
@@ -187,7 +187,7 @@ export default function NationalTeamsClient({ nationalTeams, allPlayers, allClub
                       <button 
                         disabled={isPending}
                         onClick={(e) => { e.preventDefault(); handleToggleCallUp(p.id, true); }}
-                        className="absolute right-2 top-2 bg-primary text-primary-foreground p-2 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 shadow-md shadow-primary/20"
+                        className="absolute right-2 top-2 bg-primary text-primary-foreground p-2 rounded-lg text-xs font-bold opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity disabled:opacity-50 shadow-md shadow-primary/20"
                       >
                         Convocar
                       </button>
