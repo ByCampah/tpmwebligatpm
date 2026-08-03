@@ -90,9 +90,13 @@ export default function PlayersClient({ players, users }: { players: any[], user
                   <option value="Ecuador">🇪🇨 Ecuador</option>
                   <option value="Bolivia">🇧🇴 Bolivia</option>
                 </optgroup>
+                <optgroup label="Norte/Centroamérica">
+                  <option value="México">🇲🇽 México</option>
+                  <option value="Estados Unidos">🇺🇸 Estados Unidos</option>
+                  <option value="Norte/Centroamérica">🌎 Otra (Norte/Centroamérica)</option>
+                </optgroup>
                 <optgroup label="Resto del Mundo">
                   <option value="Europa">🇪🇺 Europa</option>
-                  <option value="Norte/Centroamérica">🌎 Norte/Centroamérica</option>
                   <option value="Resto del Mundo">🌍 Resto del Mundo</option>
                 </optgroup>
               </select>

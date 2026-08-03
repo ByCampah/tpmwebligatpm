@@ -10,12 +10,14 @@ interface SeasonSummaryImageProps {
   themeColor?: string;
   limitGoalsTo4?: boolean;
   contentScale?: number;
+  customWidth?: number;
+  customHeight?: number;
 }
 
 import { getThemeColors } from '@/lib/themeColors';
 
 export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageProps>(
-  ({ tournament, layout = "square", themeColor = "emerald", limitGoalsTo4 = false, contentScale = 100 }, ref) => {
+  ({ tournament, layout = "square", themeColor = "emerald", limitGoalsTo4 = false, contentScale = 100, customWidth, customHeight }, ref) => {
     // 1. Calcular Goleadores, Asistidores, GK
     const playerStats = new Map<string, any>();
     
@@ -238,9 +240,11 @@ export const SeasonSummaryImage = forwardRef<HTMLDivElement, SeasonSummaryImageP
     return (
       <div 
         ref={ref} 
-        className={`${layout === "square" ? "w-[2400px] aspect-square justify-center" : "w-[1200px] min-h-[1200px]"} bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl`}
+        className={`bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl h-fit min-h-[1200px] ${layout === "square" ? "justify-center" : ""}`}
         style={{
           backgroundImage: theme.bgGradient,
+          width: customWidth ? `${customWidth}px` : (layout === "square" ? "2400px" : "1200px"),
+          minHeight: customHeight ? `${customHeight}px` : (layout === "square" ? "2400px" : "1200px")
         }}
       >
         {/* Decoración de fondo */}

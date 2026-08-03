@@ -98,8 +98,8 @@ export default function ProfileMarketClient({ user }: { user: any }) {
                 <option value="Venezuela">Venezuela</option>
                 <option value="Paraguay">Paraguay</option>
                 <option value="Bolivia">Bolivia</option>
-                <option value="Mexico">México</option>
-                <option value="USA">Estados Unidos</option>
+                <option value="México">México</option>
+                <option value="Estados Unidos">Estados Unidos</option>
                 <option value="Espana">España</option>
                 <option value="Otra">Otra</option>
               </select>

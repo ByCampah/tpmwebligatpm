@@ -5,12 +5,14 @@ import React, { forwardRef } from 'react';
 interface StandingsSummaryImageProps {
   tournament: any;
   themeColor?: string;
+  customWidth?: number;
+  customHeight?: number;
 }
 
 import { getThemeColors } from '@/lib/themeColors';
 
 export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummaryImageProps>(
-  ({ tournament, themeColor = "emerald" }, ref) => {
+  ({ tournament, themeColor = "emerald", customWidth, customHeight }, ref) => {
     
     // Solo contar partidos jugados que no sean históricos
     const validMatches = tournament.matches?.filter((m: any) => m.status === 'PLAYED' && (!["Estadísticas Históricas", "Partidos historicos estadisticas", "Partidos historicos PJ"].includes(m.round ?? ""))) || [];
@@ -105,9 +107,11 @@ export const StandingsSummaryImage = forwardRef<HTMLDivElement, StandingsSummary
     return (
       <div 
         ref={ref} 
-        className="w-[1200px] h-fit min-h-[1200px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl"
+        className="h-fit bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl"
         style={{
           backgroundImage: theme.bgGradient,
+          width: customWidth ? `${customWidth}px` : "1200px",
+          minHeight: customHeight ? `${customHeight}px` : "1200px"
         }}
       >
         {/* Decoración de fondo */}

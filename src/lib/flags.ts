@@ -3,9 +3,9 @@ export function getFlagUrl(nationality: string | null | undefined): string {
 
   const n = nationality.toLowerCase();
   
-  if (n === 'argentina') return '/img/banderas/argentina.svg';
+  if (n === 'argentina' || n === 'argentina sub-21') return '/img/banderas/argentina.svg';
   if (n === 'uruguay') return '/img/banderas/uruguay.svg';
-  if (n === 'brasil' || n === 'brazil') return '/img/banderas/brazil.svg';
+  if (n === 'brasil' || n === 'brazil' || n === 'brasil sub-21') return '/img/banderas/brazil.svg';
   
   const isoMap: Record<string, string> = {
     'chile': 'cl',
@@ -19,6 +19,7 @@ export function getFlagUrl(nationality: string | null | undefined): string {
     'méxico': 'mx',
     'mexico': 'mx',
     'estados unidos': 'us',
+    'usa': 'us',
     'norte américa': 'us',
     'norte/centroamérica': 'us',
     'europa': 'eu',

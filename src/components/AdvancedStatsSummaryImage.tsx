@@ -242,13 +242,14 @@ export const AdvancedStatsSummaryImage = forwardRef<HTMLDivElement, Props>(({
                           <span className="text-2xl font-bold truncate pr-2" title={p.nick}>{p.nick}</span>
                           <span className="text-lg text-white/50 truncate uppercase tracking-wider">{p.teamName}</span>
                         </div>
-                        <div className="flex flex-col items-end min-w-[70px]">
-                          <span className={`text-4xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none`}>
-                            {config.getValue(p)}
-                          </span>
-                          {config.getTotal && config.getTotal(p) > 0 && (
-                            <span className="text-sm text-white/60 font-bold mt-2 tabular-nums whitespace-nowrap">
-                              {config.getValue(p)}/{config.getTotal(p)} <span className="text-white/40">({Math.round((config.getValue(p) / config.getTotal(p)) * 100)}%)</span>
+                        <div className="flex flex-col items-end justify-center min-w-[70px] h-full">
+                          {config.getTotal && config.getTotal(p) > 0 ? (
+                            <span className={`text-2xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none whitespace-nowrap`}>
+                              {config.getValue(p)}/{config.getTotal(p)} <span className="text-white/60 text-xl ml-1">({Math.round((config.getValue(p) / config.getTotal(p)) * 100)}%)</span>
+                            </span>
+                          ) : (
+                            <span className={`text-4xl font-black ${theme.accentColor} drop-shadow-lg tabular-nums text-right leading-none`}>
+                              {config.getValue(p)}
                             </span>
                           )}
                         </div>

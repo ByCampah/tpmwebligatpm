@@ -10,10 +10,12 @@ interface PlantelSummaryImageProps {
   showAvatar?: boolean;
   selectedTeam?: string; // "" o nombre del equipo
   limitGoalsTo4?: boolean;
+  customWidth?: number;
+  customHeight?: number;
 }
 
 export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImageProps>(
-  ({ tournament, themeColor = "emerald", showDiscord = false, showAvatar = false, selectedTeam = "", limitGoalsTo4 = false }, ref) => {
+  ({ tournament, themeColor = "emerald", showDiscord = false, showAvatar = false, selectedTeam = "", limitGoalsTo4 = false, customWidth, customHeight }, ref) => {
     
     // 1. Calcular Goleadores, Asistidores, GK, PJ
     const playerStats = new Map<string, any>();
@@ -102,9 +104,11 @@ export const PlantelSummaryImage = forwardRef<HTMLDivElement, PlantelSummaryImag
     return (
       <div 
         ref={ref} 
-        className={`${isSingle ? "w-[800px]" : "w-[1600px]"} bg-[#0a0a0a] text-white flex flex-col relative overflow-hidden font-sans pb-12 shadow-2xl h-fit min-h-[1000px]`}
+        className={`bg-[#0a0a0a] text-white flex flex-col relative overflow-hidden font-sans pb-12 shadow-2xl h-fit min-h-[1000px]`}
         style={{
           backgroundImage: theme.bgGradient,
+          width: customWidth ? `${customWidth}px` : (isSingle ? "800px" : "1600px"),
+          minHeight: customHeight ? `${customHeight}px` : "1000px"
         }}
       >
         {/* Decoración de fondo */}

@@ -6,12 +6,14 @@ interface FixtureSummaryImageProps {
   tournament: any;
   selectedRound?: string; // "ALL" or specific round like "Fecha 1"
   themeColor?: string;
+  customWidth?: number;
+  customHeight?: number;
 }
 
 import { getThemeColors } from '@/lib/themeColors';
 
 export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImageProps>(
-  ({ tournament, selectedRound = "ALL", themeColor = "emerald" }, ref) => {
+  ({ tournament, selectedRound = "ALL", themeColor = "emerald", customWidth, customHeight }, ref) => {
     // Filter matches
     let matches = tournament.matches || [];
     
@@ -65,9 +67,11 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
     return (
       <div 
         ref={ref} 
-        className="w-[1200px] min-h-[1200px] h-fit bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl"
+        className="bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl h-fit"
         style={{
           backgroundImage: theme.bgGradient,
+          width: customWidth ? `${customWidth}px` : "1200px",
+          minHeight: customHeight ? `${customHeight}px` : "1200px"
         }}
       >
         {/* Decoración de fondo */}

@@ -99,8 +99,11 @@ export default function JugadoresClient({ jugadores, dictionary }: JugadoresClie
           <option value="Paraguay">Paraguay</option>
           <option value="Bolivia">Bolivia</option>
           <option value="Venezuela">Venezuela</option>
-          <option value="Norte América">Norte América</option>
+          <option value="México">México</option>
+          <option value="Estados Unidos">Estados Unidos</option>
           <option value="Europa">Europa</option>
+          <option value="Norte/Centroamérica">Otra (Norte/Centroamérica)</option>
+          <option value="Resto del Mundo">Resto del Mundo</option>
         </select>
         <select 
           value={competition} 

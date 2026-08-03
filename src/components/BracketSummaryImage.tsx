@@ -6,20 +6,24 @@ import BracketViewer from './BracketViewer';
 interface BracketSummaryImageProps {
   tournament: any;
   themeColor?: string;
+  customWidth?: number;
+  customHeight?: number;
 }
 
 import { getThemeColors } from '@/lib/themeColors';
 
 export const BracketSummaryImage = forwardRef<HTMLDivElement, BracketSummaryImageProps>(
-  ({ tournament, themeColor = "emerald" }, ref) => {
+  ({ tournament, themeColor = "emerald", customWidth, customHeight }, ref) => {
     
     const theme = getThemeColors(themeColor);
     return (
       <div 
         ref={ref} 
-        className="w-[1920px] h-[1080px] bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl justify-center"
+        className="bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl justify-center h-fit min-h-[1080px]"
         style={{
           backgroundImage: theme.bgGradient,
+          width: customWidth ? `${customWidth}px` : "1920px",
+          minHeight: customHeight ? `${customHeight}px` : "1080px"
         }}
       >
         {/* Decoración de fondo */}
