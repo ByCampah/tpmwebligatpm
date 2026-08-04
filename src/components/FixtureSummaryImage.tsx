@@ -8,12 +8,13 @@ interface FixtureSummaryImageProps {
   themeColor?: string;
   customWidth?: number;
   customHeight?: number;
+  layout?: "vertical" | "square";
 }
 
 import { getThemeColors } from '@/lib/themeColors';
 
 export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImageProps>(
-  ({ tournament, selectedRound = "ALL", themeColor = "emerald", customWidth, customHeight }, ref) => {
+  ({ tournament, selectedRound = "ALL", themeColor = "emerald", customWidth, customHeight, layout = "vertical" }, ref) => {
     // Filter matches
     let matches = tournament.matches || [];
     
@@ -70,8 +71,8 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
         className="bg-[#0a0a0a] text-white flex flex-col items-center relative overflow-hidden font-sans pb-16 shadow-2xl h-fit"
         style={{
           backgroundImage: theme.bgGradient,
-          width: customWidth ? `${customWidth}px` : "1200px",
-          minHeight: customHeight ? `${customHeight}px` : "1200px"
+          width: customWidth ? `${customWidth}px` : (layout === "square" ? "2400px" : "1200px"),
+          minHeight: customHeight ? `${customHeight}px` : (layout === "square" ? "2400px" : "1200px")
         }}
       >
         {/* Decoración de fondo */}
@@ -96,7 +97,7 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
         </div>
 
         {/* CONTENT LAYOUT */}
-        <div className="w-full max-w-6xl px-12 mt-16 flex flex-col gap-12 z-10 flex-1">
+        <div className={`w-full ${layout === "square" ? "max-w-[2200px]" : "max-w-6xl"} px-12 mt-16 flex flex-col gap-12 z-10 flex-1`}>
           {rounds.length === 0 ? (
             <div className="flex-1 flex items-center justify-center min-h-[400px]">
               <p className="text-3xl text-zinc-500 font-bold italic">No hay partidos programados.</p>
@@ -110,7 +111,7 @@ export const FixtureSummaryImage = forwardRef<HTMLDivElement, FixtureSummaryImag
                   </h3>
                 )}
                 
-                <div className="grid grid-cols-2 gap-8 w-full">
+                <div className={`grid ${layout === 'square' ? 'grid-cols-4' : 'grid-cols-2'} gap-8 w-full`}>
                   {matchesByRound[round].map((m: any) => {
                     const isPlayed = m.status === 'PLAYED';
                     return (

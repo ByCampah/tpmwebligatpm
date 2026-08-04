@@ -1629,7 +1629,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
             
             {true && (
                 <div className="flex flex-col gap-4 mt-2 bg-black/40 p-4 rounded-xl border border-white/5 w-full max-w-md">
-                    {exportType === "SEASON" && (
+                    {(exportType === "SEASON" || exportType === "FIXTURE") && (
                         <button 
                             onClick={() => setImageLayout(prev => prev === "vertical" ? "square" : "vertical")}
                             className="bg-secondary text-foreground font-bold px-6 py-4 rounded-xl hover:bg-secondary/80 border border-border transition-colors flex justify-center items-center gap-2"
@@ -1797,7 +1797,7 @@ export default function TournamentClient({ tournament, allTeams, allPlayers, cat
               }}
             >
               {exportType === "SEASON" && <SeasonSummaryImage ref={summaryRef} tournament={tournament} layout={imageLayout} themeColor={themeColor} limitGoalsTo4={limitGoalsTo4} contentScale={contentScale} customWidth={canvasWidth} customHeight={canvasHeight} />}
-              {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} themeColor={themeColor} customWidth={canvasWidth} customHeight={canvasHeight} />}
+              {exportType === "FIXTURE" && <FixtureSummaryImage ref={fixtureRef} tournament={tournament} selectedRound={selectedRound} themeColor={themeColor} customWidth={canvasWidth} customHeight={canvasHeight} layout={imageLayout} />}
               {exportType === "STANDINGS" && <StandingsSummaryImage ref={standingsRef} tournament={tournament} themeColor={themeColor} customWidth={canvasWidth} customHeight={canvasHeight} />}
               {exportType === "BRACKET" && <BracketSummaryImage ref={bracketRef} tournament={tournament} themeColor={themeColor} customWidth={canvasWidth} customHeight={canvasHeight} />}
               {exportType === "PLANTEL" && <PlantelSummaryImage ref={plantelRef} tournament={tournament} themeColor={themeColor} selectedTeam={plantelTeam === "ALL" ? "" : plantelTeam} showDiscord={showDiscord} showAvatar={showAvatar} limitGoalsTo4={limitGoalsTo4} customWidth={canvasWidth} customHeight={canvasHeight} />}
